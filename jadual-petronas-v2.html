@@ -1,0 +1,1202 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#cc0000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jadual PS">
+<link rel="manifest" href="manifest.json">
+<title>PS Jadual Bertugas — PETRONAS Papar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #cc0000;
+  --red2: #ff1a1a;
+  --dark: #0d0d0d;
+  --mid: #171717;
+  --card: #1f1f1f;
+  --card2: #272727;
+  --border: #2e2e2e;
+  --border2: #3a3a3a;
+  --text: #f2f2f2;
+  --muted: #777;
+  --muted2: #999;
+  --green: #16a34a;
+  --green-bg: #052e16;
+  --yellow: #ca8a04;
+  --yellow-bg: #1c1500;
+  --blue: #1d4ed8;
+  --blue-bg: #0a1628;
+  --shift-a: #6d28d9;
+  --shift-a-bg: #1e0a3c;
+  --shift-b: #0369a1;
+  --shift-b-bg: #03111e;
+  --shift-c: #b45309;
+  --shift-c-bg: #1e0e03;
+  --off: #374151;
+  --ph: #7f1d1d;
+  --ctg: #134e4a;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  background: var(--dark);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(180deg, #1a0000 0%, #110000 100%);
+  border-bottom: 1px solid #3a0000;
+  padding: 14px 16px 12px;
+  position: sticky; top: 0; z-index: 50;
+}
+.header-row { display: flex; align-items: center; gap: 10px; }
+.logo-box {
+  width: 38px; height: 38px;
+  background: var(--red);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; letter-spacing: -0.5px;
+  flex-shrink: 0; color: #fff;
+}
+.header-text .t1 { font-size: 15px; font-weight: 700; line-height: 1.2; }
+.header-text .t2 { font-size: 11px; color: var(--muted2); margin-top: 1px; }
+
+/* ── TABS ── */
+.tabs {
+  display: flex;
+  background: var(--mid);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 11px 18px;
+  font-size: 12px; font-weight: 600;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.tab.active { color: var(--red2); border-bottom-color: var(--red2); }
+
+/* ── VIEWS ── */
+.view { display: none; }
+.view.active { display: block; }
+
+/* ── MONTH NAV ── */
+.month-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px;
+  background: var(--mid);
+  border-bottom: 1px solid var(--border);
+}
+.mnav-btn {
+  background: var(--card); border: 1px solid var(--border2);
+  color: var(--text); width: 34px; height: 34px;
+  border-radius: 8px; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.mnav-btn:active { background: var(--border); }
+.month-title { font-size: 16px; font-weight: 700; }
+.month-year { font-size: 12px; color: var(--muted2); font-weight: 400; }
+
+/* ── JADUAL VIEW ── */
+.jadual-wrap { overflow-x: auto; padding: 12px 0 20px; -webkit-overflow-scrolling: touch; }
+.jadual-wrap::-webkit-scrollbar { height: 4px; }
+.jadual-wrap::-webkit-scrollbar-track { background: var(--dark); }
+.jadual-wrap::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+table.jadual {
+  border-collapse: collapse;
+  min-width: 900px;
+  width: 100%;
+  font-size: 11px;
+}
+.jadual th {
+  background: var(--card2);
+  padding: 7px 6px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--muted2);
+  border: 1px solid var(--border);
+  white-space: nowrap;
+  font-size: 10px;
+  text-transform: uppercase;
+}
+.jadual th.name-col { text-align: left; padding-left: 10px; min-width: 110px; font-size: 10px; }
+.jadual th.day-col { min-width: 30px; width: 30px; }
+.jadual td {
+  border: 1px solid var(--border);
+  text-align: center;
+  padding: 0;
+  position: relative;
+}
+.jadual td.name-td {
+  text-align: left; padding: 6px 10px;
+  font-weight: 600; font-size: 11px;
+  background: var(--card2);
+  white-space: nowrap;
+  color: var(--text);
+}
+.jadual td.num-td {
+  font-family: 'DM Mono', monospace;
+  font-size: 10px; color: var(--muted);
+  background: #111; padding: 6px 4px;
+  font-weight: 500;
+}
+.jadual tr:hover td.name-td { color: var(--red2); }
+
+/* CELL */
+.cell-btn {
+  width: 100%; height: 32px;
+  border: none; cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  font-weight: 500; font-size: 11px;
+  transition: filter 0.1s;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--dark); color: var(--muted);
+}
+.cell-btn:active { filter: brightness(1.3); }
+.cell-btn.val-A { background: var(--shift-a-bg); color: #c4b5fd; }
+.cell-btn.val-B { background: var(--shift-b-bg); color: #7dd3fc; }
+.cell-btn.val-C { background: var(--shift-c-bg); color: #fde68a; }
+.cell-btn.val-OFF { background: #1a1a1a; color: var(--muted); }
+.cell-btn.val-PH { background: var(--ph); color: #fca5a5; }
+.cell-btn.val-CTG { background: var(--ctg); color: #99f6e4; }
+.cell-btn.val-BC { background: #1a1400; color: #fbbf24; }
+
+/* Sunday highlight */
+.jadual td.sun { border-right: 2px solid #3a0000; }
+.jadual th.sun { border-right: 2px solid #3a0000; background: #1a0505; }
+
+/* TODAY */
+.jadual th.today-col { background: #2d0000; color: var(--red2); border-color: var(--red); }
+.jadual td.today-col .cell-btn { outline: 1px solid #550000 inset; }
+
+/* ── CELL PICKER PANEL ── */
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75); z-index: 200;
+  backdrop-filter: blur(4px);
+  align-items: flex-end;
+}
+.overlay.show { display: flex; }
+.bottom-sheet {
+  background: var(--mid);
+  border-top: 2px solid var(--red);
+  border-radius: 20px 20px 0 0;
+  width: 100%; padding: 18px 18px 28px;
+  animation: slideUp 0.22s ease;
+  max-height: 70vh; overflow-y: auto;
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.sheet-handle { width: 36px; height: 4px; background: var(--border2); border-radius: 2px; margin: 0 auto 14px; }
+.sheet-title { font-size: 13px; font-weight: 700; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.sheet-subtitle { font-size: 15px; font-weight: 700; margin-bottom: 16px; }
+
+.val-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  margin-bottom: 14px;
+}
+.val-btn {
+  padding: 12px 8px; border-radius: 10px;
+  border: 1.5px solid transparent;
+  cursor: pointer; font-family: 'DM Mono', monospace;
+  font-weight: 600; font-size: 14px;
+  text-align: center; transition: all 0.15s;
+}
+.val-btn:active { transform: scale(0.95); }
+.val-btn.vA { background: var(--shift-a-bg); color: #c4b5fd; border-color: var(--shift-a); }
+.val-btn.vB { background: var(--shift-b-bg); color: #7dd3fc; border-color: var(--shift-b); }
+.val-btn.vC { background: var(--shift-c-bg); color: #fde68a; border-color: var(--shift-c); }
+.val-btn.vOFF { background: #1a1a1a; color: #9ca3af; border-color: #374151; }
+.val-btn.vPH { background: var(--ph); color: #fca5a5; border-color: #991b1b; }
+.val-btn.vCTG { background: var(--ctg); color: #99f6e4; border-color: #0d9488; }
+.val-btn.vBC { background: #1a1400; color: #fbbf24; border-color: #92400e; }
+.val-btn.vCLEAR { background: #111; color: var(--muted); border-color: var(--border2); }
+.val-btn .vl { font-size: 10px; font-weight: 500; font-family: 'DM Sans', sans-serif; display: block; margin-top: 3px; color: inherit; opacity: 0.7; }
+.val-btn.selected { box-shadow: 0 0 0 2px white; }
+
+.sheet-close {
+  width: 100%; padding: 12px; background: transparent;
+  border: 1px solid var(--border2); color: var(--muted2);
+  border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 2px;
+}
+
+/* ── REQUEST VIEW ── */
+.req-wrap { padding: 14px 16px 80px; }
+.req-month-title { font-size: 18px; font-weight: 800; margin-bottom: 14px; }
+
+.req-summary {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-bottom: 18px;
+}
+.req-stat {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px;
+}
+.req-stat .rs-num { font-size: 26px; font-weight: 800; line-height: 1; }
+.req-stat .rs-label { font-size: 11px; color: var(--muted2); margin-top: 3px; }
+.req-stat.red .rs-num { color: var(--red2); }
+.req-stat.grn .rs-num { color: #4ade80; }
+
+.req-add-section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px; margin-bottom: 18px;
+}
+.section-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.form-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.form-sel, .form-inp {
+  flex: 1; background: var(--mid); border: 1.5px solid var(--border2);
+  color: var(--text); padding: 10px 12px; border-radius: 10px;
+  font-size: 13px; font-family: 'DM Sans', sans-serif;
+  -webkit-appearance: none; appearance: none;
+}
+.form-sel:focus, .form-inp:focus { outline: none; border-color: var(--red); }
+.save-req-btn {
+  width: 100%; background: var(--red); color: #fff;
+  border: none; padding: 12px; border-radius: 10px;
+  font-size: 14px; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+}
+.save-req-btn:active { opacity: 0.85; }
+.save-req-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Request list */
+.req-list-title { font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+.req-item {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ri-left .ri-name { font-size: 14px; font-weight: 600; }
+.ri-left .ri-meta { font-size: 11px; color: var(--muted2); margin-top: 3px; }
+.ri-del {
+  background: #3f1010; border: 1px solid #7f1d1d; color: #f87171;
+  width: 30px; height: 30px; border-radius: 8px;
+  font-size: 14px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.ri-del:active { background: #7f1d1d; }
+
+/* ALERT badge */
+.full-badge { display: inline-block; background: #7f1d1d; color: #fca5a5; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-left: 6px; }
+.open-badge { display: inline-block; background: #14532d; color: #86efac; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; margin-left: 6px; }
+
+/* STATUS BADGES on request item */
+.status-pending  { background:#1c1500; color:#fde68a; border:1px solid #713f12; }
+.status-approved { background:#052e16; color:#4ade80; border:1px solid #166534; }
+.status-rejected { background:#2d0a0a; color:#f87171; border:1px solid #7f1d1d; }
+.status-pill {
+  display:inline-flex; align-items:center; gap:4px;
+  padding:3px 9px; border-radius:20px; font-size:10px; font-weight:700;
+}
+
+/* ACTION BUTTONS row */
+.req-actions { display:flex; gap:6px; margin-top:10px; }
+.btn-approve {
+  flex:1; background:#052e16; color:#4ade80; border:1px solid #166534;
+  padding:8px; border-radius:8px; font-size:12px; font-weight:700;
+  cursor:pointer; font-family:inherit; text-align:center;
+}
+.btn-approve:active { background:#14532d; }
+.btn-reject {
+  flex:1; background:#2d0a0a; color:#f87171; border:1px solid #7f1d1d;
+  padding:8px; border-radius:8px; font-size:12px; font-weight:700;
+  cursor:pointer; font-family:inherit; text-align:center;
+}
+.btn-reject:active { background:#4d1111; }
+.btn-undo {
+  background:#1f1f1f; color:#999; border:1px solid #3a3a3a;
+  padding:8px 12px; border-radius:8px; font-size:11px;
+  cursor:pointer; font-family:inherit;
+}
+.btn-undo:active { background:#2e2e2e; }
+.btn-del-sm {
+  background:#1a0505; color:#f87171; border:1px solid #7f1d1d;
+  padding:8px 10px; border-radius:8px; font-size:12px;
+  cursor:pointer; font-family:inherit;
+}
+
+/* REJECT REASON MODAL */
+.reject-modal-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.8); z-index:300;
+  backdrop-filter:blur(4px);
+  align-items:flex-end;
+}
+.reject-modal-overlay.show { display:flex; }
+.reject-modal {
+  background:var(--mid); border-top:2px solid #cc0000;
+  border-radius:20px 20px 0 0; width:100%;
+  padding:20px 18px 32px;
+  animation:slideUp 0.22s ease;
+}
+.reject-modal h3 { font-size:15px; font-weight:700; margin-bottom:4px; }
+.reject-modal .rm-sub { font-size:12px; color:var(--muted2); margin-bottom:14px; }
+.reject-preset-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.reject-preset {
+  background:var(--card); border:1px solid var(--border2);
+  color:var(--text); padding:10px 8px; border-radius:10px;
+  font-size:12px; font-weight:500; cursor:pointer;
+  font-family:inherit; text-align:center; transition:all 0.15s;
+}
+.reject-preset:active, .reject-preset.selected { background:#2d0a0a; border-color:#7f1d1d; color:#f87171; }
+.reject-custom-inp {
+  width:100%; background:var(--card); border:1.5px solid var(--border2);
+  color:var(--text); padding:11px 12px; border-radius:10px;
+  font-size:13px; font-family:inherit; margin-bottom:12px;
+}
+.reject-custom-inp:focus { outline:none; border-color:#cc0000; }
+.reject-confirm-btn {
+  width:100%; background:#cc0000; color:#fff; border:none;
+  padding:13px; border-radius:10px; font-size:14px; font-weight:700;
+  cursor:pointer; font-family:inherit; margin-bottom:8px;
+}
+.reject-cancel-btn {
+  width:100%; background:transparent; color:var(--muted);
+  border:1px solid var(--border2); padding:11px; border-radius:10px;
+  font-size:13px; cursor:pointer; font-family:inherit;
+}
+
+/* ── STATS VIEW ── */
+.stats-wrap { padding: 14px 16px 80px; }
+.staff-stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ssc-left .ssc-name { font-size: 14px; font-weight: 600; }
+.ssc-left .ssc-shift { font-size: 11px; color: var(--muted2); margin-top: 2px; }
+.ssc-right { display: flex; gap: 6px; align-items: center; }
+.badge-count {
+  min-width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; font-weight: 800; font-family: 'DM Mono', monospace;
+}
+.badge-count.zero { background: #1a1a1a; color: var(--muted); }
+.badge-count.low { background: #052e16; color: #4ade80; }
+.badge-count.mid { background: #1c1500; color: #fde68a; }
+.badge-count.high { background: #2d0a0a; color: #f87171; }
+.ssc-label { font-size: 9px; color: var(--muted); margin-top: 2px; text-align: center; }
+
+/* ── EXPORT BTN ── */
+.export-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 10px 16px 18px;
+  background: linear-gradient(180deg, transparent, var(--dark) 40%);
+  z-index: 40;
+}
+.export-btn {
+  width: 100%; background: var(--red); color: #fff;
+  border: none; padding: 14px; border-radius: 12px;
+  font-size: 15px; font-weight: 700;
+  font-family: 'DM Sans', sans-serif; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(204,0,0,0.3);
+}
+.export-btn:active { opacity: 0.85; }
+
+/* ── PRINT / PDF ── */
+@media print {
+  body { background: #fff; color: #000; }
+  .header, .tabs, .export-bar, .overlay { display: none !important; }
+  .view { display: block !important; }
+  #view-jadual { display: block !important; }
+  #view-request, #view-stats { display: none !important; }
+  .month-nav { background: #fff; color: #000; border: none; }
+  .jadual-wrap { overflow: visible; }
+  table.jadual { min-width: 100%; font-size: 9px; }
+  .jadual th, .jadual td { border: 0.5px solid #ccc; }
+  .jadual th { background: #f5f5f5 !important; color: #333; }
+  .jadual td.name-td { background: #f9f9f9 !important; }
+  .cell-btn { height: 24px; font-size: 9px; }
+  .cell-btn.val-A { background: #ede9fe; color: #5b21b6; }
+  .cell-btn.val-B { background: #e0f2fe; color: #075985; }
+  .cell-btn.val-C { background: #fef3c7; color: #92400e; }
+  .cell-btn.val-OFF { background: #f3f4f6; color: #6b7280; }
+  .cell-btn.val-PH { background: #fee2e2; color: #991b1b; }
+  .cell-btn.val-CTG { background: #ccfbf1; color: #134e4a; }
+  .cell-btn.val-BC { background: #fef9c3; color: #713f12; }
+  .print-header { display: block !important; text-align: center; margin-bottom: 10px; font-size: 14px; font-weight: 700; }
+  .month-nav .mnav-btn { display: none; }
+}
+.print-header { display: none; }
+
+/* Legend */
+.legend-row {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  padding: 0 16px 12px;
+}
+.leg { display: flex; align-items: center; gap: 4px; font-size: 10px; color: var(--muted2); }
+.leg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-row">
+    <div class="logo-box">PS</div>
+    <div class="header-text">
+      <div class="t1">Jadual Bertugas</div>
+      <div class="t2">PETRONAS Papar · Parmanis Sutera Sdn Bhd</div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('jadual')">📋 Jadual</div>
+  <div class="tab" onclick="switchTab('request')">📝 Request Cuti</div>
+  <div class="tab" onclick="switchTab('stats')">📊 Statistik</div>
+</div>
+
+<!-- ══ VIEW: JADUAL ══ -->
+<div class="view active" id="view-jadual">
+  <div class="month-nav">
+    <button class="mnav-btn" onclick="changeMonth(-1)">‹</button>
+    <div>
+      <div class="month-title" id="jadualMonthLabel"></div>
+      <div class="month-year" id="jadualYearLabel"></div>
+    </div>
+    <button class="mnav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+
+  <div class="legend-row">
+    <div class="leg"><div class="leg-dot" style="background:#3b0764"></div>Syif A</div>
+    <div class="leg"><div class="leg-dot" style="background:#075985"></div>Syif B</div>
+    <div class="leg"><div class="leg-dot" style="background:#92400e"></div>Syif C</div>
+    <div class="leg"><div class="leg-dot" style="background:#374151"></div>OFF</div>
+    <div class="leg"><div class="leg-dot" style="background:#7f1d1d"></div>PH</div>
+    <div class="leg"><div class="leg-dot" style="background:#134e4a"></div>CTG</div>
+  </div>
+
+  <div class="print-header" id="printHeader"></div>
+  <div class="jadual-wrap">
+    <table class="jadual" id="jadualTable"></table>
+  </div>
+</div>
+
+<!-- ══ VIEW: REQUEST ══ -->
+<div class="view" id="view-request">
+  <div class="month-nav">
+    <button class="mnav-btn" onclick="changeMonth(-1)">‹</button>
+    <div>
+      <div class="month-title" id="reqMonthLabel"></div>
+    </div>
+    <button class="mnav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+
+  <div class="req-wrap">
+    <div class="req-summary" id="reqSummary"></div>
+
+    <!-- Add request -->
+    <div class="req-add-section">
+      <div class="section-title">Tambah Request Cuti</div>
+
+      <!-- Nama Staff -->
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">Nama Staff</label>
+        <select class="form-sel" id="reqStaffSel"></select>
+      </div>
+
+      <!-- Tarikh Cuti Dipohon -->
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">📅 Tarikh Cuti Dipohon</label>
+        <input type="date" class="form-inp" id="reqDateInp" />
+      </div>
+
+      <!-- Jenis Cuti -->
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">Jenis Cuti</label>
+        <select class="form-sel" id="reqTypeSel">
+          <option value="CT">Cuti Tahunan (CT)</option>
+          <option value="OFF">Off Day</option>
+        </select>
+      </div>
+
+      <!-- Syif -->
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">Syif</label>
+        <select class="form-sel" id="reqShiftSel">
+          <option value="">— Tiada pilihan syif —</option>
+          <option value="A">Syif A (10PM – 6:30AM)</option>
+          <option value="B">Syif B (6AM – 2:30PM)</option>
+          <option value="C">Syif C (2PM – 10:30PM)</option>
+        </select>
+      </div>
+
+      <!-- Tarikh Request Masuk -->
+      <div style="margin-bottom:10px">
+        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">💬 Tarikh Request Masuk (WhatsApp)</label>
+        <input type="date" class="form-inp" id="reqReceivedDateInp" />
+      </div>
+
+      <!-- Nota / Sebab -->
+      <div style="margin-bottom:12px">
+        <label style="font-size:11px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px">📝 Nota / Sebab</label>
+        <input type="text" class="form-inp" id="reqNota" placeholder="contoh: kenduri, urusan hospital, hal keluarga..." />
+      </div>
+
+      <button class="save-req-btn" onclick="addRequest()">✓ Simpan Request</button>
+    </div>
+
+    <!-- Request list -->
+    <div class="req-list-title" id="reqListTitle"></div>
+    <div id="reqList"></div>
+  </div>
+</div>
+
+<!-- ══ VIEW: STATS ══ -->
+<div class="view" id="view-stats">
+  <div class="month-nav">
+    <button class="mnav-btn" onclick="changeMonth(-1)">‹</button>
+    <div>
+      <div class="month-title" id="statsMonthLabel"></div>
+    </div>
+    <button class="mnav-btn" onclick="changeMonth(1)">›</button>
+  </div>
+  <div class="stats-wrap" id="statsWrap"></div>
+</div>
+
+<!-- EXPORT BAR -->
+<div class="export-bar" id="exportBar">
+  <button class="export-btn" onclick="exportPDF()">⬇ Export PDF — Jadual <span id="exportMonthShort"></span></button>
+</div>
+
+<!-- CELL PICKER OVERLAY -->
+<div class="overlay" id="overlay" onclick="closeOverlayOutside(event)">
+  <div class="bottom-sheet" id="bottomSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Tetapkan Syif</div>
+    <div class="sheet-subtitle" id="sheetSubtitle"></div>
+    <div class="val-grid">
+      <button class="val-btn vA" onclick="setCell('A')">A<span class="vl">10PM–6:30AM</span></button>
+      <button class="val-btn vB" onclick="setCell('B')">B<span class="vl">6AM–2:30PM</span></button>
+      <button class="val-btn vC" onclick="setCell('C')">C<span class="vl">2PM–10:30PM</span></button>
+      <button class="val-btn vOFF" onclick="setCell('OFF')">OFF<span class="vl">Off Day</span></button>
+      <button class="val-btn vPH" onclick="setCell('PH')">PH<span class="vl">Public Holiday</span></button>
+      <button class="val-btn vCTG" onclick="setCell('CTG')">CTG<span class="vl">Contingency</span></button>
+      <button class="val-btn vCLEAR" onclick="setCell('')">—<span class="vl">Kosongkan</span></button>
+    </div>
+    <button class="sheet-close" onclick="closeOverlay()">Batal</button>
+  </div>
+</div>
+
+<!-- REJECT REASON MODAL -->
+<div class="reject-modal-overlay" id="rejectModalOverlay">
+  <div class="reject-modal">
+    <div class="sheet-handle"></div>
+    <h3>Tolak Request</h3>
+    <div class="rm-sub" id="rejectModalSub"></div>
+    <div class="reject-preset-grid">
+      <button class="reject-preset" onclick="selectPreset(this,'Kurang staf pada tarikh tersebut')">Kurang staf</button>
+      <button class="reject-preset" onclick="selectPreset(this,'Tarikh sudah penuh')">Tarikh penuh</button>
+      <button class="reject-preset" onclick="selectPreset(this,'Tidak cukup notis awal')">Notis terlambat</button>
+      <button class="reject-preset" onclick="selectPreset(this,'Sedang dalam tempoh percubaan')">Tempoh percubaan</button>
+      <button class="reject-preset" onclick="selectPreset(this,'Permintaan bertindih dengan staff lain')">Bertindih</button>
+      <button class="reject-preset" onclick="selectPreset(this,'Lain-lain')">Lain-lain</button>
+    </div>
+    <input class="reject-custom-inp" id="rejectReasonInp" placeholder="Atau tulis sebab sendiri..." />
+    <button class="reject-confirm-btn" onclick="confirmReject()">✕ Sahkan Tolak</button>
+    <button class="reject-cancel-btn" onclick="closeRejectModal()">Batal</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// DATA
+// ══════════════════════════════════════════
+const STAFF = [
+  {name:'NURUL IZYANA', shift:'B'},
+  {name:'MOHD MIZA', shift:'B'},
+  {name:'HASNAL', shift:'B'},
+  {name:'BELLA', shift:'C'},
+  {name:'LISA', shift:'B'},
+  {name:'SUHFEE', shift:'C'},
+  {name:'NELBOY', shift:'B'},
+  {name:'ATI', shift:'C'},
+  {name:'INSYIRAH', shift:'C'},
+  {name:'JOHNY', shift:'A'},
+  {name:'SHAFIKAH', shift:'B'},
+  {name:'ANDIEKA', shift:'A'},
+  {name:'FERENICA', shift:'C'},
+  {name:'SURIATI', shift:'B'},
+  {name:'ELFI', shift:'C'},
+];
+
+const MONTHS_MS = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+const DAYS_SHORT = ['Ahd','Isn','Sel','Rab','Kha','Jum','Sab'];
+
+// schedule[year][month][staffIndex][day] = value
+let schedule = {};
+// requests[year][month] = [{...}]
+let requests = {};
+
+let curYear, curMonth;
+let pickerTarget = null;
+const MAX_CUTI = 2;
+const MAX_EMERGENCY = 3;
+
+// ══════════════════════════════════════════
+// LOCAL STORAGE — auto save & load
+// ══════════════════════════════════════════
+const STORAGE_KEY_SCHEDULE = 'ps_jadual_schedule';
+const STORAGE_KEY_REQUESTS = 'ps_jadual_requests';
+const STORAGE_KEY_COUNTER  = 'ps_jadual_counter';
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY_SCHEDULE, JSON.stringify(schedule));
+    localStorage.setItem(STORAGE_KEY_REQUESTS, JSON.stringify(requests));
+    localStorage.setItem(STORAGE_KEY_COUNTER,  String(reqIdCounter));
+  } catch(e) { console.warn('Save failed:', e); }
+}
+
+function loadData() {
+  try {
+    const s = localStorage.getItem(STORAGE_KEY_SCHEDULE);
+    const r = localStorage.getItem(STORAGE_KEY_REQUESTS);
+    const c = localStorage.getItem(STORAGE_KEY_COUNTER);
+    if (s) schedule = JSON.parse(s);
+    if (r) requests = JSON.parse(r);
+    if (c) reqIdCounter = parseInt(c) || 1000;
+  } catch(e) { console.warn('Load failed:', e); }
+}
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+function init() {
+  const today = new Date();
+  curYear  = today.getFullYear();
+  curMonth = today.getMonth();
+
+  // Load saved data first
+  loadData();
+
+  // Pre-fill April 2026 only if no saved schedule yet
+  const hasData = Object.keys(schedule).length > 0;
+  if (!hasData) preloadApril2026();
+
+  // Register service worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+
+  renderAll();
+}
+
+function preloadApril2026() {
+  const y = 2026, m = 3; // April = index 3
+  ensureSchedule(y, m);
+  const raw = [
+    // [staffIdx, day, value]
+    // NURUL IZYANA (0) - all B
+    ...[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25].map(d=>[0,d,'B']),
+    // MOHD MIZA (1) - all B
+    ...[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25].map(d=>[1,d,'B']),
+    // BELLA (3)
+    [3,1,'C'],[3,2,'B'],[3,3,'C'],[3,4,'C'],[3,5,'B'],[3,6,'B'],[3,7,'B'],[3,8,'C'],[3,9,'C'],[3,10,'C'],[3,11,'B'],[3,12,'B'],[3,13,'B'],[3,14,'B'],[3,15,'C'],[3,16,'C'],[3,17,'C'],[3,18,'B'],[3,19,'B'],[3,20,'B'],[3,21,'C'],[3,22,'C'],[3,23,'C'],[3,24,'B'],[3,25,'B'],
+    // LISA (4)
+    [4,1,'B'],[4,2,'A'],[4,3,'A'],[4,4,'A'],[4,5,'A'],[4,6,'A'],[4,7,'C'],[4,8,'C'],[4,9,'C'],[4,10,'C'],[4,11,'B'],[4,12,'B'],[4,13,'A'],[4,14,'A'],[4,15,'A'],[4,16,'A'],[4,17,'A'],[4,18,'C'],[4,19,'C'],[4,20,'C'],[4,21,'C'],[4,22,'B'],[4,23,'B'],[4,24,'B'],[4,25,'C'],
+    // SUHFEE (5)
+    [5,1,'C'],[5,2,'C'],[5,3,'B'],[5,4,'A'],[5,5,'A'],[5,6,'A'],[5,7,'A'],[5,8,'A'],[5,9,'B'],[5,10,'B'],[5,11,'A'],[5,12,'A'],[5,13,'A'],[5,14,'A'],[5,15,'A'],[5,16,'C'],[5,17,'C'],[5,18,'A'],[5,19,'A'],[5,20,'A'],
+    // NELBOY (6)
+    [6,1,'B'],[6,2,'B'],[6,3,'B'],[6,4,'B'],[6,5,'C'],[6,6,'C'],[6,7,'C'],[6,8,'C'],[6,9,'B'],[6,10,'C'],[6,11,'C'],[6,12,'C'],[6,13,'C'],[6,14,'C'],[6,15,'C'],[6,16,'B'],[6,17,'C'],[6,18,'C'],[6,19,'C'],[6,20,'C'],[6,21,'C'],[6,22,'B'],[6,23,'B'],[6,24,'B'],[6,25,'C'],
+    // ATI (7)
+    [7,1,'C'],[7,2,'C'],[7,3,'C'],[7,4,'B'],[7,5,'B'],[7,6,'B'],[7,7,'C'],[7,8,'C'],[7,9,'C'],[7,10,'B'],[7,11,'B'],[7,12,'B'],[7,13,'B'],[7,14,'B'],[7,15,'C'],[7,16,'B'],[7,17,'B'],[7,18,'B'],[7,19,'B'],[7,20,'C'],[7,21,'C'],[7,22,'C'],[7,23,'B'],[7,24,'B'],[7,25,'B'],
+    // INSYIRAH (8)
+    [8,1,'C'],[8,2,'C'],[8,3,'C'],[8,4,'B'],[8,5,'B'],[8,6,'C'],[8,7,'C'],[8,8,'C'],[8,9,'C'],[8,10,'B'],[8,11,'B'],[8,12,'B'],[8,13,'C'],[8,14,'C'],[8,15,'C'],[8,16,'C'],[8,17,'C'],[8,18,'C'],[8,19,'C'],[8,20,'B'],[8,21,'B'],[8,22,'C'],[8,23,'C'],[8,24,'C'],[8,25,'B'],
+    // JOHNY (9)
+    [9,1,'A'],[9,2,'A'],[9,3,'A'],[9,4,'A'],[9,5,'A'],[9,6,'C'],[9,7,'B'],[9,8,'B'],[9,9,'A'],[9,10,'A'],[9,11,'A'],[9,12,'A'],[9,13,'A'],[9,14,'C'],[9,15,'C'],[9,16,'B'],[9,17,'B'],[9,18,'B'],[9,19,'A'],[9,20,'A'],[9,21,'A'],[9,22,'A'],[9,23,'A'],[9,24,'C'],[9,25,'C'],
+    // SHAFIKAH (10)
+    [10,1,'B'],[10,2,'B'],[10,3,'B'],[10,4,'C'],[10,5,'C'],[10,6,'B'],[10,7,'B'],[10,8,'B'],[10,9,'B'],[10,10,'A'],[10,11,'A'],[10,12,'A'],[10,13,'C'],[10,14,'C'],[10,15,'C'],[10,16,'C'],[10,17,'C'],[10,18,'B'],[10,19,'B'],[10,20,'B'],[10,21,'A'],[10,22,'A'],[10,23,'A'],[10,24,'A'],[10,25,'A'],
+    // ANDIEKA (11)
+    [11,1,'A'],[11,2,'A'],[11,3,'C'],[11,4,'C'],[11,5,'B'],[11,6,'B'],[11,7,'A'],[11,8,'A'],[11,9,'A'],[11,10,'A'],[11,11,'C'],[11,12,'C'],[11,13,'B'],[11,14,'B'],[11,15,'B'],[11,16,'B'],[11,17,'B'],[11,18,'A'],[11,19,'A'],[11,20,'A'],[11,21,'A'],[11,22,'A'],[11,23,'C'],[11,24,'C'],[11,25,'C'],
+    // FERENICA (12)
+    [12,1,'C'],[12,2,'C'],[12,3,'B'],[12,4,'C'],[12,5,'C'],[12,6,'C'],[12,7,'C'],[12,8,'C'],[12,9,'B'],[12,10,'B'],[12,11,'B'],[12,12,'C'],[12,13,'C'],[12,14,'C'],[12,15,'C'],[12,16,'B'],[12,17,'B'],[12,18,'B'],[12,19,'C'],[12,20,'C'],[12,21,'B'],[12,22,'B'],[12,23,'B'],[12,24,'B'],[12,25,'B'],
+    // SURIATI (13)
+    [13,1,'B'],[13,2,'C'],[13,3,'C'],[13,4,'C'],[13,5,'BC'],[13,6,'BC'],[13,7,'B'],[13,8,'B'],[13,9,'B'],[13,10,'B'],[13,11,'C'],[13,12,'BC'],[13,13,'BC'],[13,14,'BC'],[13,15,'C'],[13,16,'BC'],[13,17,'B'],[13,18,'B'],[13,19,'B'],[13,20,'B'],[13,21,'B'],[13,22,'B'],[13,23,'BC'],[13,24,'B'],[13,25,'B'],
+    // ELFI (14)
+    [14,1,'C'],[14,2,'BC'],[14,3,'B'],[14,4,'B'],[14,5,'B'],[14,6,'C'],[14,7,'C'],[14,8,'C'],[14,9,'C'],[14,10,'BC'],[14,11,'B'],[14,12,'A'],[14,13,'A'],[14,14,'A'],[14,15,'B'],[14,16,'C'],[14,17,'C'],[14,18,'BC'],[14,19,'C'],[14,20,'C'],[14,21,'C'],[14,22,'C'],[14,23,'BC'],[14,24,'C'],[14,25,'C'],
+  ];
+  raw.forEach(([si, day, val]) => {
+    schedule[y][m][si][day] = val;
+  });
+}
+
+function ensureSchedule(y, m) {
+  if (!schedule[y]) schedule[y] = {};
+  if (!schedule[y][m]) {
+    schedule[y][m] = {};
+    STAFF.forEach((_, i) => { schedule[y][m][i] = {}; });
+  }
+  if (!requests[y]) requests[y] = {};
+  if (!requests[y][m]) requests[y][m] = [];
+}
+
+// ══════════════════════════════════════════
+// RENDER ALL
+// ══════════════════════════════════════════
+function renderAll() {
+  ensureSchedule(curYear, curMonth);
+  renderJadual();
+  renderRequest();
+  renderStats();
+  updateExportBtn();
+}
+
+function changeMonth(dir) {
+  curMonth += dir;
+  if (curMonth > 11) { curMonth = 0; curYear++; }
+  if (curMonth < 0) { curMonth = 11; curYear--; }
+  renderAll();
+}
+
+function updateExportBtn() {
+  document.getElementById('exportMonthShort').textContent = MONTHS_MS[curMonth] + ' ' + curYear;
+}
+
+// ══════════════════════════════════════════
+// JADUAL RENDER
+// ══════════════════════════════════════════
+function renderJadual() {
+  const label = MONTHS_MS[curMonth] + ' ' + curYear;
+  document.getElementById('jadualMonthLabel').textContent = MONTHS_MS[curMonth];
+  document.getElementById('jadualYearLabel').textContent = curYear;
+  document.getElementById('printHeader').textContent = 'PS JADUAL BERTUGAS — ' + label.toUpperCase();
+
+  const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+  const today = new Date();
+  const sched = schedule[curYear][curMonth];
+
+  let html = '<thead><tr>';
+  html += '<th class="name-col">NAMA</th>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dow = new Date(curYear, curMonth, d).getDay();
+    const isToday = (d === today.getDate() && curMonth === today.getMonth() && curYear === today.getFullYear());
+    const sunClass = dow === 0 ? ' sun' : '';
+    const todayClass = isToday ? ' today-col' : '';
+    html += `<th class="day-col${sunClass}${todayClass}">${DAYS_SHORT[dow]}<br>${d}</th>`;
+  }
+  html += '<th style="min-width:36px;color:var(--muted)">Jml</th></tr></thead>';
+
+  html += '<tbody>';
+  STAFF.forEach((staff, si) => {
+    html += `<tr><td class="name-td">${staff.name}</td>`;
+    let total = 0;
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dow = new Date(curYear, curMonth, d).getDay();
+      const val = (sched[si] && sched[si][d]) || '';
+      const valClass = val ? ` val-${val.replace('/','').substring(0,3)}` : '';
+      const sunClass = dow === 0 ? ' sun' : '';
+      const isToday = (d === today.getDate() && curMonth === today.getMonth() && curYear === today.getFullYear());
+      const todayClass = isToday ? ' today-col' : '';
+      if (val) total++;
+      html += `<td class="${sunClass}${todayClass}">
+        <button class="cell-btn${valClass}" onclick="openPicker(${si},${d})">${val || ''}</button>
+      </td>`;
+    }
+    html += `<td class="num-td">${total}</td></tr>`;
+  });
+  html += '</tbody>';
+
+  document.getElementById('jadualTable').innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// CELL PICKER
+// ══════════════════════════════════════════
+function openPicker(staffIdx, day) {
+  pickerTarget = { staffIdx, day };
+  const staff = STAFF[staffIdx];
+  const dateStr = `${day} ${MONTHS_MS[curMonth]} ${curYear}`;
+  document.getElementById('sheetSubtitle').textContent = `${staff.name} — ${dateStr}`;
+
+  // Highlight current value
+  const cur = (schedule[curYear][curMonth][staffIdx] || {})[day] || '';
+  document.querySelectorAll('.val-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.val-btn').forEach(b => {
+    const v = b.onclick.toString().match(/'([^']+)'/);
+    if (v && v[1] === cur) b.classList.add('selected');
+  });
+
+  document.getElementById('overlay').classList.add('show');
+}
+
+function setCell(val) {
+  if (!pickerTarget) return;
+  const { staffIdx, day } = pickerTarget;
+  ensureSchedule(curYear, curMonth);
+  if (!schedule[curYear][curMonth][staffIdx]) schedule[curYear][curMonth][staffIdx] = {};
+  if (val === '') {
+    delete schedule[curYear][curMonth][staffIdx][day];
+  } else {
+    schedule[curYear][curMonth][staffIdx][day] = val;
+  }
+  closeOverlay();
+  renderJadual();
+  saveData();
+}
+
+function closeOverlay() {
+  document.getElementById('overlay').classList.remove('show');
+  pickerTarget = null;
+}
+
+function closeOverlayOutside(e) {
+  if (e.target === document.getElementById('overlay')) closeOverlay();
+}
+
+
+// ══════════════════════════════════════════
+// REQUEST — clean ID-based system
+// ══════════════════════════════════════════
+let reqIdCounter = 1000;
+function genId() { return ++reqIdCounter; }
+function getReqById(rid) { return (requests[curYear]?.[curMonth] || []).find(r => r.id === rid) || null; }
+function getReqIndexById(rid) { return (requests[curYear]?.[curMonth] || []).findIndex(r => r.id === rid); }
+
+function formatDisplayDate(ds) {
+  if (!ds) return '';
+  const d = new Date(ds + 'T00:00:00');
+  return `${d.getDate()} ${MONTHS_MS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id='toast'; t.style.cssText='position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;pointer-events:none;transition:opacity 0.3s;white-space:nowrap'; document.body.appendChild(t); }
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(t._t); t._t = setTimeout(() => { t.style.opacity='0'; }, 2200);
+}
+
+function renderRequest() {
+  document.getElementById('reqMonthLabel').textContent = MONTHS_MS[curMonth] + ' ' + curYear;
+  const reqs = (requests[curYear]?.[curMonth]) || [];
+
+  // Stats
+  const dayCount = {};
+  reqs.forEach(r => { dayCount[r.date] = (dayCount[r.date] || 0) + 1; });
+  const fullDays     = Object.values(dayCount).filter(v => v >= MAX_EMERGENCY).length;
+  const emergDays    = Object.values(dayCount).filter(v => v === MAX_EMERGENCY).length;
+  const neverCount   = STAFF.filter(s => !reqs.find(r => r.staffName === s.name)).length;
+
+  document.getElementById('reqSummary').innerHTML = `
+    <div class="req-stat red"><div class="rs-num">${fullDays}</div><div class="rs-label">Hari penuh</div></div>
+    <div class="req-stat" style="border-color:#92400e"><div class="rs-num" style="color:#fde68a">${emergDays}</div><div class="rs-label">Emergency</div></div>
+    <div class="req-stat grn"><div class="rs-num">${reqs.length}</div><div class="rs-label">Jumlah request</div></div>
+    <div class="req-stat"><div class="rs-num" style="color:#f59e0b">${neverCount}</div><div class="rs-label">Tiada request</div></div>
+  `;
+
+  // Dropdowns — fill once
+  const sel = document.getElementById('reqStaffSel');
+  if (!sel.innerHTML) sel.innerHTML = STAFF.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+  const todayStr = new Date().toISOString().split('T')[0];
+  if (!document.getElementById('reqDateInp').value) document.getElementById('reqDateInp').value = todayStr;
+  if (!document.getElementById('reqReceivedDateInp').value) document.getElementById('reqReceivedDateInp').value = todayStr;
+
+  document.getElementById('reqListTitle').textContent = reqs.length
+    ? `Senarai Request ${MONTHS_MS[curMonth]} (${reqs.length})`
+    : `Tiada request untuk ${MONTHS_MS[curMonth]}`;
+
+  if (reqs.length === 0) {
+    document.getElementById('reqList').innerHTML = `<div style="text-align:center;color:var(--muted);padding:24px;font-size:13px">Belum ada request lagi bulan ini</div>`;
+    return;
+  }
+
+  const sorted = [...reqs].sort((a,b) => a.date.localeCompare(b.date));
+  const grouped = {};
+  sorted.forEach(r => { if (!grouped[r.date]) grouped[r.date]=[]; grouped[r.date].push(r); });
+
+  const TC = { CT:'#3b82f6', OFF:'#6b7280', EL:'#dc2626' };
+  const TL = { CT:'Cuti Tahunan', OFF:'Off Day', EL:'Emergency Leave' };
+  const SI = {
+    pending:  { bg:'#1c1500', fg:'#fde68a', br:'#713f12', icon:'⏳', lbl:'Menunggu' },
+    approved: { bg:'#052e16', fg:'#4ade80', br:'#166534', icon:'✅', lbl:'Diluluskan' },
+    rejected: { bg:'#2d0a0a', fg:'#f87171', br:'#7f1d1d', icon:'✕',  lbl:'Ditolak' },
+  };
+
+  let html = '';
+  Object.entries(grouped).forEach(([date, items]) => {
+    const d = new Date(date + 'T00:00:00');
+    const dlabel = `${DAYS_SHORT[d.getDay()]}, ${d.getDate()} ${MONTHS_MS[d.getMonth()]} ${d.getFullYear()}`;
+    const cnt = items.length;
+    const badge = cnt >= MAX_EMERGENCY
+      ? `<span style="background:#7f1d1d;color:#fca5a5;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">⛔ PENUH</span>`
+      : cnt === MAX_CUTI
+      ? `<span style="background:#713f12;color:#fde68a;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">⚠️ EMERGENCY SLOT</span>`
+      : `<span style="background:#14532d;color:#86efac;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">${cnt}/${MAX_CUTI}</span>`;
+
+    html += `<div style="font-size:12px;font-weight:700;color:var(--muted2);margin:14px 0 6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap">${dlabel} ${badge}</div>`;
+
+    items.forEach(r => {
+      const rid = r.id;
+      const tc = TC[r.type] || '#6b7280';
+      const tl = TL[r.type] || r.type || '-';
+      const st = SI[r.status || 'pending'];
+
+      let cbg='#1f1f1f', cbr='#2e2e2e';
+      if (r.isEmergency)          { cbg='#1a0e00'; cbr='#92400e'; }
+      if (r.status==='approved')  { cbg='#0a1a0f'; cbr='#166534'; }
+      if (r.status==='rejected')  { cbg='#1a0a0a'; cbr='#7f1d1d'; }
+
+      // action row
+      let actions = '';
+      if (!r.status || r.status==='pending') {
+        actions = `
+          <button onclick="approveReq(${rid})" style="flex:1;background:#052e16;color:#4ade80;border:1px solid #166534;padding:9px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">✅ Lulus</button>
+          <button onclick="openRejectModal(${rid})" style="flex:1;background:#2d0a0a;color:#f87171;border:1px solid #7f1d1d;padding:9px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">✕ Tolak</button>
+          <button onclick="deleteReq(${rid})" style="background:#1a1a1a;color:#888;border:1px solid #3a3a3a;padding:9px 11px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">🗑</button>`;
+      } else {
+        actions = `
+          <button onclick="undoReq(${rid})" style="flex:1;background:#1f1f1f;color:#aaa;border:1px solid #3a3a3a;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">↩ Undo</button>
+          <button onclick="deleteReq(${rid})" style="background:#2d0a0a;color:#f87171;border:1px solid #7f1d1d;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">🗑 Buang</button>`;
+      }
+
+      html += `
+      <div id="rcard-${rid}" style="background:${cbg};border:1px solid ${cbr};border-radius:12px;padding:13px 14px;margin-bottom:10px">
+        <!-- name + status -->
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px">
+          <div style="font-size:14px;font-weight:700;display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+            ${r.staffName}
+            ${r.isEmergency?`<span style="background:#713f12;color:#fde68a;padding:1px 6px;border-radius:4px;font-size:9px;font-weight:700">EMERGENCY</span>`:''}
+          </div>
+          <span style="background:${st.bg};color:${st.fg};border:1px solid ${st.br};padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0">${st.icon} ${st.lbl}</span>
+        </div>
+        <!-- tags -->
+        <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px">
+          <span style="background:${tc}20;color:${tc};border:1px solid ${tc}44;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700">${tl}</span>
+          ${r.shift ? `<span style="background:#1e0a3c;color:#c4b5fd;border:1px solid #4c1d95;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700">Syif ${r.shift}</span>` : ''}
+          <span style="background:#111;color:#888;padding:3px 9px;border-radius:5px;font-size:11px">📅 Cuti: ${formatDisplayDate(r.date)}</span>
+        </div>
+        <!-- WA date -->
+        <div style="margin-bottom:6px">
+          <span style="background:#052e16;border:1px solid #166534;color:#4ade80;padding:3px 9px;border-radius:5px;font-size:11px;font-weight:600">💬 Request masuk: ${r.receivedDate ? formatDisplayDate(r.receivedDate) : '—'}</span>
+        </div>
+        <!-- nota -->
+        <div style="font-size:12px;color:#ccc;margin-bottom:8px;padding:7px 10px;background:#111;border-radius:7px;border-left:3px solid #3a3a3a">📝 ${r.nota || '—'}</div>
+        <!-- reject reason -->
+        ${r.status==='rejected'&&r.rejectReason?`<div style="font-size:11px;color:#f87171;background:#2d0a0a;padding:5px 8px;border-radius:6px;margin-bottom:6px">✕ Sebab tolak: ${r.rejectReason}</div>`:''}
+        <!-- actions -->
+        <div id="ract-${rid}" style="display:flex;gap:6px;margin-top:8px">${actions}</div>
+      </div>`;
+    });
+  });
+
+  document.getElementById('reqList').innerHTML = html;
+}
+
+function addRequest() {
+  const staffName    = document.getElementById('reqStaffSel').value;
+  const date         = document.getElementById('reqDateInp').value;
+  const type         = document.getElementById('reqTypeSel').value;
+  const shift        = document.getElementById('reqShiftSel').value;
+  const receivedDate = document.getElementById('reqReceivedDateInp').value;
+  const nota         = document.getElementById('reqNota').value.trim();
+
+  if (!date)         { showToast('Pilih tarikh cuti'); return; }
+  if (!receivedDate) { showToast('Pilih tarikh request masuk'); return; }
+  if (!nota)         { showToast('Wajib isi nota / sebab'); document.getElementById('reqNota').focus(); return; }
+
+  const d = new Date(date + 'T00:00:00');
+  const ry = d.getFullYear(), rm = d.getMonth();
+  ensureSchedule(ry, rm);
+  if (!requests[ry]) requests[ry] = {};
+  if (!requests[ry][rm]) requests[ry][rm] = [];
+
+  const dayReqs = requests[ry][rm].filter(r => r.date === date);
+  if (dayReqs.length >= MAX_EMERGENCY) { showToast(`⛔ Tarikh penuh (${MAX_EMERGENCY}/${MAX_EMERGENCY})`); return; }
+  if (dayReqs.find(r => r.staffName === staffName)) { showToast(`${staffName} dah ada request tarikh ini`); return; }
+
+  const isEmergency = dayReqs.length >= MAX_CUTI;
+  if (isEmergency) showToast('⚠️ Slot emergency — disimpan');
+
+  const now = new Date();
+  const addedAt = `${now.getDate()}/${now.getMonth()+1} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  requests[ry][rm].push({ id:genId(), staffName, date, type, shift, receivedDate, nota, addedAt, isEmergency, status:'pending' });
+
+  document.getElementById('reqNota').value = '';
+  curYear = ry; curMonth = rm;
+  saveData();
+  renderAll();
+  if (!isEmergency) showToast('✓ Request disimpan');
+}
+
+function approveReq(rid) {
+  const r = getReqById(rid); if (!r) return;
+  r.status = 'approved'; delete r.rejectReason;
+  saveData(); renderRequest(); renderStats(); showToast('✅ Request diluluskan');
+}
+
+function undoReq(rid) {
+  const r = getReqById(rid); if (!r) return;
+  r.status = 'pending'; delete r.rejectReason;
+  saveData(); renderRequest(); renderStats();
+}
+
+function deleteReq(rid) {
+  const el = document.getElementById('rcard-' + rid); if (!el) return;
+  if (el.querySelector('.del-row')) return;
+  const row = document.createElement('div');
+  row.className = 'del-row';
+  row.style.cssText = 'display:flex;gap:8px;margin-top:10px;align-items:center';
+  row.innerHTML = `
+    <span style="flex:1;font-size:12px;color:#f87171">Buang request ini?</span>
+    <button onclick="doDelete(${rid})" style="background:#cc0000;color:#fff;border:none;padding:7px 16px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Ya</button>
+    <button onclick="this.closest('.del-row').remove()" style="background:#2e2e2e;color:#aaa;border:none;padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">Batal</button>
+  `;
+  el.appendChild(row);
+}
+
+function doDelete(rid) {
+  const idx = getReqIndexById(rid); if (idx === -1) return;
+  requests[curYear][curMonth].splice(idx, 1);
+  saveData(); renderRequest(); renderStats(); showToast('Request dibuang');
+}
+
+// ── REJECT MODAL ──
+let rejectTargetId = null;
+
+function openRejectModal(rid) {
+  rejectTargetId = rid;
+  const r = getReqById(rid); if (!r) return;
+  document.getElementById('rejectModalSub').textContent = `${r.staffName} — ${formatDisplayDate(r.date)}`;
+  document.getElementById('rejectReasonInp').value = '';
+  document.getElementById('rejectReasonInp').style.borderColor = '';
+  document.querySelectorAll('.reject-preset').forEach(b => b.classList.remove('selected'));
+  document.getElementById('rejectModalOverlay').classList.add('show');
+}
+
+function closeRejectModal() {
+  document.getElementById('rejectModalOverlay').classList.remove('show');
+  rejectTargetId = null;
+}
+
+function selectPreset(btn, text) {
+  document.querySelectorAll('.reject-preset').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('rejectReasonInp').value = text;
+}
+
+function confirmReject() {
+  const reason = document.getElementById('rejectReasonInp').value.trim();
+  if (!reason) { document.getElementById('rejectReasonInp').style.borderColor='#cc0000'; document.getElementById('rejectReasonInp').placeholder='Wajib isi sebab!'; return; }
+  const r = getReqById(rejectTargetId); if (!r) return;
+  r.status = 'rejected'; r.rejectReason = reason;
+  closeRejectModal(); saveData(); renderRequest(); renderStats(); showToast('Request ditolak');
+}
+
+// ══════════════════════════════════════════
+// STATS
+// ══════════════════════════════════════════
+function renderStats() {
+  document.getElementById('statsMonthLabel').textContent = MONTHS_MS[curMonth] + ' ' + curYear;
+  const reqs = (requests[curYear] && requests[curYear][curMonth]) || [];
+
+  const countMap = {};
+  STAFF.forEach(s => countMap[s.name] = { total:0, approved:0, rejected:0, pending:0 });
+  reqs.forEach(r => {
+    if (countMap[r.staffName] !== undefined) {
+      countMap[r.staffName].total++;
+      const s = r.status || 'pending';
+      countMap[r.staffName][s] = (countMap[r.staffName][s] || 0) + 1;
+    }
+  });
+
+  const totalApproved = reqs.filter(r => r.status === 'approved').length;
+  const totalRejected = reqs.filter(r => r.status === 'rejected').length;
+  const totalPending  = reqs.filter(r => !r.status || r.status === 'pending').length;
+
+  let html = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px">
+      <div style="background:#052e16;border:1px solid #166534;border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#4ade80">${totalApproved}</div>
+        <div style="font-size:10px;color:#86efac;margin-top:2px">Diluluskan</div>
+      </div>
+      <div style="background:#1c1500;border:1px solid #713f12;border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#fde68a">${totalPending}</div>
+        <div style="font-size:10px;color:#fde68a;margin-top:2px">Menunggu</div>
+      </div>
+      <div style="background:#2d0a0a;border:1px solid #7f1d1d;border-radius:10px;padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#f87171">${totalRejected}</div>
+        <div style="font-size:10px;color:#fca5a5;margin-top:2px">Ditolak</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px">Per Staff — ${MONTHS_MS[curMonth]} ${curYear}</div>`;
+
+  const sorted = [...STAFF].sort((a, b) => countMap[b.name].total - countMap[a.name].total);
+
+  sorted.forEach(s => {
+    const c = countMap[s.name];
+    const cls = c.total === 0 ? 'zero' : c.total <= 1 ? 'low' : c.total <= 3 ? 'mid' : 'high';
+    html += `<div class="staff-stat-card">
+      <div class="ssc-left" style="flex:1">
+        <div class="ssc-name">${s.name}</div>
+        <div style="display:flex;gap:5px;margin-top:5px;flex-wrap:wrap">
+          ${c.approved ? `<span style="background:#052e16;color:#4ade80;padding:1px 7px;border-radius:5px;font-size:10px;font-weight:600">✅ ${c.approved} lulus</span>` : ''}
+          ${c.pending  ? `<span style="background:#1c1500;color:#fde68a;padding:1px 7px;border-radius:5px;font-size:10px;font-weight:600">⏳ ${c.pending} tunggu</span>` : ''}
+          ${c.rejected ? `<span style="background:#2d0a0a;color:#f87171;padding:1px 7px;border-radius:5px;font-size:10px;font-weight:600">✕ ${c.rejected} tolak</span>` : ''}
+          ${c.total === 0 ? `<span style="color:var(--muted);font-size:10px">Tiada request</span>` : ''}
+        </div>
+      </div>
+      <div>
+        <div class="badge-count ${cls}">${c.total}</div>
+        <div class="ssc-label">request</div>
+      </div>
+    </div>`;
+  });
+
+  const neverList = STAFF.filter(s => countMap[s.name].total === 0);
+  if (neverList.length) {
+    html += `<div style="margin-top:16px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Tiada Request Langsung</div>
+      ${neverList.map(s=>`<div style="font-size:13px;padding:4px 0;border-bottom:1px solid var(--border);color:var(--muted2)">${s.name} <span style="font-size:10px">— Syif ${s.shift}</span></div>`).join('')}
+    </div>`;
+  }
+
+  document.getElementById('statsWrap').innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const tabs = ['jadual','request','stats'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  document.getElementById('view-jadual').classList.toggle('active', tab === 'jadual');
+  document.getElementById('view-request').classList.toggle('active', tab === 'request');
+  document.getElementById('view-stats').classList.toggle('active', tab === 'stats');
+
+  // Show export only on jadual tab
+  document.getElementById('exportBar').style.display = tab === 'jadual' ? 'block' : 'none';
+}
+
+// ══════════════════════════════════════════
+// EXPORT PDF
+// ══════════════════════════════════════════
+function exportPDF() {
+  // Make sure jadual tab is active
+  switchTab('jadual');
+  setTimeout(() => { window.print(); }, 150);
+}
+
+init();
+</script>
+</body>
+</html>
