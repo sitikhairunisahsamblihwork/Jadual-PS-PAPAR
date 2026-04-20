@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#cc0000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Request — PS Papar">
+<title>Request — PETRONAS Papar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#0d0d0d;color:#f2f2f2;font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:40px;}
+.header{background:linear-gradient(180deg,#1a0000,#110000);border-bottom:2px solid #cc0000;padding:16px 18px 14px;}
+.header-row{display:flex;align-items:center;gap:10px;}
+.logo{width:40px;height:40px;background:#cc0000;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;}
+.h-title{font-size:15px;font-weight:700;}
+.h-sub{font-size:11px;color:#888;margin-top:1px;}
+.conn-bar{padding:7px 16px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:6px;background:#1c1500;color:#fde68a;border-bottom:1px solid #713f12;}
+.conn-bar.ok{background:#052e16;color:#4ade80;border-color:#166534;}
+.conn-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.form-card{margin:14px 16px;background:#1f1f1f;border:1px solid #2e2e2e;border-radius:16px;padding:18px;}
+.form-title{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:16px;}
+.field{margin-bottom:13px;}
+.field label{display:block;font-size:11px;font-weight:600;color:#777;margin-bottom:5px;}
+.field select,.field input{width:100%;background:#171717;border:1.5px solid #3a3a3a;color:#f2f2f2;padding:11px 13px;border-radius:10px;font-size:14px;font-family:'DM Sans',sans-serif;-webkit-appearance:none;}
+.field select:focus,.field input:focus{outline:none;border-color:#cc0000;}
+
+/* TYPE SELECTOR */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.type-btn{background:#171717;border:1.5px solid #3a3a3a;color:#888;padding:12px 8px;border-radius:12px;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:center;transition:all .15s;}
+.type-btn:active{transform:scale(.97);}
+.type-btn.sel-ct{background:#0a1628;border-color:#1d4ed8;color:#93c5fd;}
+.type-btn.sel-off{background:#111827;border-color:#374151;color:#d1d5db;}
+.type-btn.sel-syif{background:#1e0a3c;border-color:#6d28d9;color:#c4b5fd;}
+.type-btn.sel-tukar{background:#0c1a2e;border-color:#0369a1;color:#7dd3fc;}
+
+.section{display:none;}
+.section.show{display:block;}
+
+.date-status{margin-top:7px;padding:8px 11px;border-radius:8px;font-size:12px;font-weight:600;display:none;}
+.date-status.show{display:flex;align-items:center;gap:6px;}
+.ds-open{background:#052e16;color:#4ade80;border:1px solid #166534;}
+.ds-warn{background:#1c1500;color:#fde68a;border:1px solid #713f12;}
+.ds-full{background:#2d0a0a;color:#f87171;border:1px solid #7f1d1d;}
+.warn-box{background:#1c1500;border:1px solid #713f12;border-radius:10px;padding:11px 13px;font-size:12px;color:#fde68a;margin-bottom:12px;display:none;line-height:1.6;}
+.warn-box.show{display:block;}
+
+.submit-btn{width:100%;background:#cc0000;color:#fff;border:none;padding:14px;border-radius:12px;font-size:15px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;}
+.submit-btn:disabled{background:#2e2e2e;color:#555;cursor:not-allowed;}
+.divider{height:1px;background:#1a1a1a;margin:16px;}
+.my-section{padding:0 16px 20px;}
+.my-title{font-size:11px;font-weight:700;color:#555;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;}
+.rcard{background:#1f1f1f;border:1px solid #2e2e2e;border-radius:12px;padding:13px 14px;margin-bottom:8px;}
+.rcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.rcard-date{font-size:15px;font-weight:700;}
+.status-pill{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;flex-shrink:0;}
+.sp-p{background:#1c1500;color:#fde68a;border:1px solid #713f12;}
+.sp-a{background:#052e16;color:#4ade80;border:1px solid #166534;}
+.sp-r{background:#2d0a0a;color:#f87171;border:1px solid #7f1d1d;}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;}
+.tag{padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;}
+.tg-ct{background:#1e3a5f;color:#7dd3fc;}
+.tg-off{background:#1f2937;color:#9ca3af;}
+.tg-sh{background:#1e0a3c;color:#c4b5fd;}
+.tg-tk{background:#0c1a2e;color:#7dd3fc;}
+.tg-wa{background:#052e16;color:#4ade80;border:1px solid #166534;}
+.rcard-nota{font-size:11px;color:#aaa;font-style:italic;}
+.rcard-rej{font-size:11px;color:#f87171;background:#2d0a0a;padding:5px 8px;border-radius:6px;margin-top:5px;}
+.empty{text-align:center;color:#444;padding:28px;font-size:13px;}
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#242424;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap;border:1px solid #3a3a3a;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-row">
+    <div class="logo">PS</div>
+    <div>
+      <div class="h-title">Request</div>
+      <div class="h-sub">PETRONAS Papar · Parmanis Sutera Sdn Bhd</div>
+    </div>
+  </div>
+</div>
+<div class="conn-bar" id="connBar"><div class="conn-dot"></div><span id="connTxt">Menyambung...</span></div>
+
+<!-- LOCK BANNER -->
+<div id="lockBanner" style="display:none;background:#2d0a0a;border-bottom:2px solid #cc0000;padding:12px 16px">
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:18px">🔒</span>
+    <div>
+      <div style="font-size:13px;font-weight:700;color:#f87171">Request Cuti Tahunan & Off Day Ditutup</div>
+      <div style="font-size:11px;color:#fca5a5;margin-top:2px">Request cuti hanya diterima <strong>1hb – 20hb</strong> setiap bulan. Request Syif & Tukar Syif masih boleh dihantar.</div>
+    </div>
+  </div>
+</div>
+
+<div class="form-card" id="formCard">
+  <div class="form-title">Borang Request</div>
+
+  <!-- Nama -->
+  <div class="field">
+    <label>Nama Staff</label>
+    <select id="fStaff">
+      <option value="">— Pilih nama kamu —</option>
+      <option>NURUL IZYANA</option><option>MOHD MIZA</option><option>HASNAL</option>
+      <option>BELLA</option><option>LISA</option><option>SUHFEE</option>
+      <option>NELBOY</option><option>ATI</option><option>INSYIRAH</option>
+      <option>JOHNY</option><option>SHAFIKAH</option><option>ANDIEKA</option>
+      <option>FERENICA</option><option>SURIATI</option><option>ELFI</option>
+    </select>
+  </div>
+
+  <!-- Jenis Request -->
+  <div class="field">
+    <label>Jenis Request</label>
+    <div class="type-grid">
+      <button class="type-btn" id="btn-ct"   onclick="setType('CT')">🗓 Cuti Tahunan</button>
+      <button class="type-btn" id="btn-off"  onclick="setType('OFF')">💤 Off Day</button>
+      <button class="type-btn" id="btn-syif" onclick="setType('SYIF')">🔄 Request Syif</button>
+      <button class="type-btn" id="btn-tukar" onclick="setType('TUKAR')">↔ Tukar Syif</button>
+    </div>
+  </div>
+
+  <!-- SECTION: CUTI / OFF DAY -->
+  <div class="section" id="sec-cuti">
+    <div class="field">
+      <label>📅 Tarikh Cuti Dipohon</label>
+      <input type="date" id="fDateCuti">
+      <div class="date-status" id="dsCuti"></div>
+    </div>
+    <div class="warn-box" id="warnCuti">⚠️ <strong>Amaran:</strong> Tarikh ini sudah ada 2 orang mohon cuti. Request kamu <strong>kemungkinan besar tidak akan diluluskan</strong>. Kamu masih boleh hantar untuk pertimbangan pengurusan.</div>
+  </div>
+
+  <!-- SECTION: REQUEST SYIF -->
+  <div class="section" id="sec-syif">
+    <div class="field">
+      <label>📅 Tarikh</label>
+      <input type="date" id="fDateSyif">
+    </div>
+    <div class="field">
+      <label>Syif Yang Diminta</label>
+      <select id="fSyifWant">
+        <option value="">— Pilih syif —</option>
+        <option value="A">Syif A (10PM – 6:30AM)</option>
+        <option value="B">Syif B (6AM – 2:30PM)</option>
+        <option value="C">Syif C (2PM – 10:30PM)</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- SECTION: TUKAR SYIF -->
+  <div class="section" id="sec-tukar">
+    <div class="field">
+      <label>📅 Tarikh Tukar</label>
+      <input type="date" id="fDateTukar">
+    </div>
+    <div class="field">
+      <label>Syif Kamu Sekarang</label>
+      <select id="fSyifAsal">
+        <option value="">— Pilih syif kamu —</option>
+        <option value="A">Syif A (10PM – 6:30AM)</option>
+        <option value="B">Syif B (6AM – 2:30PM)</option>
+        <option value="C">Syif C (2PM – 10:30PM)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Syif Yang Diminta</label>
+      <select id="fSyifMinta">
+        <option value="">— Pilih syif —</option>
+        <option value="A">Syif A (10PM – 6:30AM)</option>
+        <option value="B">Syif B (6AM – 2:30PM)</option>
+        <option value="C">Syif C (2PM – 10:30PM)</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Nama Staff Untuk Swap (jika ada)</label>
+      <select id="fSwapStaff">
+        <option value="">— Tiada / Belum pasti —</option>
+        <option>NURUL IZYANA</option><option>MOHD MIZA</option><option>HASNAL</option>
+        <option>BELLA</option><option>LISA</option><option>SUHFEE</option>
+        <option>NELBOY</option><option>ATI</option><option>INSYIRAH</option>
+        <option>JOHNY</option><option>SHAFIKAH</option><option>ANDIEKA</option>
+        <option>FERENICA</option><option>SURIATI</option><option>ELFI</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- COMMON FIELDS -->
+  <div class="section" id="sec-common">
+    <div class="field">
+      <label>💬 Tarikh Request Dihantar</label>
+      <input type="date" id="fReceived">
+    </div>
+    <div class="field">
+      <label>📝 Sebab / Nota</label>
+      <input type="text" id="fNota" placeholder="contoh: kenduri, urusan hospital, hal keluarga...">
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="submitReq()">Hantar Request</button>
+  </div>
+
+</div>
+
+<div class="divider"></div>
+<div class="my-section">
+  <div class="my-title" id="myTitle">Request Saya</div>
+  <div id="myList"><div class="empty">Pilih nama kamu untuk tengok status request</div></div>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp }                    from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
+  authDomain:"ps-papar.firebaseapp.com",
+  databaseURL:"https://ps-papar-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"ps-papar",storageBucket:"ps-papar.firebasestorage.app",
+  messagingSenderId:"899715424164",appId:"1:899715424164:web:91584f2d3db796095beb31"
+});
+const db = getDatabase(app);
+const MONTHS=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+const MAX_NORMAL=2, MAX_EMG=3;
+const LOCK_DAY=20; // lock selepas hari ke-20
+let allReqs={}, curType='';
+
+// ── CHECK LOCK ──
+function checkLock() {
+  const today = new Date();
+  const day   = today.getDate();
+  const isLocked = day > LOCK_DAY;
+  // Show lock banner only as info — form still shows
+  document.getElementById('lockBanner').style.display = isLocked ? 'block' : 'none';
+  document.getElementById('formCard').style.display = 'block';
+  return isLocked;
+}
+
+// Lock only applies to CT and OFF — check at submit
+function isCutiLocked() {
+  return new Date().getDate() > LOCK_DAY;
+}
+
+// Connection
+onValue(ref(db,'.info/connected'),s=>{
+  const ok=s.val()===true;
+  document.getElementById('connBar').className='conn-bar'+(ok?' ok':'');
+  document.getElementById('connTxt').textContent=ok?'Online — data terkini':'Tiada sambungan...';
+});
+
+// Listen
+onValue(ref(db,'requests'),s=>{
+  allReqs=s.val()||{};
+  const staff=document.getElementById('fStaff').value;
+  if(staff) renderMine(staff);
+  if(curType==='CT'||curType==='OFF'){
+    const date=document.getElementById('fDateCuti').value;
+    if(date) updateDS(date);
+  }
+});
+
+function fmt(ds){
+  if(!ds) return '—';
+  const d=new Date(ds+'T00:00:00');
+  return `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+function countDate(date){return Object.values(allReqs).filter(r=>r.date===date&&(r.type==='CT'||r.type==='OFF')).length;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2500);}
+
+// Type selector
+window.setType=function(type){
+  // Block CT/OFF after 20hb
+  if((type==='CT'||type==='OFF') && isCutiLocked()){
+    toast('⛔ Request cuti ditutup selepas 20hb');
+    return;
+  }
+  curType=type;
+  // Reset button styles
+  ['ct','off','syif','tukar'].forEach(k=>{document.getElementById('btn-'+k).className='type-btn';});
+  // Highlight selected
+  const cls={CT:'sel-ct',OFF:'sel-off',SYIF:'sel-syif',TUKAR:'sel-tukar'};
+  document.getElementById('btn-'+type.toLowerCase()).classList.add(cls[type]);
+  // Show/hide sections
+  document.getElementById('sec-cuti').className='section'+(type==='CT'||type==='OFF'?' show':'');
+  document.getElementById('sec-syif').className='section'+(type==='SYIF'?' show':'');
+  document.getElementById('sec-tukar').className='section'+(type==='TUKAR'?' show':'');
+  document.getElementById('sec-common').className='section show';
+  // Reset date status
+  document.getElementById('dsCuti').className='date-status';
+  document.getElementById('warnCuti').classList.remove('show');
+  document.getElementById('submitBtn').disabled=false;
+  document.getElementById('submitBtn').textContent='Hantar Request';
+}
+
+function updateDS(date){
+  const el=document.getElementById('dsCuti'),wb=document.getElementById('warnCuti'),btn=document.getElementById('submitBtn');
+  const n=countDate(date);
+  if(n>=MAX_EMG){el.className='date-status show ds-full';el.textContent=`⛔ Penuh — ${n}/${MAX_EMG} orang dah mohon`;wb.classList.remove('show');btn.disabled=true;btn.textContent='⛔ Tarikh Ini Penuh';}
+  else if(n===MAX_NORMAL){el.className='date-status show ds-warn';el.textContent=`⚠️ ${n} orang dah mohon — slot emergency`;wb.classList.add('show');btn.disabled=false;btn.textContent='Hantar Request (Emergency)';}
+  else if(n===1){el.className='date-status show ds-warn';el.textContent=`⚠️ 1 orang dah mohon — 1 slot lagi`;wb.classList.remove('show');btn.disabled=false;btn.textContent='Hantar Request';}
+  else{el.className='date-status show ds-open';el.textContent=`✅ Tarikh kosong — boleh mohon`;wb.classList.remove('show');btn.disabled=false;btn.textContent='Hantar Request';}
+}
+
+document.getElementById('fStaff').onchange=e=>{renderMine(e.target.value);};
+document.getElementById('fDateCuti').onchange=e=>{if(curType==='CT'||curType==='OFF') updateDS(e.target.value);};
+
+window.submitReq=async function(){
+  if(checkLock()) return; // just updates banner display
+  const staffName=document.getElementById('fStaff').value;
+  const received=document.getElementById('fReceived').value;
+  const nota=document.getElementById('fNota').value.trim();
+  if(!staffName){toast('Pilih nama kamu dulu');return;}
+  if(!curType){toast('Pilih jenis request dulu');return;}
+  if(!received){toast('Pilih tarikh request dihantar');return;}
+  if(!nota){toast('Wajib isi sebab / nota');document.getElementById('fNota').focus();return;}
+
+  const now=new Date();
+  const addedAt=`${now.getDate()}/${now.getMonth()+1} ${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+  let payload={staffName,type:curType,receivedDate:received,nota,addedAt,status:'pending'};
+
+  if(curType==='CT'||curType==='OFF') {
+    const date = document.getElementById('fDateCuti').value;
+    if(!date){toast('Pilih tarikh cuti');return;}
+    if(isCutiLocked()){toast('⛔ Request cuti ditutup selepas 20hb');return;}
+    const n=countDate(date);
+    if(n>=MAX_EMG){toast('⛔ Tarikh ini penuh');return;}
+    if(Object.values(allReqs).find(r=>r.staffName===staffName&&r.date===date&&(r.type==='CT'||r.type==='OFF'))){toast('Kamu dah ada request cuti tarikh ini');return;}
+    const isEmergency=n>=MAX_NORMAL;
+    payload={...payload,date,isEmergency};
+    if(isEmergency) toast('⚠️ Slot emergency — disimpan');
+  } else if(curType==='SYIF'){
+    const date=document.getElementById('fDateSyif').value;
+    const syifWant=document.getElementById('fSyifWant').value;
+    if(!date){toast('Pilih tarikh');return;}
+    if(!syifWant){toast('Pilih syif yang diminta');return;}
+    payload={...payload,date,syifWant};
+  } else if(curType==='TUKAR'){
+    const date=document.getElementById('fDateTukar').value;
+    const syifAsal=document.getElementById('fSyifAsal').value;
+    const syifMinta=document.getElementById('fSyifMinta').value;
+    const swapStaff=document.getElementById('fSwapStaff').value;
+    if(!date){toast('Pilih tarikh tukar');return;}
+    if(!syifAsal){toast('Pilih syif kamu sekarang');return;}
+    if(!syifMinta){toast('Pilih syif yang diminta');return;}
+    if(syifAsal===syifMinta){toast('Syif asal dan diminta sama!');return;}
+    payload={...payload,date,syifAsal,syifMinta,swapStaff:swapStaff||''};
+  }
+
+  const btn=document.getElementById('submitBtn');
+  btn.disabled=true;btn.textContent='Menghantar...';
+  try{
+    await push(ref(db,'requests'),payload);
+    // Reset
+    document.getElementById('fNota').value='';
+    document.getElementById('fDateCuti').value='';
+    document.getElementById('fDateSyif').value='';
+    document.getElementById('fDateTukar').value='';
+    document.getElementById('dsCuti').className='date-status';
+    document.getElementById('warnCuti').classList.remove('show');
+    // Reset type buttons
+    ['ct','off','syif','tukar'].forEach(k=>document.getElementById('btn-'+k).className='type-btn');
+    document.getElementById('sec-cuti').className='section';
+    document.getElementById('sec-syif').className='section';
+    document.getElementById('sec-tukar').className='section';
+    document.getElementById('sec-common').className='section';
+    curType='';
+    btn.disabled=false;btn.textContent='Hantar Request';
+    if(payload.isEmergency) toast('⚠️ Request emergency dihantar');
+    else toast('✅ Request berjaya dihantar!');
+  }catch(e){btn.disabled=false;btn.textContent='Hantar Request';toast('⚠️ Gagal — semak internet');}
+}
+
+function renderMine(staff){
+  const listEl=document.getElementById('myList'),titleEl=document.getElementById('myTitle');
+  if(!staff){titleEl.textContent='Request Saya';listEl.innerHTML='<div class="empty">Pilih nama kamu</div>';return;}
+  const mine=Object.values(allReqs).filter(r=>r.staffName===staff).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  titleEl.textContent=`Request Saya (${mine.length})`;
+  if(!mine.length){listEl.innerHTML='<div class="empty">Tiada request lagi</div>';return;}
+  const TL={CT:'Cuti Tahunan',OFF:'Off Day',SYIF:'Request Syif',TUKAR:'Tukar Syif'};
+  const TC={CT:'tg-ct',OFF:'tg-off',SYIF:'tg-sh',TUKAR:'tg-tk'};
+  listEl.innerHTML=mine.map(r=>{
+    const st=r.status||'pending';
+    const sc={pending:'sp-p',approved:'sp-a',rejected:'sp-r'}[st];
+    const si={pending:'⏳ Menunggu',approved:'✅ Diluluskan',rejected:'✕ Ditolak'}[st];
+    let bc='#2e2e2e';
+    if(st==='approved') bc='#166534';
+    if(st==='rejected') bc='#7f1d1d';
+    if(r.isEmergency&&st==='pending') bc='#713f12';
+    // Extra info based on type
+    let extra='';
+    if(r.type==='SYIF') extra=`<div style="font-size:11px;color:#c4b5fd;margin-top:4px">🔄 Minta Syif ${r.syifWant}</div>`;
+    if(r.type==='TUKAR') extra=`<div style="font-size:11px;color:#7dd3fc;margin-top:4px">↔ Syif ${r.syifAsal} → Syif ${r.syifMinta}${r.swapStaff?' dengan '+r.swapStaff:''}</div>`;
+    return `<div class="rcard" style="border-color:${bc}">
+      <div class="rcard-top">
+        <div>
+          <div class="rcard-date">${fmt(r.date)}</div>
+          ${r.isEmergency?'<div style="font-size:10px;color:#fde68a;margin-top:2px">⚠️ Emergency</div>':''}
+        </div>
+        <span class="status-pill ${sc}">${si}</span>
+      </div>
+      <div class="tags">
+        <span class="tag ${TC[r.type]||'tg-off'}">${TL[r.type]||r.type}</span>
+        <span class="tag tg-wa">💬 ${fmt(r.receivedDate)}</span>
+      </div>
+      ${extra}
+      <div class="rcard-nota" style="margin-top:5px">📝 ${r.nota}</div>
+      ${st==='rejected'&&r.rejectReason?`<div class="rcard-rej">✕ Sebab ditolak: ${r.rejectReason}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('fReceived').value=new Date().toISOString().split('T')[0];
+checkLock();
+</script>
+</body>
+</html>
