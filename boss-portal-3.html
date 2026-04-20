@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#00a650">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PS Papar Boss">
+<title>Boss Portal — PETRONAS Papar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:80px;}
+.header{background:linear-gradient(135deg,#005c2e,#003d1f);border-bottom:2px solid #00a650;padding:14px 16px;}
+.header-row{display:flex;align-items:center;gap:10px;}
+.logo{width:38px;height:38px;background:#00a650;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0;}
+.h-title{font-size:15px;font-weight:700;}
+.h-sub{font-size:11px;color:#7a6e62;margin-top:1px;}
+.conn-bar{padding:6px 16px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;background:#fff8e1;color:#b45309;border-bottom:1px solid #fcd34d;}
+.conn-bar.ok{background:#dcf0e4;color:#4ade80;border-color:#166634;}
+.conn-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+/* LOGIN */
+.login-wrap{padding:40px 24px;text-align:center;}
+.login-icon{font-size:48px;margin-bottom:16px;}
+.pin-row{display:flex;justify-content:center;gap:10px;margin-bottom:16px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:#2e2e2e;border:2px solid #3a3a3a;transition:background .15s;}
+.pin-dot.filled{background:#00a650;border-color:#00a650;}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 16px;}
+.pin-btn{background:#ffffff;border:1px solid #d4e8da;color:#1a1a1a;padding:16px;border-radius:12px;font-size:20px;font-weight:700;cursor:pointer;font-family:inherit;}
+.pin-btn:active{background:#00a650;}
+.pin-del{background:#2d0a0a;border-color:#7f1d1d;color:#f87171;font-size:16px;}
+.pin-error{color:#f87171;font-size:13px;margin-top:8px;min-height:20px;}
+/* NAV */
+.nav-tabs{display:flex;overflow-x:auto;background:#f0f7f3;border-bottom:1px solid #d4e8da;-webkit-overflow-scrolling:touch;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{padding:10px 12px;font-size:11px;font-weight:600;color:#7a6e62;border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;flex-shrink:0;}
+.nav-tab.active{color:#00a650;border-bottom-color:#00a650;}
+/* VIEWS */
+.view{display:none;padding:14px 16px 20px;}
+.view.active{display:block;}
+/* CARDS */
+.card{background:#ffffff;border:1px solid #d4e8da;border-radius:14px;padding:14px;margin-bottom:12px;}
+.card-title{font-size:11px;font-weight:700;color:#7a6e62;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;}
+.sec-hdr{font-size:11px;font-weight:700;color:#7a6e62;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #d4e8da;}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.stat-card{background:#ffffff;border:1px solid #d4e8da;border-radius:12px;padding:12px;}
+.stat-num{font-size:26px;font-weight:800;line-height:1;}
+.stat-lbl{font-size:11px;color:#7a6e62;margin-top:3px;}
+/* FIELDS */
+.field{margin-bottom:11px;}
+.field label{display:block;font-size:11px;font-weight:600;color:#6a5e52;margin-bottom:4px;}
+.field select,.field input{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;color:#1a1a1a;padding:10px 12px;border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;-webkit-appearance:none;}
+.field select:focus,.field input:focus{outline:none;border-color:#00a650;}
+/* SUBMIT */
+.submit-btn{width:100%;background:#00a650;color:#fff;border:none;padding:13px;border-radius:11px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:6px;}
+.submit-btn:disabled{background:#2e2e2e;color:#7a6e62;cursor:not-allowed;}
+.btn-outline{width:100%;background:transparent;color:#00a650;border:1.5px solid #00a650;padding:11px;border-radius:11px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:6px;}
+/* UPLOAD AREA */
+.upload-area{border:2px dashed #3a3a3a;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#f0f7f3;margin-bottom:8px;}
+.upload-area:active{border-color:#00a650;}
+.upload-area .ico{font-size:28px;margin-bottom:6px;}
+.upload-area .txt{font-size:12px;color:#7a6e62;}
+.upload-prog{background:#fff8e1;border:1px solid #713f12;border-radius:7px;padding:7px 10px;font-size:12px;color:#fde68a;margin-top:6px;display:none;}
+.upload-prog.done{background:#dcf0e4;border-color:#166634;color:#4ade80;}
+/* REPORT CARDS */
+.rcard{background:#f8f8f8;border:1px solid #d4e8da;border-radius:10px;padding:11px 13px;margin-bottom:7px;}
+.rcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
+.rcard-name{font-size:14px;font-weight:700;}
+.rcard-date{font-size:11px;color:#7a6e62;margin-top:2px;}
+.badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+.b-green{background:#dcf0e4;color:#4ade80;border:1px solid #166634;}
+.b-yellow{background:#fff8e1;color:#fde68a;border:1px solid #713f12;}
+.b-red{background:#2d0a0a;color:#f87171;border:1px solid #7f1d1d;}
+.b-blue{background:#e8eeff;color:#93c5fd;border:1px solid #1d4ed8;}
+.rcard-meta{font-size:11px;color:#7a6e62;}
+/* ACTION BTNS */
+.action-row{display:flex;gap:6px;margin-top:8px;}
+.btn-approve{flex:1;background:#dcf0e4;color:#4ade80;border:1px solid #166634;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-reject{flex:1;background:#2d0a0a;color:#f87171;border:1px solid #7f1d1d;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-undo{flex:1;background:#ffffff;color:#6a5e52;border:1px solid #3a3a3a;padding:8px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;}
+.btn-del{background:#003318;color:#f87171;border:1px solid #7f1d1d;padding:8px 10px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;}
+/* REJECT MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:flex-end;backdrop-filter:blur(4px);}
+.modal-bg.show{display:flex;}
+.modal{background:#f0f7f3;border-top:2px solid #00a650;border-radius:20px 20px 0 0;width:100%;padding:20px 18px 32px;animation:slideUp .22s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:#3a3a3a;border-radius:2px;margin:0 auto 14px;}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;}
+.preset-btn{background:#ffffff;border:1px solid #d4e8da;color:#6a5e52;padding:10px 8px;border-radius:9px;font-size:12px;cursor:pointer;font-family:inherit;text-align:center;}
+.preset-btn.sel{background:#2d0a0a;border-color:#7f1d1d;color:#f87171;}
+.modal-inp{width:100%;background:#ffffff;border:1.5px solid #b8d8c3;color:#1a1a1a;padding:10px 12px;border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:10px;}
+.modal-inp:focus{outline:none;border-color:#00a650;}
+.modal-confirm{width:100%;background:#00a650;color:#fff;border:none;padding:13px;border-radius:10px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:8px;}
+.modal-cancel{width:100%;background:transparent;color:#7a6e62;border:1px solid #3a3a3a;padding:11px;border-radius:10px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+/* FILTER */
+.filter-row{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.filter-row::-webkit-scrollbar{display:none;}
+.filter-chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #3a3a3a;background:#f8f8f8;color:#7a6e62;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.filter-chip.active{background:#dcf5e8;border-color:#00a650;color:#005c2e;}
+/* JADUAL GRID */
+.jadual-day{background:#f8f8f8;border:1px solid #d4e8da;border-radius:9px;padding:9px 11px;margin-bottom:5px;}
+.jd-date{font-size:12px;font-weight:700;color:#007a3d;margin-bottom:2px;}
+.jd-info{font-size:12px;color:#1a1a1a;}
+.jd-staff{font-size:11px;color:#7a6e62;margin-top:1px;}
+/* IMAGE */
+.img-pair{display:flex;gap:6px;margin-top:7px;}
+.img-link{flex:1;text-align:center;padding:6px;border-radius:7px;font-size:11px;text-decoration:none;}
+/* DIVIDER */
+.divider{height:1px;background:#d8cfc4;margin:14px 0;}
+.empty{text-align:center;color:#7a6e62;padding:24px;font-size:13px;}
+/* TOAST */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#333333;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap;border:1px solid #3a3a3a;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="header"><div class="header-row"><div class="logo">PS</div><div><div class="h-title">Boss Portal</div><div class="h-sub">PETRONAS Papar · Pengurusan</div></div></div></div>
+  <div class="login-wrap">
+    <div class="login-icon">🔐</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:6px">Log Masuk Boss</div>
+    <div style="font-size:13px;color:#7a6e62;margin-bottom:24px">Masukkan PIN 4 digit</div>
+    <div class="pin-row">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pinPress(1)">1</button>
+      <button class="pin-btn" onclick="pinPress(2)">2</button>
+      <button class="pin-btn" onclick="pinPress(3)">3</button>
+      <button class="pin-btn" onclick="pinPress(4)">4</button>
+      <button class="pin-btn" onclick="pinPress(5)">5</button>
+      <button class="pin-btn" onclick="pinPress(6)">6</button>
+      <button class="pin-btn" onclick="pinPress(7)">7</button>
+      <button class="pin-btn" onclick="pinPress(8)">8</button>
+      <button class="pin-btn" onclick="pinPress(9)">9</button>
+      <button class="pin-btn" onclick="pinPress(0)" style="grid-column:2">0</button>
+      <button class="pin-btn pin-del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none">
+  <div class="header">
+    <div class="header-row">
+      <div class="logo">PS</div>
+      <div style="flex:1"><div class="h-title">Boss Portal</div><div style="font-size:11px;color:#00a650;margin-top:1px;font-weight:600">PENGURUSAN</div></div>
+      <button onclick="doLogout()" style="background:#f5ede0;border:1px solid #c8baa8;color:#5a5048;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Keluar</button>
+    </div>
+  </div>
+  <div class="conn-bar" id="connBar"><div class="conn-dot"></div><span id="connTxt">Menyambung...</span></div>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="sw('dashboard')">📊 Dashboard</div>
+    <div class="nav-tab" onclick="sw('request')">📝 Request</div>
+    <div class="nav-tab" onclick="sw('tugasan')">📋 Tugasan</div>
+    <div class="nav-tab" onclick="sw('pembersihan')">🧹 Bersih</div>
+    <div class="nav-tab" onclick="sw('wcf')">📄 WCF</div>
+    <div class="nav-tab" onclick="sw('syif')">🗓 Jadual Syif</div>
+    <div class="nav-tab" onclick="sw('jadual')">📅 Jadual</div>
+    <div class="nav-tab" onclick="sw('staff')">👥 Staff</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="view active" id="view-dashboard">
+    <div class="sec-hdr">Ringkasan Hari Ini</div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="card">
+      <div class="card-title">⏳ Request Menunggu Kelulusan</div>
+      <div id="pendingRequests"><div class="empty">Tiada request menunggu</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Laporan Tugasan Terkini</div>
+      <div id="recentTugasan"><div class="empty">Tiada laporan</div></div>
+    </div>
+  </div>
+
+  <!-- REQUEST -->
+  <div class="view" id="view-request">
+    <div class="sec-hdr">Semua Request</div>
+    <div class="filter-row" id="reqFilter">
+      <div class="filter-chip active" onclick="filterReq('all',this)">Semua</div>
+      <div class="filter-chip" onclick="filterReq('pending',this)">⏳ Menunggu</div>
+      <div class="filter-chip" onclick="filterReq('approved',this)">✅ Diluluskan</div>
+      <div class="filter-chip" onclick="filterReq('rejected',this)">✕ Ditolak</div>
+      <div class="filter-chip" onclick="filterReq('CT',this)">Cuti Tahunan</div>
+      <div class="filter-chip" onclick="filterReq('OFF',this)">Off Day</div>
+      <div class="filter-chip" onclick="filterReq('SYIF',this)">Request Syif</div>
+      <div class="filter-chip" onclick="filterReq('TUKAR',this)">Tukar Syif</div>
+    </div>
+    <div id="allRequests"><div class="empty">Tiada request</div></div>
+  </div>
+
+  <!-- TUGASAN -->
+  <div class="view" id="view-tugasan">
+    <div class="sec-hdr">Laporan Tugasan Krew</div>
+    <div class="filter-row" id="tgFilter">
+      <div class="filter-chip active" onclick="filterStaff('tg','all',this)">Semua Staff</div>
+    </div>
+    <div id="allTugasan"><div class="empty">Tiada laporan</div></div>
+  </div>
+
+  <!-- PEMBERSIHAN -->
+  <div class="view" id="view-pembersihan">
+    <div class="sec-hdr">Laporan Pembersihan</div>
+    <div class="filter-row" id="pembFilter">
+      <div class="filter-chip active" onclick="filterStaff('pemb','all',this)">Semua Staff</div>
+    </div>
+    <div id="allPemb"><div class="empty">Tiada laporan</div></div>
+  </div>
+
+  <!-- WCF -->
+  <div class="view" id="view-wcf">
+    <div class="sec-hdr">Borang Kebenaran Kerja (WCF)</div>
+    <div class="filter-row" id="wcfFilter">
+      <div class="filter-chip active" onclick="filterStaff('wcf','all',this)">Semua Staff</div>
+    </div>
+    <div id="allWCF"><div class="empty">Tiada rekod WCF</div></div>
+  </div>
+
+  <!-- JADUAL -->
+  <div class="view" id="view-jadual">
+    <div class="sec-hdr">Upload Jadual Bulanan</div>
+
+    <!-- Upload Pembersihan -->
+    <div class="card">
+      <div class="card-title">🧹 Upload Jadual Pembersihan</div>
+      <div style="font-size:12px;color:#7a6e62;margin-bottom:10px">Upload fail Excel template jadual pembersihan. Data akan auto masuk ke sistem.</div>
+      <div class="upload-area" onclick="document.getElementById('upBersih').click()">
+        <div class="ico">📊</div>
+        <div class="txt">Tap untuk pilih fail Excel (.xlsx)<br>Template_Jadual_Pembersihan.xlsx</div>
+      </div>
+      <input type="file" id="upBersih" accept=".xlsx,.xls" style="display:none" onchange="uploadJadual('bersih',this)">
+      <div class="upload-prog" id="progBersih">⏳ Memproses jadual...</div>
+    </div>
+
+    <!-- Upload Posting -->
+    <div class="card">
+      <div class="card-title">📱 Upload Jadual Posting Medsos</div>
+      <div style="font-size:12px;color:#7a6e62;margin-bottom:10px">Upload fail Excel template jadual posting. Data akan auto masuk ke sistem.</div>
+      <div class="upload-area" onclick="document.getElementById('upPosting').click()">
+        <div class="ico">📊</div>
+        <div class="txt">Tap untuk pilih fail Excel (.xlsx)<br>Template_Jadual_Posting_Medsos.xlsx</div>
+      </div>
+      <input type="file" id="upPosting" accept=".xlsx,.xls" style="display:none" onchange="uploadJadual('posting',this)">
+      <div class="upload-prog" id="progPosting">⏳ Memproses jadual...</div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sec-hdr">Jadual Aktif</div>
+
+    <!-- View Bersih -->
+    <div class="card">
+      <div class="card-title">🧹 Jadual Pembersihan</div>
+      <div id="jadualBersihView"><div class="empty">Belum ada jadual</div></div>
+    </div>
+
+    <!-- View Posting -->
+    <div class="card">
+      <div class="card-title">📱 Jadual Posting</div>
+      <div id="jadualPostingView"><div class="empty">Belum ada jadual</div></div>
+    </div>
+  </div>
+
+  <!-- JADUAL SYIF -->
+  <div class="view" id="view-syif">
+    <div class="sec-hdr">Jadual Syif Bulanan</div>
+    <div class="card">
+      <div class="card-title">Tetapkan Syif Staff</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
+        <div class="field"><label>Bulan</label>
+          <select id="syifBulan">
+            <option value="01">Januari</option><option value="02">Februari</option><option value="03">Mac</option>
+            <option value="04">April</option><option value="05">Mei</option><option value="06">Jun</option>
+            <option value="07">Julai</option><option value="08">Ogos</option><option value="09">September</option>
+            <option value="10">Oktober</option><option value="11">November</option><option value="12">Disember</option>
+          </select>
+        </div>
+        <div class="field"><label>Tahun</label><input type="number" id="syifTahun" value="2026" min="2024" max="2030"></div>
+      </div>
+      <button class="submit-btn" onclick="loadSyifGrid()">📅 Papar Jadual Syif</button>
+    </div>
+    <div id="syifGridWrap" style="display:none">
+      <div class="card">
+        <div class="card-title" id="syifGridTitle">Jadual Syif</div>
+        <div style="font-size:11px;color:#7a6e62;margin-bottom:10px">Tap nama syif untuk tukar. Tekan Simpan bila siap.</div>
+        <div id="syifGrid"></div>
+        <button class="submit-btn" style="margin-top:10px" onclick="saveSyifJadual()">💾 Simpan Jadual Syif</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STAFF MANAGEMENT -->
+  <div class="view" id="view-staff">
+    <div class="sec-hdr">Pengurusan Staff & Password</div>
+    <div style="font-size:12px;color:#7a6e62;margin-bottom:12px;background:#fef9c3;border:1px solid #fcd34d;border-radius:9px;padding:9px 12px">
+      ⚠️ Set password untuk setiap staff. Staff perlu masukkan password ini untuk log masuk ke portal.
+    </div>
+    <div id="staffPassList"></div>
+  </div>
+
+</div><!-- end mainApp -->
+
+<!-- REPORT DETAIL MODAL -->
+<div class="modal-bg" id="reportModal">
+  <div class="modal" style="max-height:85vh;overflow-y:auto">
+    <div class="modal-handle"></div>
+    <div id="reportModalContent"></div>
+    <button class="modal-cancel" onclick="document.getElementById('reportModal').classList.remove('show')" style="margin-top:10px">Tutup</button>
+  </div>
+</div>
+
+<!-- REJECT MODAL -->
+<div class="modal-bg" id="rejectModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px">Tolak Request</div>
+    <div style="font-size:12px;color:#7a6e62;margin-bottom:14px" id="rejectModalSub"></div>
+    <div class="preset-grid">
+      <button class="preset-btn" onclick="selPreset(this,'Kurang staf pada tarikh tersebut')">Kurang staf</button>
+      <button class="preset-btn" onclick="selPreset(this,'Tarikh sudah penuh')">Tarikh penuh</button>
+      <button class="preset-btn" onclick="selPreset(this,'Tidak cukup notis awal')">Notis terlambat</button>
+      <button class="preset-btn" onclick="selPreset(this,'Bertindih dengan staff lain')">Bertindih</button>
+      <button class="preset-btn" onclick="selPreset(this,'Sedang dalam tempoh percubaan')">Tempoh percubaan</button>
+      <button class="preset-btn" onclick="selPreset(this,'Lain-lain')">Lain-lain</button>
+    </div>
+    <input class="modal-inp" id="rejectReason" placeholder="Atau tulis sebab sendiri...">
+    <button class="modal-confirm" onclick="confirmReject()">✕ Sahkan Tolak</button>
+    <button class="modal-cancel" onclick="closeRejectModal()">Batal</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
+  authDomain:"ps-papar.firebaseapp.com",
+  databaseURL:"https://ps-papar-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"ps-papar",storageBucket:"ps-papar.firebasestorage.app",
+  messagingSenderId:"899715424164",appId:"1:899715424164:web:91584f2d3db796095beb31"
+});
+const db = getDatabase(app);
+
+const PIN = '1234'; // ← TUKAR PIN DI SINI
+const MONTHS=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+const TL={CT:'Cuti Tahunan',OFF:'Off Day',SYIF:'Request Syif',TUKAR:'Tukar Syif'};
+
+let pinInput='';
+let allReqs={}, allTugasan={}, allPemb={}, allMedsos={}, allWCF={};
+let jadualBersih={}, jadualPosting={};
+let rejectTargetId=null;
+let reqFilter='all', tgFilter='all', pembFilter='all', wcfFilter='all';
+
+// PIN
+window.pinPress=function(n){
+  if(pinInput.length>=4)return;
+  pinInput+=String(n);
+  updatePinDots();
+  if(pinInput.length===4){
+    setTimeout(()=>{
+      if(pinInput===PIN){
+        document.getElementById('loginScreen').style.display='none';
+        document.getElementById('mainApp').style.display='block';
+      } else {
+        document.getElementById('pinError').textContent='PIN salah. Cuba semula.';
+        pinInput='';updatePinDots();
+      }
+    },200);
+  }
+}
+window.pinDel=function(){if(pinInput.length>0){pinInput=pinInput.slice(0,-1);updatePinDots();document.getElementById('pinError').textContent='';}}
+function updatePinDots(){for(let i=0;i<4;i++){document.getElementById('pd'+i).className='pin-dot'+(i<pinInput.length?' filled':'');}}
+window.doLogout=function(){pinInput='';updatePinDots();document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
+
+// FIREBASE
+onValue(ref(db,'.info/connected'),s=>{
+  const ok=s.val()===true;
+  document.getElementById('connBar').className='conn-bar'+(ok?' ok':'');
+  document.getElementById('connTxt').textContent=ok?'Online — data terkini':'Tiada sambungan...';
+});
+onValue(ref(db,'requests'),s=>{allReqs=s.val()||{};renderDashboard();renderRequests();});
+onValue(ref(db,'tugasan'),s=>{allTugasan=s.val()||{};renderTugasan();renderDashboard();});
+onValue(ref(db,'pembersihan'),s=>{allPemb=s.val()||{};renderPemb();});
+onValue(ref(db,'medsos'),s=>{allMedsos=s.val()||{};});
+onValue(ref(db,'wcf'),s=>{allWCF=s.val()||{};renderWCF();});
+onValue(ref(db,'jadual_bersih'),s=>{jadualBersih=s.val()||{};renderJadualView();});
+onValue(ref(db,'jadual_posting'),s=>{jadualPosting=s.val()||{};renderJadualView();});
+
+// HELPERS
+function fmt(ds){if(!ds)return'—';const d=new Date(ds+'T00:00:00');return`${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
+function today(){return new Date().toISOString().split('T')[0];}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2500);}
+
+// DASHBOARD
+function renderDashboard(){
+  const reqs=Object.values(allReqs);
+  const pending=reqs.filter(r=>!r.status||r.status==='pending').length;
+  const approved=reqs.filter(r=>r.status==='approved').length;
+  const tgToday=Object.values(allTugasan).filter(r=>r.date===today()).length;
+  const wcfCount=Object.values(allWCF).length;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-num" style="color:#fde68a">${pending}</div><div class="stat-lbl">⏳ Request menunggu</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#4ade80">${approved}</div><div class="stat-lbl">✅ Request diluluskan</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#93c5fd">${tgToday}</div><div class="stat-lbl">📋 Laporan hari ini</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#c4b5fd">${wcfCount}</div><div class="stat-lbl">📄 Jumlah WCF</div></div>`;
+
+  // Pending requests
+  const pendReqs=reqs.filter(r=>!r.status||r.status==='pending').sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
+  document.getElementById('pendingRequests').innerHTML=pendReqs.length
+    ?pendReqs.map(r=>buildReqCard(r,true)).join('')
+    :'<div class="empty">Tiada request menunggu ✅</div>';
+
+  // Recent tugasan
+  const recTg=Object.entries(allTugasan).sort((a,b)=>b[1].date.localeCompare(a[1].date)).slice(0,5);
+  document.getElementById('recentTugasan').innerHTML=recTg.length
+    ?recTg.map(([k,r])=>`<div class="rcard"><div class="rcard-top"><div><div class="rcard-name">${r.staffName}</div><div class="rcard-date">${fmt(r.date)}</div></div><span class="badge b-blue">Syif ${r.shift}</span></div><div class="rcard-meta">${Object.keys(r.checks||{}).length}/25 item${r.gas12?' · LPG 12kg: '+r.gas12+' tong':''}${r.gas14?' · LPG 14kg: '+r.gas14+' tong':''}</div></div>`).join('')
+    :'<div class="empty">Tiada laporan</div>';
+}
+
+// REQUESTS
+function buildReqCard(r, compact=false){
+  const rid=r.fbKey||r.id;
+  const st=r.status||'pending';
+  const sc={pending:'b-yellow',approved:'b-green',rejected:'b-red'}[st];
+  const si={pending:'⏳ Menunggu',approved:'✅ Diluluskan',rejected:'✕ Ditolak'}[st];
+  let extra='';
+  if(r.type==='SYIF') extra=`<div style="font-size:11px;color:#c4b5fd;margin-top:3px">🔄 Minta Syif ${r.syifWant}</div>`;
+  if(r.type==='TUKAR') extra=`<div style="font-size:11px;color:#7dd3fc;margin-top:3px">↔ ${r.syifAsal}→${r.syifMinta}${r.swapStaff?' dengan '+r.swapStaff:''}</div>`;
+  let actions='';
+  if(st==='pending'){
+    actions=`<div class="action-row">
+      <button class="btn-approve" onclick="approveReq('${rid}')">✅ Lulus</button>
+      <button class="btn-reject"  onclick="openReject('${rid}','${r.staffName}','${r.date||''}')">✕ Tolak</button>
+      <button class="btn-del"     onclick="delReq('${rid}')">🗑</button>
+    </div>`;
+  } else {
+    actions=`<div class="action-row">
+      <button class="btn-undo" onclick="undoReq('${rid}')">↩ Undo</button>
+      <button class="btn-del"  onclick="delReq('${rid}')">🗑 Buang</button>
+    </div>`;
+  }
+  return`<div id="rc-${rid}" class="rcard">
+    <div class="rcard-top">
+      <div><div class="rcard-name">${r.staffName}${r.isEmergency?' <span style="background:#713f12;color:#fde68a;padding:1px 5px;border-radius:4px;font-size:9px">EMERG</span>':''}</div>
+      <div class="rcard-date">${TL[r.type]||r.type} · ${fmt(r.date)}</div></div>
+      <span class="badge ${sc}">${si}</span>
+    </div>
+    ${extra}
+    <div style="font-size:11px;color:#7a6e62;margin-top:3px">💬 WA: ${fmt(r.receivedDate)} · 📝 ${r.nota}</div>
+    ${st==='rejected'&&r.rejectReason?`<div style="font-size:11px;color:#f87171;margin-top:3px;background:#003318;padding:5px 8px;border-radius:6px">✕ ${r.rejectReason}</div>`:''}
+    ${compact?'':actions}
+    ${compact?`<div class="action-row"><button class="btn-approve" onclick="approveReq('${rid}')">✅ Lulus</button><button class="btn-reject" onclick="openReject('${rid}','${r.staffName}','${r.date||''}')">✕ Tolak</button><button class="btn-del" onclick="delReq('${rid}')">🗑</button></div>`:''}
+  </div>`;
+}
+
+function renderRequests(){
+  const el=document.getElementById('allRequests');
+  let items=Object.entries(allReqs).map(([k,v])=>({...v,fbKey:k}));
+  if(reqFilter==='pending') items=items.filter(r=>!r.status||r.status==='pending');
+  else if(reqFilter==='approved') items=items.filter(r=>r.status==='approved');
+  else if(reqFilter==='rejected') items=items.filter(r=>r.status==='rejected');
+  else if(['CT','OFF','SYIF','TUKAR'].includes(reqFilter)) items=items.filter(r=>r.type===reqFilter);
+  items.sort((a,b)=>(b.date||b.submittedAt||'').localeCompare(a.date||a.submittedAt||''));
+  el.innerHTML=items.length?items.map(r=>buildReqCard(r,false)).join(''):'<div class="empty">Tiada request</div>';
+}
+
+window.filterReq=function(f,btn){
+  reqFilter=f;
+  document.querySelectorAll('#reqFilter .filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  renderRequests();
+}
+
+// REQUEST ACTIONS
+window.approveReq=function(rid){update(ref(db,'requests/'+rid),{status:'approved',rejectReason:''});toast('✅ Request diluluskan');}
+window.undoReq=function(rid){update(ref(db,'requests/'+rid),{status:'pending',rejectReason:''});}
+window.delReq=function(rid){
+  const el=document.getElementById('rc-'+rid);if(!el)return;
+  if(el.querySelector('.del-confirm'))return;
+  const div=document.createElement('div');div.className='del-confirm';
+  div.style.cssText='display:flex;gap:8px;margin-top:8px;align-items:center';
+  div.innerHTML=`<span style="flex:1;font-size:12px;color:#f87171">Buang request ini?</span>
+    <button onclick="doDelReq('${rid}')" style="background:#00a650;color:#fff;border:none;padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Ya</button>
+    <button onclick="this.closest('.del-confirm').remove()" style="background:#2e2e2e;color:#6a5e52;border:none;padding:6px 10px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit">Batal</button>`;
+  el.appendChild(div);
+}
+window.doDelReq=function(rid){remove(ref(db,'requests/'+rid));toast('Dibuang');}
+
+// REJECT MODAL
+window.openReject=function(rid,name,date){
+  rejectTargetId=rid;
+  document.getElementById('rejectModalSub').textContent=`${name} — ${fmt(date)}`;
+  document.getElementById('rejectReason').value='';
+  document.getElementById('rejectReason').style.borderColor='';
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('rejectModal').classList.add('show');
+}
+window.selPreset=function(btn,text){
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  document.getElementById('rejectReason').value=text;
+}
+window.closeRejectModal=function(){document.getElementById('rejectModal').classList.remove('show');rejectTargetId=null;}
+window.confirmReject=function(){
+  const reason=document.getElementById('rejectReason').value.trim();
+  if(!reason){document.getElementById('rejectReason').style.borderColor='#00a650';return;}
+  update(ref(db,'requests/'+rejectTargetId),{status:'rejected',rejectReason:reason});
+  closeRejectModal();toast('Request ditolak');
+}
+
+// TUGASAN
+function buildStaffFilters(data, filterId, key, renderFn){
+  const el=document.getElementById(filterId);
+  const staffList=[...new Set(Object.values(data).map(r=>r.staffName||r[key]).filter(Boolean))].sort();
+  el.innerHTML=`<div class="filter-chip active" onclick="filterStaff('${filterId.replace('Filter','')}','all',this)">Semua</div>`
+    +staffList.map(s=>`<div class="filter-chip" onclick="filterStaff('${filterId.replace('Filter','')}','${s}',this)">${s.split(' ')[0]}</div>`).join('');
+}
+
+window.filterStaff=function(type,staff,btn){
+  if(type==='tg') tgFilter=staff;
+  else if(type==='pemb') pembFilter=staff;
+  else if(type==='wcf') wcfFilter=staff;
+  const filterId=type+'Filter';
+  document.querySelectorAll('#'+filterId+' .filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  if(type==='tg') renderTugasan();
+  else if(type==='pemb') renderPemb();
+  else if(type==='wcf') renderWCF();
+}
+
+// PEMBERSIHAN
+function renderPemb(){
+  buildStaffFilters(allPemb,'pembFilter','staffName');
+  const el=document.getElementById('allPemb');
+  let items=Object.entries(allPemb).map(([k,v])=>({...v,fbKey:k}));
+  if(pembFilter!=='all') items=items.filter(r=>r.staffName===pembFilter);
+  items.sort((a,b)=>b.date.localeCompare(a.date));
+  if(!items.length){el.innerHTML='<div class="empty">Tiada laporan</div>';return;}
+  el.innerHTML=items.map(r=>{
+    const befores=r.beforeUrls||(r.beforeUrl?[r.beforeUrl]:[]);
+    const afters=r.afterUrls||(r.afterUrl?[r.afterUrl]:[]);
+    const befHtml=befores.map((u,i)=>`<a href="${u}" target="_blank" class="img-link" style="background:#faf4eb;border:1px solid #d8cfc4;color:#5a5048">📸 Sblm${befores.length>1?' '+(i+1):''}</a>`).join('');
+    const aftHtml=afters.map((u,i)=>`<a href="${u}" target="_blank" class="img-link" style="background:#dcf5e8;border:1px solid #86efac;color:#005c2e">✨ Slps${afters.length>1?' '+(i+1):''}</a>`).join('');
+    return`<div class="rcard">
+      <div class="rcard-top"><div><div class="rcard-name">${r.staffName}</div><div class="rcard-date">${fmt(r.date)}</div></div><span class="badge b-green">✅ ${befores.length}+${afters.length} gmb</span></div>
+      <div class="rcard-meta">${r.area}</div>
+      ${r.nota?`<div style="font-size:11px;color:#6a5e52;margin-top:3px;font-style:italic">📝 ${r.nota}</div>`:''}
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:5px;margin-top:7px">${befHtml}${aftHtml}</div>
+      <div style="font-size:10px;color:#a89880;margin-top:4px">${r.submittedAt}</div>
+    </div>`;
+  }).join('');
+}
+
+// WCF
+function renderWCF(){
+  buildStaffFilters(allWCF,'wcfFilter','staffName');
+  const el=document.getElementById('allWCF');
+  let items=Object.entries(allWCF).map(([k,v])=>({...v,fbKey:k}));
+  if(wcfFilter!=='all') items=items.filter(r=>r.staffName===wcfFilter);
+  items.sort((a,b)=>b.tarikh.localeCompare(a.tarikh));
+  if(!items.length){el.innerHTML='<div class="empty">Tiada rekod WCF</div>';return;}
+  el.innerHTML=items.map(r=>`
+    <div class="rcard">
+      <div class="rcard-top"><div><div class="rcard-name">${r.staffName}</div><div class="rcard-date">${fmt(r.tarikh)}</div></div><span class="badge b-blue">WCF</span></div>
+      <div class="rcard-meta">${r.jenis} · ${r.lokasi}</div>
+      <div style="font-size:11px;color:${r.permit==='YA'?'#fde68a':'#888'};margin-top:3px">Permit: ${r.permit}${r.permitJenis?' — '+r.permitJenis:''}</div>
+      ${r.penerangan?`<div style="font-size:11px;color:#6a5e52;margin-top:3px;font-style:italic">📝 ${r.penerangan}</div>`:''}
+      <div class="img-pair">
+        <a href="${r.gambarLokasi}" target="_blank" class="img-link" style="background:#f8f8f8;border:1px solid #3a3a3a;color:#6a5e52">📸 Lokasi</a>
+        <a href="${r.gambarPPE}" target="_blank" class="img-link" style="background:#e8f0ff;border:1px solid #0369a1;color:#7dd3fc">🦺 PPE</a>
+      </div>
+      <div style="font-size:10px;color:#7a6e62;margin-top:4px">${r.submittedAt}</div>
+    </div>`).join('');
+}
+
+// JADUAL UPLOAD
+window.uploadJadual=async function(type, input){
+  const file=input.files[0]; if(!file)return;
+  const progId=type==='bersih'?'progBersih':'progPosting';
+  const prog=document.getElementById(progId);
+  prog.style.display='block'; prog.textContent='⏳ Memproses jadual Excel...'; prog.className='upload-prog';
+
+  try{
+    // Read Excel using SheetJS
+    const {read, utils} = await import('https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs');
+    const buf = await file.arrayBuffer();
+    const wb = read(buf);
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = utils.sheet_to_json(ws, {header:1, defval:''});
+
+    // Find data rows (skip header rows, start from row 5 = index 4)
+    let uploaded=0;
+    for(let i=4; i<rows.length; i++){
+      const row=rows[i];
+      const tarikh=String(row[0]||'').trim();
+      if(!tarikh||!tarikh.match(/^\d{4}-\d{2}-\d{2}$/)) continue;
+
+      if(type==='bersih'){
+        const tugasan=String(row[1]||'').trim();
+        const staff=String(row[2]||'').trim();
+        if(!tugasan) continue;
+        await set(ref(db,`jadual_bersih/${tarikh}`),{tarikh,tugasan,staff,uploadedAt:new Date().toISOString()});
+      } else {
+        const tema=String(row[1]||'').trim();
+        const staff=String(row[2]||'').trim();
+        const platform=String(row[3]||'').trim()||'FB, IG, TT';
+        if(!tema) continue;
+        await set(ref(db,`jadual_posting/${tarikh}`),{tarikh,tema,staff,platform,uploadedAt:new Date().toISOString()});
+      }
+      uploaded++;
+    }
+
+    prog.textContent=`✅ ${uploaded} hari berjaya dimasukkan ke sistem!`;
+    prog.className='upload-prog done';
+    toast(`✅ Jadual ${type==='bersih'?'pembersihan':'posting'} diupload — ${uploaded} hari`);
+    setTimeout(()=>{prog.style.display='none';},3000);
+  } catch(e){
+    prog.textContent='⚠️ Gagal memproses fail. Pastikan format Excel betul.';
+    console.error(e);
+  }
+}
+
+// JADUAL VIEW
+function renderJadualView(){
+  // Bersih
+  const bEl=document.getElementById('jadualBersihView');
+  const bItems=Object.values(jadualBersih).sort((a,b)=>a.tarikh.localeCompare(b.tarikh)).slice(0,30);
+  bEl.innerHTML=bItems.length?bItems.map(r=>`
+    <div class="jadual-day">
+      <div class="jd-date">${fmt(r.tarikh)}</div>
+      <div class="jd-info">${r.tugasan}</div>
+      <div class="jd-staff">👤 ${r.staff}</div>
+    </div>`).join(''):'<div class="empty">Belum ada jadual</div>';
+
+  // Posting
+  const pEl=document.getElementById('jadualPostingView');
+  const pItems=Object.values(jadualPosting).sort((a,b)=>a.tarikh.localeCompare(b.tarikh)).slice(0,30);
+  pEl.innerHTML=pItems.length?pItems.map(r=>`
+    <div class="jadual-day">
+      <div class="jd-date">${fmt(r.tarikh)}</div>
+      <div class="jd-info">${r.tema}</div>
+      <div class="jd-staff">👤 ${r.staff} · ${r.platform}</div>
+    </div>`).join(''):'<div class="empty">Belum ada jadual</div>';
+}
+
+// JADUAL SYIF
+const STAFF_LIST=['NURUL IZYANA','MOHD MIZA','HASNAL','BELLA','LISA','SUHFEE','NELBOY','ATI','INSYIRAH','JOHNY','SHAFIKAH','ANDIEKA','FERENICA','SURIATI','ELFI'];
+const SYIF_OPT=['A','B','C','OFF','CUTI'];
+const SYIF_CLR={A:'background:#e8f0ff;color:#1d4ed8',B:'background:#dcf5e8;color:#005c2e',C:'background:#fef9c3;color:#92400e',OFF:'background:#f5efe6;color:#7a6e62',CUTI:'background:#fee2e2;color:#991b1b'};
+let syifData={};
+
+window.loadSyifGrid=function(){
+  const bulan=document.getElementById('syifBulan').value;
+  const tahun=document.getElementById('syifTahun').value;
+  const key=`${tahun}-${bulan}`;
+  const daysInMonth=new Date(tahun,parseInt(bulan),0).getDate();
+  document.getElementById('syifGridTitle').textContent=`Jadual Syif — ${['','Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'][parseInt(bulan)]} ${tahun}`;
+  // Load from Firebase
+  onValue(ref(db,`jadual_syif/${key}`),s=>{
+    syifData=s.val()||{};
+    buildSyifGrid(tahun,bulan,daysInMonth);
+  },{onlyOnce:true});
+  document.getElementById('syifGridWrap').style.display='block';
+}
+
+function buildSyifGrid(tahun,bulan,daysInMonth){
+  const days=Array.from({length:daysInMonth},(_,i)=>i+1);
+  const DAYS_SHORT=['Ahd','Isn','Sel','Rab','Kha','Jum','Sab'];
+  let html=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">
+    <thead><tr>
+      <th style="padding:6px 4px;background:#e8ddd0;border:1px solid #d8cfc4;text-align:left;min-width:90px">Staff</th>
+      ${days.map(d=>{
+        const dow=new Date(`${tahun}-${bulan}-${String(d).padStart(2,'0')}`).getDay();
+        const isFri=dow===5;
+        return`<th style="padding:4px 2px;background:${isFri?'#dcf5e8':'#e8ddd0'};border:1px solid #d8cfc4;text-align:center;min-width:38px">${d}<br><span style="color:#7a6e62;font-weight:400">${DAYS_SHORT[dow]}</span></th>`;
+      }).join('')}
+    </tr></thead>
+    <tbody>
+      ${STAFF_LIST.map(staff=>`<tr>
+        <td style="padding:5px 6px;border:1px solid #d8cfc4;font-weight:600;background:#fffcf7;white-space:nowrap">${staff.split(' ')[0]}</td>
+        ${days.map(d=>{
+          const dk=String(d).padStart(2,'0');
+          const cur=(syifData[staff]&&syifData[staff][dk])||'';
+          const clr=SYIF_CLR[cur]||'background:#fdf6ee;color:#aaa';
+          return`<td style="padding:2px;border:1px solid #d8cfc4;text-align:center">
+            <select onchange="setSyif('${staff}','${dk}',this.value)" style="${clr};border:none;border-radius:4px;font-size:10px;font-weight:700;width:100%;text-align:center;padding:3px 0;cursor:pointer;font-family:inherit">
+              <option value="">-</option>
+              ${SYIF_OPT.map(o=>`<option value="${o}" ${cur===o?'selected':''}>${o}</option>`).join('')}
+            </select>
+          </td>`;
+        }).join('')}
+      </tr>`).join('')}
+    </tbody>
+  </table></div>`;
+  document.getElementById('syifGrid').innerHTML=html;
+}
+
+window.setSyif=function(staff,day,val){
+  if(!syifData[staff]) syifData[staff]={};
+  syifData[staff][day]=val;
+}
+
+window.saveSyifJadual=async function(){
+  const bulan=document.getElementById('syifBulan').value;
+  const tahun=document.getElementById('syifTahun').value;
+  const key=`${tahun}-${bulan}`;
+  await set(ref(db,`jadual_syif/${key}`),syifData);
+  toast('✅ Jadual syif disimpan!');
+}
+
+// REPORT DETAIL MODAL
+window.showReport=function(type,data){
+  const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+  const MONTHS=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+  const fmtD=ds=>{if(!ds)return'—';const d=new Date(ds+'T00:00:00');return`${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;};
+  let html='';
+  if(type==='tugasan'){
+    const TUGASAN_ITEMS=['TILL (POS A & B)','AUDIT ROKOK','SUSUN BARANG KEDAI/PROMOSI','KEMAS STOR','LAP NOZEL & MOP ISLAND','BERSIHKAN TANDAS','BERSIHKAN SURAU','TUKAR AIR SQUEEZY','BUANG SAMPAH & SAPU KELILING','BERSIHKAN PAM ANGIN & PAM 13&14','SAPU & MOP KEDAI, OFIS & KAUNTER','SAPU LONGKANG','LAP HABUK','BERSIHKAN 4 BILIK','BUAT POSTING FB/IG/TT','BARANG KEDAI SAMPAI','RECEIVING BARANG KEDAI','EOD TILL','SETTLEMENT EDC','BENDERA PMS','POTONG RUMPUT','CAT KURB','GAS LPG 12KG','GAS LPG 14KG','DIPPING & READING'];
+    const ROUND=['Kawasan Pam/Island','Tandas & Surau','Kedai Mesra','Kaunter & Ofis','Stor','Persekitaran Luar','Peralatan Keselamatan','Lampu & Papan Tanda'];
+    html=`<div style="font-size:15px;font-weight:800;margin-bottom:4px">📋 Laporan Tugasan</div>
+    <div style="font-size:12px;color:#7a6e62;margin-bottom:14px">${data.staffName} · Syif ${data.shift} · ${fmtD(data.date)}</div>
+    ${data.gas12||data.gas14?`<div style="background:#dcf5e8;border:1px solid #86efac;border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:12px">⛽ LPG 12kg: <strong>${data.gas12||'—'}</strong> tong &nbsp;·&nbsp; LPG 14kg: <strong>${data.gas14||'—'}</strong> tong</div>`:''}
+    <div style="font-size:11px;font-weight:700;color:#007a3d;margin-bottom:6px;text-transform:uppercase">Senarai Tugasan</div>
+    ${TUGASAN_ITEMS.map((item,i)=>{const v=(data.checks||{})[i+1];return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:${v?'#f5efe6':'#fff'};border:1px solid #d8cfc4;border-radius:7px;margin-bottom:4px;font-size:12px"><span style="flex:1">${i+1}. ${item}</span><span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;${v==='Y'?'background:#dcf5e8;color:#005c2e':v==='T'?'background:#fee2e2;color:#991b1b':'background:#f5efe6;color:#a89880'}">${v||'—'}</span></div>`;}).join('')}
+    <div style="font-size:11px;font-weight:700;color:#007a3d;margin:10px 0 6px;text-transform:uppercase">Round Stesen</div>
+    ${ROUND.map((item,i)=>{const k='r'+(i+1);const v=(data.roundChecks||{})[k];return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:${v==='ISU'?'#fee2e2':'#f5efe6'};border:1px solid ${v==='ISU'?'#fca5a5':'#d8cfc4'};border-radius:7px;margin-bottom:4px;font-size:12px"><span style="flex:1">${item}</span><span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;${v==='OK'?'background:#dcf5e8;color:#005c2e':v==='ISU'?'background:#fee2e2;color:#991b1b':'background:#f5efe6;color:#a89880'}">${v||'—'}</span></div>`;}).join('')}
+    ${data.roundNota?`<div style="background:#fef9c3;border:1px solid #fcd34d;border-radius:8px;padding:8px 12px;margin-top:8px;font-size:12px">📝 ${data.roundNota}</div>`:''}
+    ${data.roundImgs&&data.roundImgs.length?`<div style="margin-top:8px"><div style="font-size:11px;color:#007a3d;font-weight:700;margin-bottom:5px">📸 Gambar Round</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px">${data.roundImgs.map(u=>`<a href="${u}" target="_blank"><img src="${u}" style="width:100%;height:65px;object-fit:cover;border-radius:7px;border:1px solid #d8cfc4"></a>`).join('')}</div></div>`:''}
+    ${data.nota?`<div style="background:#f5efe6;border:1px solid #d8cfc4;border-radius:8px;padding:8px 12px;margin-top:8px;font-size:12px">📝 Catatan: ${data.nota}</div>`:''}`;
+  }
+  document.getElementById('reportModalContent').innerHTML=html;
+  document.getElementById('reportModal').classList.add('show');
+}
+
+// Update renderTugasan to add "Buka" button
+function renderTugasan(){
+  buildStaffFilters(allTugasan,'tgFilter','staffName');
+  const el=document.getElementById('allTugasan');
+  let items=Object.entries(allTugasan).map(([k,v])=>({...v,fbKey:k}));
+  if(tgFilter!=='all') items=items.filter(r=>r.staffName===tgFilter);
+  items.sort((a,b)=>b.date.localeCompare(a.date));
+  if(!items.length){el.innerHTML='<div class="empty">Tiada laporan</div>';return;}
+  el.innerHTML=items.map(r=>{
+    const done=Object.keys(r.checks||{}).length;
+    const roundIssues=Object.entries(r.roundChecks||{}).filter(([k,v])=>v==='ISU').length;
+    return`<div class="rcard">
+      <div class="rcard-top"><div><div class="rcard-name">${r.staffName}</div><div class="rcard-date">${fmt(r.date)} · Syif ${r.shift}</div></div><span class="badge b-blue">${done}/25</span></div>
+      <div class="rcard-meta">${r.gas12?`LPG 12kg: ${r.gas12} tong · `:''}${r.gas14?`LPG 14kg: ${r.gas14} tong`:''}</div>
+      ${roundIssues>0?`<div style="font-size:11px;color:#991b1b;background:#fee2e2;padding:4px 8px;border-radius:6px;margin-top:4px">⚠️ ${roundIssues} isu round stesen</div>`:''}
+      ${r.nota?`<div style="font-size:11px;color:#7a6e62;margin-top:3px;font-style:italic">📝 ${r.nota}</div>`:''}
+      <div style="display:flex;gap:6px;margin-top:7px">
+        <button onclick='showReport("tugasan",${JSON.stringify(r)})' style="flex:1;background:#dcf5e8;border:1px solid #86efac;color:#005c2e;padding:7px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔍 Buka Laporan</button>
+        ${r.roundImgs&&r.roundImgs.length?`<a href="${r.roundImgs[0]}" target="_blank" style="background:#faf4eb;border:1px solid #d8cfc4;color:#5a5048;padding:7px 10px;border-radius:7px;font-size:12px;text-decoration:none">📸 ${r.roundImgs.length}</a>`:''}
+      </div>
+      <div style="font-size:10px;color:#a89880;margin-top:4px">${r.submittedAt}</div>
+    </div>`;
+  }).join('');
+}
+
+// Also update request display to show date range
+function buildReqCard(r, compact=false){
+  const rid=r.fbKey||r.id;
+  const st=r.status||'pending';
+  const sc={pending:'b-yellow',approved:'b-green',rejected:'b-red'}[st];
+  const si={pending:'⏳ Menunggu',approved:'✅ Diluluskan',rejected:'✕ Ditolak'}[st];
+  let dateInfo='';
+  if(r.dateEnd&&r.dateEnd!==r.date){
+    const days=r.days||Math.round((new Date(r.dateEnd+'T00:00:00')-new Date(r.date+'T00:00:00'))/86400000)+1;
+    dateInfo=`${fmt(r.date)} — ${fmt(r.dateEnd)} <span style="background:#dcf5e8;color:#005c2e;padding:1px 6px;border-radius:10px;font-size:10px">${days} hari</span>`;
+  } else { dateInfo=fmt(r.date); }
+  let extra='';
+  if(r.type==='SYIF') extra=`<div style="font-size:11px;color:#6d28d9;margin-top:3px">🔄 Minta Syif ${r.syifWant}</div>`;
+  if(r.type==='TUKAR') extra=`<div style="font-size:11px;color:#0369a1;margin-top:3px">↔ ${r.syifAsal}→${r.syifMinta}${r.swapStaff?' dengan '+r.swapStaff:''}</div>`;
+  const actions=`<div class="action-row">
+    ${st==='pending'?`<button class="btn-approve" onclick="approveReq('${rid}')">✅ Lulus</button><button class="btn-reject" onclick="openReject('${rid}','${r.staffName}','${r.date||''}')">✕ Tolak</button>`:`<button class="btn-undo" onclick="undoReq('${rid}')">↩ Undo</button>`}
+    <button class="btn-del" onclick="delReq('${rid}')">🗑</button>
+  </div>`;
+  return`<div id="rc-${rid}" class="rcard">
+    <div class="rcard-top">
+      <div><div class="rcard-name">${r.staffName}${r.isEmergency?' <span style="background:#fef9c3;color:#92400e;padding:1px 5px;border-radius:4px;font-size:9px">EMERG</span>':''}</div>
+      <div class="rcard-date">${TL[r.type]||r.type} · ${dateInfo}</div></div>
+      <span class="badge ${sc}">${si}</span>
+    </div>
+    ${extra}
+    <div style="font-size:11px;color:#7a6e62;margin-top:3px">💬 WA: ${fmt(r.receivedDate)} · 📝 ${r.nota}</div>
+    ${st==='rejected'&&r.rejectReason?`<div style="font-size:11px;color:#991b1b;margin-top:3px;background:#fee2e2;padding:5px 8px;border-radius:6px">✕ ${r.rejectReason}</div>`:''}
+    ${actions}
+  </div>`;
+}
+
+// STAFF PASSWORD MANAGEMENT
+const STAFF_LIST_ALL=['NURUL IZYANA','MOHD MIZA','HASNAL','BELLA','LISA','SUHFEE','NELBOY','ATI','INSYIRAH','JOHNY','SHAFIKAH','ANDIEKA','FERENICA','SURIATI','ELFI'];
+let staffPasswords={};
+onValue(ref(db,'staff_passwords'),s=>{staffPasswords=s.val()||{};renderStaffPassList();});
+
+function renderStaffPassList(){
+  const el=document.getElementById('staffPassList');
+  if(!el) return;
+  el.innerHTML=`<div style="background:#dcf5e8;border:1px solid #86efac;border-radius:9px;padding:10px 13px;margin-bottom:12px;font-size:12px;color:#005c2e">
+    ℹ️ Password default semua staff: <strong>1234</strong>. Staff boleh tukar sendiri dalam portal mereka.
+  </div>`+STAFF_LIST_ALL.map(name=>{
+    const key=name.replace(/ /g,'_');
+    const stored=staffPasswords[key];
+    const isDefault=!stored||stored==='1234';
+    return`<div class="rcard" style="margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:700">${name}</div>
+          <div style="font-size:11px;margin-top:2px;color:${isDefault?'#92400e':'#005c2e'}">${isDefault?'⚠️ Masih guna password default (1234)':'✅ Password peribadi dah ditetapkan'}</div>
+        </div>
+        <span style="padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;${isDefault?'background:#fef9c3;color:#92400e;border:1px solid #fcd34d':'background:#dcf5e8;color:#005c2e;border:1px solid #86efac'}">${isDefault?'Default':'Custom'}</span>
+      </div>
+      <div style="display:flex;gap:7px;align-items:center">
+        <div style="position:relative;flex:1">
+          <input type="password" id="pw_${key}" placeholder="Set password baru..." style="width:100%;background:#fffcf7;border:1.5px solid #c8baa8;color:#2a2218;padding:9px 36px 9px 12px;border-radius:9px;font-size:13px;font-family:'DM Sans',sans-serif">
+          <button onclick="togglePw('pw_${key}')" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:14px;cursor:pointer;color:#7a6e62">👁</button>
+        </div>
+        <button onclick="savePass('${name}','${key}')" style="background:linear-gradient(135deg,#00a650,#007a3d);color:#fff;border:none;padding:9px 12px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap">💾 Set</button>
+        <button onclick="resetPass('${name}','${key}')" style="background:#fef9c3;border:1px solid #fcd34d;color:#92400e;padding:9px 10px;border-radius:9px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap" title="Reset ke 1234">🔄</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+window.togglePw=function(id){
+  const inp=document.getElementById(id);
+  inp.type=inp.type==='password'?'text':'password';
+}
+window.savePass=async function(name,key){
+  const val=document.getElementById('pw_'+key).value.trim();
+  if(!val){toast('Taip password dulu');return;}
+  if(val.length<4){toast('Password sekurang-kurang 4 aksara');return;}
+  await set(ref(db,'staff_passwords/'+key),val);
+  document.getElementById('pw_'+key).value='';
+  toast(`✅ Password ${name} dah disimpan!`);
+}
+window.resetPass=async function(name,key){
+  await set(ref(db,'staff_passwords/'+key),'1234');
+  toast(`🔄 Password ${name} dah reset ke 1234`);
+}
+window.clearPass=async function(key){
+  await remove(ref(db,'staff_passwords/'+key));
+  toast('Password dipadam — staff akan guna default 1234');
+}
+
+// NAV
+window.sw=function(tab){
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>{
+    const tabs=['dashboard','request','tugasan','pembersihan','wcf','syif','jadual','staff'];
+    t.classList.toggle('active',tabs[i]===tab);
+  });
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  if(tab==='staff') renderStaffPassList();
+}
+</script>
+</body>
+</html>
