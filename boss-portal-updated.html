@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#00a650">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="PS Papar Boss">
+<title>Boss Portal — PETRONAS Papar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#f0f7f3;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-height:100vh;padding-bottom:80px;}
+.header{background:linear-gradient(135deg,#005c2e,#003d1f);border-bottom:2px solid #00a650;padding:14px 16px;}
+.header-row{display:flex;align-items:center;gap:10px;}
+.logo{width:38px;height:38px;background:#00a650;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;flex-shrink:0;}
+.h-title{font-size:15px;font-weight:700;color:#fff;}
+.h-sub{font-size:11px;color:#a3d9b8;margin-top:1px;}
+.conn-bar{padding:6px 16px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:6px;background:#fff8e1;color:#b45309;border-bottom:1px solid #fcd34d;}
+.conn-bar.ok{background:#dcf0e4;color:#166534;border-color:#86efac;}
+.conn-dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0;}
+/* LOGIN */
+.login-wrap{padding:40px 24px;text-align:center;}
+.login-icon{font-size:48px;margin-bottom:16px;}
+.pin-row{display:flex;justify-content:center;gap:10px;margin-bottom:16px;}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:#d4e8da;border:2px solid #b8d8c3;transition:background .15s;}
+.pin-dot.filled{background:#00a650;border-color:#00a650;}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 16px;}
+.pin-btn{background:#fff;border:1.5px solid #b8d8c3;color:#1a1a1a;padding:16px;border-radius:12px;font-size:20px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.pin-btn:active{background:#dcf0e4;border-color:#00a650;}
+.pin-del{background:#fef2f2;border-color:#fca5a5;color:#ef4444;font-size:16px;}
+.pin-error{color:#ef4444;font-size:13px;margin-top:8px;min-height:20px;}
+/* NAV */
+.nav-tabs{display:flex;overflow-x:auto;background:#fff;border-bottom:1px solid #d4e8da;-webkit-overflow-scrolling:touch;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{padding:10px 12px;font-size:11px;font-weight:600;color:#7a6e62;border-bottom:2px solid transparent;white-space:nowrap;cursor:pointer;flex-shrink:0;}
+.nav-tab.active{color:#00a650;border-bottom-color:#00a650;}
+/* VIEWS */
+.view{display:none;padding:14px 16px 20px;}
+.view.active{display:block;}
+/* CARDS */
+.card{background:#fff;border:1px solid #d4e8da;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.card-title{font-size:11px;font-weight:700;color:#7a6e62;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;}
+.sec-hdr{font-size:11px;font-weight:700;color:#6a5e52;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #d4e8da;}
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.stat-card{background:#fff;border:1px solid #d4e8da;border-radius:12px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.stat-num{font-size:26px;font-weight:800;line-height:1;}
+.stat-lbl{font-size:11px;color:#7a6e62;margin-top:3px;}
+/* FIELDS */
+.field{margin-bottom:11px;}
+.field label{display:block;font-size:11px;font-weight:600;color:#6a5e52;margin-bottom:4px;}
+.field select,.field input{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;color:#1a1a1a;padding:10px 12px;border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;-webkit-appearance:none;}
+.field select:focus,.field input:focus{outline:none;border-color:#00a650;}
+/* SUBMIT */
+.submit-btn{width:100%;background:#00a650;color:#fff;border:none;padding:13px;border-radius:11px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:6px;}
+.btn-outline{width:100%;background:transparent;color:#00a650;border:1.5px solid #00a650;padding:11px;border-radius:11px;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-top:6px;}
+/* UPLOAD AREA */
+.upload-area{border:2px dashed #b8d8c3;border-radius:12px;padding:20px;text-align:center;cursor:pointer;background:#f0f7f3;margin-bottom:8px;}
+.upload-area:active{border-color:#00a650;}
+.upload-area .ico{font-size:28px;margin-bottom:6px;}
+.upload-area .txt{font-size:12px;color:#7a6e62;}
+.upload-prog{background:#fff8e1;border:1px solid #fcd34d;border-radius:7px;padding:7px 10px;font-size:12px;color:#b45309;margin-top:6px;display:none;}
+.upload-prog.done{background:#dcf0e4;border-color:#86efac;color:#166534;}
+/* REPORT CARDS */
+.rcard{background:#fff;border:1px solid #d4e8da;border-radius:10px;padding:11px 13px;margin-bottom:7px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.rcard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px;}
+.rcard-name{font-size:14px;font-weight:700;color:#1a1a1a;}
+.rcard-date{font-size:11px;color:#7a6e62;margin-top:2px;}
+.badge{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+.b-green{background:#dcf0e4;color:#166534;border:1px solid #86efac;}
+.b-yellow{background:#fff8e1;color:#b45309;border:1px solid #fcd34d;}
+.b-red{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;}
+.b-blue{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd;}
+.b-amber{background:#fffbeb;color:#d97706;border:1px solid #fcd34d;}
+.b-purple{background:#f5f3ff;color:#6d28d9;border:1px solid #c4b5fd;}
+.b-orange{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;}
+.rcard-meta{font-size:11px;color:#7a6e62;}
+/* ACTION BTNS */
+.action-row{display:flex;gap:6px;margin-top:8px;}
+.btn-approve{flex:1;background:#dcf0e4;color:#166534;border:1px solid #86efac;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-reject{flex:1;background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.btn-undo{flex:1;background:#f5f5f5;color:#7a6e62;border:1px solid #d4d4d4;padding:8px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;}
+.btn-del{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;padding:8px 10px;border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit;}
+.btn-pdf{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+/* REJECT MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;backdrop-filter:blur(4px);}
+.modal-bg.show{display:flex;}
+.modal{background:#fff;border-top:2px solid #00a650;border-radius:20px 20px 0 0;width:100%;padding:20px 18px 32px;animation:slideUp .22s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:#d4e8da;border-radius:2px;margin:0 auto 14px;}
+.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;}
+.preset-btn{background:#f0f7f3;border:1px solid #b8d8c3;color:#6a5e52;padding:10px 8px;border-radius:9px;font-size:12px;cursor:pointer;font-family:inherit;text-align:center;}
+.preset-btn.sel{background:#fef2f2;border-color:#fca5a5;color:#b91c1c;}
+.modal-inp{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;color:#1a1a1a;padding:10px 12px;border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:10px;}
+.modal-inp:focus{outline:none;border-color:#00a650;}
+.modal-confirm{width:100%;background:#ef4444;color:#fff;border:none;padding:13px;border-radius:10px;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:8px;}
+.modal-cancel{width:100%;background:transparent;color:#7a6e62;border:1px solid #d4e8da;padding:11px;border-radius:10px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+/* FILTER */
+.filter-row{display:flex;gap:8px;margin-bottom:12px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.filter-row::-webkit-scrollbar{display:none;}
+.filter-chip{padding:5px 12px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid #d4e8da;background:#fff;color:#7a6e62;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.filter-chip.active{background:#dcf0e4;border-color:#00a650;color:#005c2e;}
+/* HSE filter active colours */
+.filter-chip.fc-hazard.active{background:#fffbeb;border-color:#f59e0b;color:#92400e;}
+.filter-chip.fc-uauc.active{background:#fef2f2;border-color:#ef4444;color:#b91c1c;}
+.filter-chip.fc-near.active{background:#eff6ff;border-color:#3b82f6;color:#1d4ed8;}
+.filter-chip.fc-improve.active{background:#dcf0e4;border-color:#00a650;color:#005c2e;}
+/* JADUAL */
+.jadual-day{background:#f0f7f3;border:1px solid #d4e8da;border-radius:9px;padding:9px 11px;margin-bottom:5px;}
+.jd-date{font-size:12px;font-weight:700;color:#00a650;margin-bottom:2px;}
+.jd-info{font-size:12px;color:#1a1a1a;}
+.jd-staff{font-size:11px;color:#7a6e62;margin-top:1px;}
+/* IMAGE */
+.img-pair{display:flex;gap:6px;margin-top:7px;}
+.img-link{flex:1;text-align:center;padding:6px;border-radius:7px;font-size:11px;text-decoration:none;}
+/* DIVIDER */
+.divider{height:1px;background:#d4e8da;margin:14px 0;}
+.empty{text-align:center;color:#aaa;padding:24px;font-size:13px;}
+/* DETAIL MODAL */
+.detail-modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;overflow-y:auto;}
+.detail-modal-bg.show{display:block;}
+.detail-modal{background:#fff;border-top:2px solid #00a650;min-height:100vh;padding:0 0 40px;}
+.dm-header{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #d4e8da;position:sticky;top:0;background:#fff;z-index:10;}
+.dm-back{background:#dcf0e4;border:1px solid #86efac;color:#166534;padding:7px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;}
+.dm-title{font-size:14px;font-weight:700;flex:1;color:#1a1a1a;}
+.dm-body{padding:14px 16px;}
+.dm-section{margin-bottom:16px;}
+.dm-sec-title{font-size:10px;font-weight:700;color:#7a6e62;text-transform:uppercase;letter-spacing:0.6px;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid #d4e8da;}
+.dm-row{display:flex;justify-content:space-between;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f0f0f0;gap:8px;}
+.dm-row:last-child{border-bottom:none;}
+.dm-label{font-size:12px;color:#7a6e62;flex-shrink:0;max-width:50%;}
+.dm-val{font-size:12px;color:#1a1a1a;text-align:right;}
+.chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+.chk-cell{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:7px;padding:6px 8px;font-size:11px;}
+.chk-cell .ci-lbl{color:#888;margin-bottom:2px;}
+.chk-cell .ci-val{font-weight:700;}
+.ci-y{color:#166534;} .ci-t{color:#b91c1c;} .ci-na{color:#b45309;} .ci-miss{color:#bbb;}
+.img-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px;}
+.img-thumb{width:100%;aspect-ratio:1;object-fit:cover;border-radius:7px;border:1.5px solid #d4e8da;cursor:pointer;}
+.round-cell{background:#f8f8f8;border:1px solid #e5e5e5;border-radius:7px;padding:7px 9px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.rc-label{color:#6a5e52;flex:1;}
+.rc-ok{color:#166534;font-weight:700;font-size:11px;}
+.rc-isu{color:#b91c1c;font-weight:700;font-size:11px;}
+.rc-miss{color:#bbb;font-size:11px;}
+/* HSE RECORD */
+.hse-rec{background:#fff;border:1px solid #d4e8da;border-radius:10px;padding:11px 13px;margin-bottom:7px;border-left:3px solid #d4e8da;}
+.hse-rec.hr-hazard{border-left-color:#f59e0b;}
+.hse-rec.hr-uauc{border-left-color:#ef4444;}
+.hse-rec.hr-nearmiss{border-left-color:#3b82f6;}
+.hse-rec.hr-improve{border-left-color:#00a650;}
+/* RISK BADGE */
+.risk-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.rb-rendah{background:#dcf0e4;color:#166534;}
+.rb-sederhana{background:#fffbeb;color:#d97706;}
+.rb-tinggi{background:#fef2f2;color:#b91c1c;}
+/* PDF BTN in detail */
+.btn-dl-pdf{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;background:#1d4ed8;color:#fff;border:none;padding:12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-bottom:10px;}
+.btn-dl-pdf:active{opacity:.85;}
+/* TOAST */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="header"><div class="header-row"><div class="logo">PS</div><div><div class="h-title">Boss Portal</div><div class="h-sub">PETRONAS Papar · Pengurusan</div></div></div></div>
+  <div class="login-wrap">
+    <div class="login-icon">🔐</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:6px">Log Masuk Boss</div>
+    <div style="font-size:13px;color:#7a6e62;margin-bottom:24px">Masukkan PIN 4 digit</div>
+    <div class="pin-row">
+      <div class="pin-dot" id="pd0"></div><div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div><div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pinPress(1)">1</button>
+      <button class="pin-btn" onclick="pinPress(2)">2</button>
+      <button class="pin-btn" onclick="pinPress(3)">3</button>
+      <button class="pin-btn" onclick="pinPress(4)">4</button>
+      <button class="pin-btn" onclick="pinPress(5)">5</button>
+      <button class="pin-btn" onclick="pinPress(6)">6</button>
+      <button class="pin-btn" onclick="pinPress(7)">7</button>
+      <button class="pin-btn" onclick="pinPress(8)">8</button>
+      <button class="pin-btn" onclick="pinPress(9)">9</button>
+      <button class="pin-btn" onclick="pinPress(0)" style="grid-column:2">0</button>
+      <button class="pin-btn pin-del" onclick="pinDel()">⌫</button>
+    </div>
+    <div class="pin-error" id="pinError"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="mainApp" style="display:none">
+  <div class="header">
+    <div class="header-row">
+      <div class="logo">PS</div>
+      <div style="flex:1"><div class="h-title">Boss Portal</div><div style="font-size:11px;color:#a3d9b8;margin-top:1px;font-weight:600">PENGURUSAN</div></div>
+      <button onclick="doLogout()" style="background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Keluar</button>
+    </div>
+  </div>
+  <div class="conn-bar" id="connBar"><div class="conn-dot"></div><span id="connTxt">Menyambung...</span></div>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="sw('dashboard')">📊 Dashboard</div>
+    <div class="nav-tab" onclick="sw('request')">📝 Request</div>
+    <div class="nav-tab" onclick="sw('tugasan')">📋 Tugasan</div>
+    <div class="nav-tab" onclick="sw('pembersihan')">🧹 Bersih</div>
+    <div class="nav-tab" onclick="sw('wcf')">📄 WCF</div>
+    <div class="nav-tab" onclick="sw('hse')">⚠️ HSE</div>
+    <div class="nav-tab" onclick="sw('jadual')">📅 Jadual</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="view active" id="view-dashboard">
+    <div class="sec-hdr">Ringkasan Hari Ini</div>
+    <div class="stats-grid" id="statsGrid"></div>
+    <div class="card">
+      <div class="card-title">⏳ Request Menunggu Kelulusan</div>
+      <div id="pendingRequests"><div class="empty">Tiada request menunggu</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚠️ Laporan HSE Terkini</div>
+      <div id="recentHSE"><div class="empty">Tiada laporan HSE</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 Laporan Tugasan Terkini</div>
+      <div id="recentTugasan"><div class="empty">Tiada laporan</div></div>
+    </div>
+  </div>
+
+  <!-- REQUEST -->
+  <div class="view" id="view-request">
+    <div class="sec-hdr">Semua Request</div>
+    <div class="filter-row" id="reqFilter">
+      <div class="filter-chip active" onclick="filterReq('all',this)">Semua</div>
+      <div class="filter-chip" onclick="filterReq('pending',this)">⏳ Menunggu</div>
+      <div class="filter-chip" onclick="filterReq('approved',this)">✅ Diluluskan</div>
+      <div class="filter-chip" onclick="filterReq('rejected',this)">✕ Ditolak</div>
+      <div class="filter-chip" onclick="filterReq('CT',this)">Cuti Tahunan</div>
+      <div class="filter-chip" onclick="filterReq('OFF',this)">Off Day</div>
+      <div class="filter-chip" onclick="filterReq('SYIF',this)">Request Syif</div>
+      <div class="filter-chip" onclick="filterReq('TUKAR',this)">Tukar Syif</div>
+    </div>
+    <div id="allRequests"><div class="empty">Tiada request</div></div>
+  </div>
+
+  <!-- TUGASAN -->
+  <div class="view" id="view-tugasan">
+    <div class="sec-hdr">Laporan Tugasan Krew</div>
+    <div class="filter-row" id="tgFilter">
+      <div class="filter-chip active" onclick="filterStaff('tg','all',this)">Semua Staff</div>
+    </div>
+    <div id="allTugasan"><div class="empty">Tiada laporan</div></div>
+  </div>
+
+  <!-- PEMBERSIHAN -->
+  <div class="view" id="view-pembersihan">
+    <div class="sec-hdr">Laporan Pembersihan</div>
+    <div class="filter-row" id="pembFilter">
+      <div class="filter-chip active" onclick="filterStaff('pemb','all',this)">Semua Staff</div>
+    </div>
+    <div id="allPemb"><div class="empty">Tiada laporan</div></div>
+  </div>
+
+  <!-- WCF -->
+  <div class="view" id="view-wcf">
+    <div class="sec-hdr">Borang Kebenaran Kerja (WCF)</div>
+    <div class="filter-row" id="wcfFilter">
+      <div class="filter-chip active" onclick="filterStaff('wcf','all',this)">Semua Staff</div>
+    </div>
+    <div id="allWCF"><div class="empty">Tiada rekod WCF</div></div>
+  </div>
+
+  <!-- HSE -->
+  <div class="view" id="view-hse">
+    <div class="sec-hdr">⚠️ Laporan HSE Staff</div>
+    <!-- HSE Stats -->
+    <div class="stats-grid" id="hseStatsGrid" style="grid-template-columns:repeat(4,1fr)"></div>
+    <div class="filter-row" id="hseFilter">
+      <div class="filter-chip active" onclick="filterHSE('all',this)">Semua</div>
+      <div class="filter-chip fc-hazard" onclick="filterHSE('hazard',this)">⚠️ Hazard</div>
+      <div class="filter-chip fc-uauc" onclick="filterHSE('uauc',this)">🚫 UA/UC</div>
+      <div class="filter-chip fc-near" onclick="filterHSE('nearmiss',this)">🎯 Near Miss</div>
+      <div class="filter-chip fc-improve" onclick="filterHSE('improve',this)">💡 Penambahbaikan</div>
+    </div>
+    <div class="filter-row" id="hseStaffFilter">
+      <div class="filter-chip active" onclick="filterHSEStaff('all',this)">Semua Staff</div>
+    </div>
+    <div id="allHSE"><div class="empty">Tiada laporan HSE</div></div>
+  </div>
+
+  <!-- JADUAL -->
+  <div class="view" id="view-jadual">
+    <div class="sec-hdr">Upload Jadual Bulanan</div>
+    <div class="card">
+      <div class="card-title">🧹 Upload Jadual Pembersihan</div>
+      <div style="font-size:12px;color:#7a6e62;margin-bottom:10px">Upload fail Excel template jadual pembersihan. Data akan auto masuk ke sistem.</div>
+      <div class="upload-area" onclick="document.getElementById('upBersih').click()">
+        <div class="ico">📊</div>
+        <div class="txt">Tap untuk pilih fail Excel (.xlsx)<br>Template_Jadual_Pembersihan.xlsx</div>
+      </div>
+      <input type="file" id="upBersih" accept=".xlsx,.xls" style="display:none" onchange="uploadJadual('bersih',this)">
+      <div class="upload-prog" id="progBersih">⏳ Memproses jadual...</div>
+    </div>
+    <div class="card">
+      <div class="card-title">📱 Upload Jadual Posting Medsos</div>
+      <div style="font-size:12px;color:#7a6e62;margin-bottom:10px">Upload fail Excel template jadual posting. Data akan auto masuk ke sistem.</div>
+      <div class="upload-area" onclick="document.getElementById('upPosting').click()">
+        <div class="ico">📊</div>
+        <div class="txt">Tap untuk pilih fail Excel (.xlsx)<br>Template_Jadual_Posting_Medsos.xlsx</div>
+      </div>
+      <input type="file" id="upPosting" accept=".xlsx,.xls" style="display:none" onchange="uploadJadual('posting',this)">
+      <div class="upload-prog" id="progPosting">⏳ Memproses jadual...</div>
+    </div>
+    <div class="divider"></div>
+    <div class="sec-hdr">Jadual Aktif</div>
+    <div class="card"><div class="card-title">🧹 Jadual Pembersihan</div><div id="jadualBersihView"><div class="empty">Belum ada jadual</div></div></div>
+    <div class="card"><div class="card-title">📱 Jadual Posting</div><div id="jadualPostingView"><div class="empty">Belum ada jadual</div></div></div>
+  </div>
+
+</div><!-- end mainApp -->
+
+<!-- DETAIL MODAL -->
+<div class="detail-modal-bg" id="detailModal">
+  <div class="detail-modal">
+    <div class="dm-header">
+      <button class="dm-back" onclick="closeDetail()">← Tutup</button>
+      <div class="dm-title" id="dmTitle">Laporan</div>
+      <span class="badge" id="dmBadge"></span>
+    </div>
+    <div class="dm-body" id="dmBody"></div>
+  </div>
+</div>
+
+<!-- REJECT MODAL -->
+<div class="modal-bg" id="rejectModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div style="font-size:15px;font-weight:700;margin-bottom:4px;color:#1a1a1a">Tolak Request</div>
+    <div style="font-size:12px;color:#7a6e62;margin-bottom:14px" id="rejectModalSub"></div>
+    <div class="preset-grid">
+      <button class="preset-btn" onclick="selPreset(this,'Kurang staf pada tarikh tersebut')">Kurang staf</button>
+      <button class="preset-btn" onclick="selPreset(this,'Tarikh sudah penuh')">Tarikh penuh</button>
+      <button class="preset-btn" onclick="selPreset(this,'Tidak cukup notis awal')">Notis terlambat</button>
+      <button class="preset-btn" onclick="selPreset(this,'Bertindih dengan staff lain')">Bertindih</button>
+      <button class="preset-btn" onclick="selPreset(this,'Sedang dalam tempoh percubaan')">Tempoh percubaan</button>
+      <button class="preset-btn" onclick="selPreset(this,'Lain-lain')">Lain-lain</button>
+    </div>
+    <input class="modal-inp" id="rejectReason" placeholder="Atau tulis sebab sendiri...">
+    <button class="modal-confirm" onclick="confirmReject()">✕ Sahkan Tolak</button>
+    <button class="modal-cancel" onclick="closeRejectModal()">Batal</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+
+const app = initializeApp({
+  apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
+  authDomain:"ps-papar.firebaseapp.com",
+  databaseURL:"https://ps-papar-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:"ps-papar",storageBucket:"ps-papar.firebasestorage.app",
+  messagingSenderId:"899715424164",appId:"1:899715424164:web:91584f2d3db796095beb31"
+});
+const db = getDatabase(app);
+
+const PIN = '1234'; // ← TUKAR PIN DI SINI
+const MONTHS=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+const TL={CT:'Cuti Tahunan',OFF:'Off Day',SYIF:'Request Syif',TUKAR:'Tukar Syif'};
+
+let pinInput='';
+let allReqs={}, allTugasan={}, allPemb={}, allMedsos={}, allWCF={}, allHSE={};
+let jadualBersih={}, jadualPosting={};
+let rejectTargetId=null;
+let reqFilter='all', tgFilter='all', pembFilter='all', wcfFilter='all';
+let hseTypeFilter='all', hseStaffFilter='all';
+
+// PIN
+window.pinPress=function(n){
+  if(pinInput.length>=4)return;
+  pinInput+=String(n); updatePinDots();
+  if(pinInput.length===4){
+    setTimeout(()=>{
+      if(pinInput===PIN){
+        document.getElementById('loginScreen').style.display='none';
+        document.getElementById('mainApp').style.display='block';
+      } else {
+        document.getElementById('pinError').textContent='PIN salah. Cuba semula.';
+        pinInput=''; updatePinDots();
+      }
+    },200);
+  }
+}
+window.pinDel=function(){if(pinInput.length>0){pinInput=pinInput.slice(0,-1);updatePinDots();document.getElementById('pinError').textContent='';}}
+function updatePinDots(){for(let i=0;i<4;i++){document.getElementById('pd'+i).className='pin-dot'+(i<pinInput.length?' filled':'');}}
+window.doLogout=function(){pinInput='';updatePinDots();document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
+
+// FIREBASE
+onValue(ref(db,'.info/connected'),s=>{
+  const ok=s.val()===true;
+  document.getElementById('connBar').className='conn-bar'+(ok?' ok':'');
+  document.getElementById('connTxt').textContent=ok?'Online — data terkini':'Tiada sambungan...';
+});
+onValue(ref(db,'requests'),s=>{allReqs=s.val()||{};renderDashboard();renderRequests();});
+onValue(ref(db,'tugasan'),s=>{allTugasan=s.val()||{};renderTugasan();renderDashboard();});
+onValue(ref(db,'pembersihan'),s=>{allPemb=s.val()||{};renderPemb();});
+onValue(ref(db,'medsos'),s=>{allMedsos=s.val()||{};});
+onValue(ref(db,'wcf'),s=>{allWCF=s.val()||{};renderWCF();});
+onValue(ref(db,'hse_reports'),s=>{allHSE=s.val()||{};renderHSE();renderDashboard();});
+onValue(ref(db,'jadual_bersih'),s=>{jadualBersih=s.val()||{};renderJadualView();});
+onValue(ref(db,'jadual_posting'),s=>{jadualPosting=s.val()||{};renderJadualView();});
+
+// HELPERS
+function fmt(ds){if(!ds)return'—';const d=new Date(ds+'T00:00:00');return`${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
+function fmtDt(ds){if(!ds)return'—';const d=new Date(ds);return`${d.getDate()}/${d.getMonth()+1} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function today(){return new Date().toISOString().split('T')[0];}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2500);}
+
+// ─── DASHBOARD ───
+function renderDashboard(){
+  const reqs=Object.values(allReqs);
+  const pending=reqs.filter(r=>!r.status||r.status==='pending').length;
+  const approved=reqs.filter(r=>r.status==='approved').length;
+  const tgToday=Object.values(allTugasan).filter(r=>r.date===today()).length;
+  const hseTotal=Object.values(allHSE).length;
+  const hseHigh=Object.values(allHSE).filter(r=>r.risk==='tinggi').length;
+
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-num" style="color:#d97706">${pending}</div><div class="stat-lbl">⏳ Request menunggu</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#166534">${approved}</div><div class="stat-lbl">✅ Request diluluskan</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#1d4ed8">${tgToday}</div><div class="stat-lbl">📋 Laporan hari ini</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:${hseHigh>0?'#b91c1c':'#166534'}">${hseTotal}</div><div class="stat-lbl">⚠️ Laporan HSE${hseHigh>0?' ('+hseHigh+' tinggi)':''}</div></div>`;
+
+  // Pending requests
+  const pendReqs=reqs.filter(r=>!r.status||r.status==='pending').sort((a,b)=>(b.date||'').localeCompare(a.date||'')).slice(0,5);
+  document.getElementById('pendingRequests').innerHTML=pendReqs.length
+    ?pendReqs.map(r=>buildReqCard(r,true)).join('')
+    :'<div class="empty">Tiada request menunggu ✅</div>';
+
+  // Recent HSE
+  const recHSE=Object.entries(allHSE).sort((a,b)=>(b[1].submittedAt||'').localeCompare(a[1].submittedAt||'')).slice(0,4);
+  const hseColor={hazard:'#f59e0b',uauc:'#ef4444',nearmiss:'#3b82f6',improve:'#00a650'};
+  const hseIcon={hazard:'⚠️',uauc:'🚫',nearmiss:'🎯',improve:'💡'};
+  document.getElementById('recentHSE').innerHTML=recHSE.length
+    ?recHSE.map(([k,r])=>`<div class="hse-rec hr-${r.type}">
+        <div class="rcard-top">
+          <div><div class="rcard-name" style="color:${hseColor[r.type]||'#1a1a1a'}">${hseIcon[r.type]||'📋'} ${r.typeLabel||r.type}</div>
+          <div class="rcard-date">${r.staffName} · ${r.submittedAt}</div></div>
+          ${r.risk?`<span class="risk-badge rb-${r.risk}">${r.risk.charAt(0).toUpperCase()+r.risk.slice(1)}</span>`:''}
+        </div>
+        <div style="font-size:12px;color:#6a5e52;margin-top:3px">${(r.desc||r.tajuk||'').slice(0,70)}${(r.desc||r.tajuk||'').length>70?'...':''}</div>
+      </div>`).join('')
+    :'<div class="empty">Tiada laporan HSE</div>';
+
+  // Recent tugasan
+  const recTg=Object.entries(allTugasan).sort((a,b)=>b[1].date.localeCompare(a[1].date)).slice(0,5);
+  document.getElementById('recentTugasan').innerHTML=recTg.length
+    ?recTg.map(([k,r])=>`<div class="rcard"><div class="rcard-top"><div><div class="rcard-name">${r.staffName}</div><div class="rcard-date">${fmt(r.date)}</div></div><span class="badge b-blue">Syif ${r.shift}</span></div><div class="rcard-meta">${Object.keys(r.checks||{}).length}/25 item${r.gas12?' · LPG 12kg: '+r.gas12+' tong':''}${r.gas14?' · LPG 14kg: '+r.gas14+' tong':''}</div></div>`).join('')
+    :'<div class="empty">Tiada laporan</div>';
+}
+
+// ─── REQUESTS ───
+function buildReqCard(r, compact=false){
+  const rid=r.fbKey||r.id;
+  const st=r.status||'pending';
+  const sc={pending:'b-yellow',approved:'b-green',rejected:'b-red'}[st];
+  const si={pending:'⏳ Menunggu',approved:'✅ Diluluskan',rejected:'✕ Ditolak'}[st];
+  let extra='';
+  if(r.type==='SYIF') extra=`<div style="font-size:11px;color:#6d28d9;margin-top:3px">🔄 Minta Syif ${r.syifWant}</div>`;
+  if(r.type==='TUKAR') extra=`<div style="font-size:11px;color:#0369a1;margin-top:3px">↔ ${r.syifAsal}→${r.syifMinta}${r.swapStaff?' dengan '+r.swapStaff:''}</div>`;
+  const actions=st==='pending'
+    ?`<div class="action-row">
+        <button class="btn-approve" onclick="approveReq('${rid}')">✅ Lulus</button>
+        <button class="btn-reject"  onclick="openReject('${rid}','${r.staffName}','${r.date||''}')">✕ Tolak</button>
+        <button class="btn-pdf"     onclick="downloadReqPDF(${JSON.stringify(r).replace(/"/g,'&quot;')})">⬇ PDF</button>
+        <button class="btn-del"     onclick="delReq('${rid}')">🗑</button>
+      </div>`
+    :`<div class="action-row">
+        <button class="btn-undo" onclick="undoReq('${rid}')">↩ Undo</button>
+        <button class="btn-pdf"  onclick="downloadReqPDF(${JSON.stringify(r).replace(/"/g,'&quot;')})">⬇ PDF</button>
+        <button class="btn-del"  onclick="delReq('${rid}')">🗑 Buang</button>
+      </div>`;
+  return`<div id="rc-${rid}" class="rcard">
+    <div class="rcard-top">
+      <div><div class="rcard-name">${r.staffName}${r.isEmergency?' <span style="background:#fff8e1;color:#d97706;padding:1px 5px;border-radius:4px;font-size:9px">EMERG</span>':''}</div>
+      <div class="rcard-date">${TL[r.type]||r.type} · ${fmt(r.date)}</div></div>
+      <span class="badge ${sc}">${si}</span>
+    </div>
+    ${extra}
+    <div style="font-size:11px;color:#7a6e62;margin-top:3px">💬 WA: ${fmt(r.receivedDate)} · 📝 ${r.nota}</div>
+    ${st==='rejected'&&r.rejectReason?`<div style="font-size:11px;color:#b91c1c;margin-top:3px;background:#fef2f2;padding:5px 8px;border-radius:6px">✕ ${r.rejectReason}</div>`:''}
+    ${actions}
+  </div>`;
+}
+
+function renderRequests(){
+  const el=document.getElementById('allRequests');
+  let items=Object.entries(allReqs).map(([k,v])=>({...v,fbKey:k}));
+  if(reqFilter==='pending') items=items.filter(r=>!r.status||r.status==='pending');
+  else if(reqFilter==='approved') items=items.filter(r=>r.status==='approved');
+  else if(reqFilter==='rejected') items=items.filter(r=>r.status==='rejected');
+  else if(['CT','OFF','SYIF','TUKAR'].includes(reqFilter)) items=items.filter(r=>r.type===reqFilter);
+  items.sort((a,b)=>(b.date||b.submittedAt||'').localeCompare(a.date||a.submittedAt||''));
+  el.innerHTML=items.length?items.map(r=>buildReqCard(r,false)).join(''):'<div class="empty">Tiada request</div>';
+}
+
+window.filterReq=function(f,btn){
+  reqFilter=f;
+  document.querySelectorAll('#reqFilter .filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active'); renderRequests();
+}
+window.approveReq=function(rid){update(ref(db,'requests/'+rid),{status:'approved',rejectReason:''});toast('✅ Request diluluskan');}
+window.undoReq=function(rid){update(ref(db,'requests/'+rid),{status:'pending',rejectReason:''});}
+window.delReq=function(rid){
+  const el=document.getElementById('rc-'+rid);if(!el)return;
+  if(el.querySelector('.del-confirm'))return;
+  const div=document.createElement('div');div.className='del-confirm';
+  div.style.cssText='display:flex;gap:8px;margin-top:8px;align-items:center';
+  div.innerHTML=`<span style="flex:1;font-size:12px;color:#b91c1c">Buang request ini?</span>
+    <button onclick="doDelReq('${rid}')" style="background:#ef4444;color:#fff;border:none;padding:6px 14px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Ya</button>
+    <button onclick="this.closest('.del-confirm').remove()" style="background:#f5f5f5;color:#7a6e62;border:none;padding:6px 10px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit">Batal</button>`;
+  el.appendChild(div);
+}
+window.doDelReq=function(rid){remove(ref(db,'requests/'+rid));toast('Dibuang');}
+
+// REJECT MODAL
+window.openReject=function(rid,name,date){
+  rejectTargetId=rid;
+  document.getElementById('rejectModalSub').textContent=`${name} — ${fmt(date)}`;
+  document.getElementById('rejectReason').value='';
+  document.getElementById('rejectReason').style.borderColor='';
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('sel'));
+  document.getElementById('rejectModal').classList.add('show');
+}
+window.selPreset=function(btn,text){
+  document.querySelectorAll('.preset-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel'); document.getElementById('rejectReason').value=text;
+}
+window.closeRejectModal=function(){document.getElementById('rejectModal').classList.remove('show');rejectTargetId=null;}
+window.confirmReject=function(){
+  const reason=document.getElementById('rejectReason').value.trim();
+  if(!reason){document.getElementById('rejectReason').style.borderColor='#ef4444';return;}
+  update(ref(db,'requests/'+rejectTargetId),{status:'rejected',rejectReason:reason});
+  closeRejectModal();toast('Request ditolak');
+}
+
+// ─── TUGASAN ───
+function buildStaffFilters(data,filterId){
+  const el=document.getElementById(filterId);
+  const staffList=[...new Set(Object.values(data).map(r=>r.staffName).filter(Boolean))].sort();
+  const base=filterId.replace('Filter','');
+  el.innerHTML=`<div class="filter-chip active" onclick="filterStaff('${base}','all',this)">Semua</div>`
+    +staffList.map(s=>`<div class="filter-chip" onclick="filterStaff('${base}','${s}',this)">${s.split(' ')[0]}</div>`).join('');
+}
+window.filterStaff=function(type,staff,btn){
+  if(type==='tg') tgFilter=staff;
+  else if(type==='pemb') pembFilter=staff;
+  else if(type==='wcf') wcfFilter=staff;
+  document.querySelectorAll('#'+type+'Filter .filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active');
+  if(type==='tg') renderTugasan();
+  else if(type==='pemb') renderPemb();
+  else if(type==='wcf') renderWCF();
+}
+
+function renderTugasan(){
+  buildStaffFilters(allTugasan,'tgFilter');
+  const el=document.getElementById('allTugasan');
+  let items=Object.entries(allTugasan).map(([k,v])=>({...v,fbKey:k}));
+  if(tgFilter!=='all') items=items.filter(r=>r.staffName===tgFilter);
+  items.sort((a,b)=>b.date.localeCompare(a.date));
+  if(!items.length){el.innerHTML='<div class="empty">Tiada laporan</div>';return;}
+  el.innerHTML=items.map(r=>{
+    const done=Object.keys(r.checks||{}).length;
+    const roundIssues=Object.entries(r.roundChecks||{}).filter(([k,v])=>v==='ISU').length;
+    return`<div class="rcard">
+      <div class="rcard-top"><div><div class="rcard-name">${r.staffName}</div><div class="rcard-date">${fmt(r.date)} · Syif ${r.shift}</div></div><span class="badge b-blue">${done}/25</span></div>
+      <div class="rcard-meta">${r.gas12?`LPG 12kg: ${r.gas12} tong · `:''}${r.gas14?`LPG 14kg: ${r.gas14} tong`:''}</div>
+      ${roundIssues>0?`<div style="font-size:11px;color:#b91c1c;margin-top:3px">⚠️ ${roundIssues} isu dalam round stesen</div>`:''}
+      <div class="action-row" style="margin-top:8px">
+        <button onclick='openTugasanDetail(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📋 Laporan Penuh</button>
+        <button onclick='downloadTugasanPDF(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+      </div>
+      <div style="font-size:10px;color:#aaa;margin-top:6px">${r.submittedAt}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── PEMBERSIHAN ───
+function renderPemb(){
+  buildStaffFilters(allPemb,'pembFilter');
+  const el=document.getElementById('allPemb');
+  let items=Object.entries(allPemb).map(([k,v])=>({...v,fbKey:k}));
+  if(pembFilter!=='all') items=items.filter(r=>r.staffName===pembFilter);
+  items.sort((a,b)=>b.date.localeCompare(a.date));
+  if(!items.length){el.innerHTML='<div class="empty">Tiada laporan</div>';return;}
+  el.innerHTML=items.map(r=>{
+    const befores=r.beforeUrls||(r.beforeUrl?[r.beforeUrl]:[]);
+    const afters=r.afterUrls||(r.afterUrl?[r.afterUrl]:[]);
+    return`<div class="rcard">
+      <div class="rcard-top"><div><div class="rcard-name">${r.staffName}</div><div class="rcard-date">${fmt(r.date)}</div></div><span class="badge b-green">✅</span></div>
+      <div class="rcard-meta">${r.area}</div>
+      ${r.nota?`<div style="font-size:11px;color:#7a6e62;margin-top:3px;font-style:italic">📝 ${r.nota}</div>`:''}
+      <div class="img-pair" style="margin-top:8px">
+        ${befores.length?`<a href="${befores[0]}" target="_blank" class="img-link" style="background:#f8f8f8;border:1px solid #d4d4d4;color:#6a5e52">📸 Sebelum${befores.length>1?' ('+befores.length+')':''}</a>`:''}
+        ${afters.length?`<a href="${afters[0]}" target="_blank" class="img-link" style="background:#dcf0e4;border:1px solid #86efac;color:#166534">✨ Selepas${afters.length>1?' ('+afters.length+')':''}</a>`:''}
+      </div>
+      <div class="action-row" style="margin-top:6px">
+        ${(befores.length>1||afters.length>1)?`<button onclick='openPembDetail(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:3;background:#f8f8f8;border:1px solid #d4d4d4;color:#6a5e52;padding:7px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🖼 Semua Gambar</button>`:'<div style="flex:3"></div>'}
+        <button onclick='downloadPembPDF(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:7px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+      </div>
+      <div style="font-size:10px;color:#aaa;margin-top:6px">${r.submittedAt}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── WCF ───
+function renderWCF(){
+  buildStaffFilters(allWCF,'wcfFilter');
+  const el=document.getElementById('allWCF');
+  let items=Object.entries(allWCF).map(([k,v])=>({...v,fbKey:k}));
+  if(wcfFilter!=='all') items=items.filter(r=>r.staffName===wcfFilter);
+  items.sort((a,b)=>b.tarikh.localeCompare(a.tarikh));
+  if(!items.length){el.innerHTML='<div class="empty">Tiada rekod WCF</div>';return;}
+  el.innerHTML=items.map(r=>`
+    <div class="rcard">
+      <div class="rcard-top"><div><div class="rcard-name">${r.staffName}</div><div class="rcard-date">${fmt(r.tarikh)}</div></div><span class="badge b-blue">WCF</span></div>
+      <div class="rcard-meta">${r.jenis} · ${r.lokasi}</div>
+      <div style="font-size:11px;color:${r.permit==='YA'?'#d97706':'#7a6e62'};margin-top:3px">Permit: ${r.permit}${r.permitJenis?' — '+r.permitJenis:''}</div>
+      ${r.penerangan?`<div style="font-size:11px;color:#7a6e62;margin-top:3px;font-style:italic">📝 ${r.penerangan}</div>`:''}
+      <div class="action-row" style="margin-top:8px">
+        <button onclick='openWCFDetail(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📄 Laporan WCF</button>
+        <button onclick='downloadWCFPDF(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+      </div>
+      <div style="font-size:10px;color:#aaa;margin-top:6px">${r.submittedAt}</div>
+    </div>`).join('');
+}
+
+// ─── HSE ───
+function renderHSE(){
+  const items=Object.entries(allHSE).map(([k,v])=>({...v,fbKey:k}));
+  // Build staff filter
+  const staffList=[...new Set(items.map(r=>r.staffName).filter(Boolean))].sort();
+  document.getElementById('hseStaffFilter').innerHTML=
+    `<div class="filter-chip active" onclick="filterHSEStaff('all',this)">Semua</div>`
+    +staffList.map(s=>`<div class="filter-chip" onclick="filterHSEStaff('${s}',this)">${s.split(' ')[0]}</div>`).join('');
+
+  // Stats
+  const cnt={hazard:0,uauc:0,nearmiss:0,improve:0};
+  items.forEach(r=>{if(cnt[r.type]!==undefined)cnt[r.type]++;});
+  document.getElementById('hseStatsGrid').innerHTML=`
+    <div class="stat-card" style="border-left:3px solid #f59e0b"><div class="stat-num" style="color:#d97706;font-size:20px">${cnt.hazard}</div><div class="stat-lbl">⚠️ Hazard</div></div>
+    <div class="stat-card" style="border-left:3px solid #ef4444"><div class="stat-num" style="color:#b91c1c;font-size:20px">${cnt.uauc}</div><div class="stat-lbl">🚫 UA/UC</div></div>
+    <div class="stat-card" style="border-left:3px solid #3b82f6"><div class="stat-num" style="color:#1d4ed8;font-size:20px">${cnt.nearmiss}</div><div class="stat-lbl">🎯 Near Miss</div></div>
+    <div class="stat-card" style="border-left:3px solid #00a650"><div class="stat-num" style="color:#166534;font-size:20px">${cnt.improve}</div><div class="stat-lbl">💡 Penambah.</div></div>`;
+
+  renderHSEList();
+}
+
+function renderHSEList(){
+  const el=document.getElementById('allHSE');
+  let items=Object.entries(allHSE).map(([k,v])=>({...v,fbKey:k}));
+  if(hseTypeFilter!=='all') items=items.filter(r=>r.type===hseTypeFilter);
+  if(hseStaffFilter!=='all') items=items.filter(r=>r.staffName===hseStaffFilter);
+  items.sort((a,b)=>(b.submittedAt||'').localeCompare(a.submittedAt||''));
+  if(!items.length){el.innerHTML='<div class="empty">Tiada laporan HSE</div>';return;}
+
+  const hseColor={hazard:'#f59e0b',uauc:'#ef4444',nearmiss:'#3b82f6',improve:'#00a650'};
+  const hseIcon={hazard:'⚠️',uauc:'🚫',nearmiss:'🎯',improve:'💡'};
+  const typeBadge={hazard:'b-amber',uauc:'b-red',nearmiss:'b-blue',improve:'b-green'};
+
+  el.innerHTML=items.map(r=>`
+    <div class="hse-rec hr-${r.type}">
+      <div class="rcard-top">
+        <div>
+          <div class="rcard-name" style="color:${hseColor[r.type]||'#1a1a1a'}">${hseIcon[r.type]||''} ${r.typeLabel||r.type}</div>
+          <div class="rcard-date">${r.staffName} · ${r.submittedAt}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          ${r.risk?`<span class="risk-badge rb-${r.risk}">${r.risk.charAt(0).toUpperCase()+r.risk.slice(1)}</span>`:''}
+          <span class="badge ${typeBadge[r.type]||'b-green'}">✓ Dihantar</span>
+        </div>
+      </div>
+      <div style="font-size:12px;color:#1a1a1a;margin-top:4px;line-height:1.4">${(r.desc||r.tajuk||'').slice(0,100)}${(r.desc||r.tajuk||'').length>100?'...':''}</div>
+      ${r.lokasi||r.kategori?`<div style="font-size:11px;color:#7a6e62;margin-top:3px">📍 ${r.lokasi||r.kategori}</div>`:''}
+      ${(r.imgs||[]).length?`<div style="font-size:11px;color:#7a6e62;margin-top:2px">📷 ${r.imgs.length} gambar dilampirkan</div>`:''}
+      <div class="action-row" style="margin-top:8px">
+        <button onclick='openHSEDetail(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔍 Lihat Penuh</button>
+        <button onclick='downloadHSEPDF(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+      </div>
+    </div>`).join('');
+}
+
+window.filterHSE=function(f,btn){
+  hseTypeFilter=f;
+  document.querySelectorAll('#hseFilter .filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active'); renderHSEList();
+}
+window.filterHSEStaff=function(s,btn){
+  hseStaffFilter=s;
+  document.querySelectorAll('#hseStaffFilter .filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active'); renderHSEList();
+}
+
+// ─── JADUAL ───
+window.uploadJadual=async function(type,input){
+  const file=input.files[0]; if(!file)return;
+  const progId=type==='bersih'?'progBersih':'progPosting';
+  const prog=document.getElementById(progId);
+  prog.style.display='block'; prog.textContent='⏳ Memproses jadual Excel...'; prog.className='upload-prog';
+  try{
+    const {read,utils}=await import('https://cdn.sheetjs.com/xlsx-0.20.1/package/xlsx.mjs');
+    const buf=await file.arrayBuffer();
+    const wb=read(buf); const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=utils.sheet_to_json(ws,{header:1,defval:''});
+    let uploaded=0;
+    for(let i=4;i<rows.length;i++){
+      const row=rows[i]; const tarikh=String(row[0]||'').trim();
+      if(!tarikh||!tarikh.match(/^\d{4}-\d{2}-\d{2}$/)) continue;
+      if(type==='bersih'){
+        const tugasan=String(row[1]||'').trim(); const staff=String(row[2]||'').trim();
+        if(!tugasan) continue;
+        await set(ref(db,`jadual_bersih/${tarikh}`),{tarikh,tugasan,staff,uploadedAt:new Date().toISOString()});
+      } else {
+        const tema=String(row[1]||'').trim(); const staff=String(row[2]||'').trim();
+        const platform=String(row[3]||'').trim()||'FB, IG, TT';
+        if(!tema) continue;
+        await set(ref(db,`jadual_posting/${tarikh}`),{tarikh,tema,staff,platform,uploadedAt:new Date().toISOString()});
+      }
+      uploaded++;
+    }
+    prog.textContent=`✅ ${uploaded} hari berjaya dimasukkan ke sistem!`; prog.className='upload-prog done';
+    toast(`✅ Jadual diupload — ${uploaded} hari`);
+    setTimeout(()=>{prog.style.display='none';},3000);
+  }catch(e){prog.textContent='⚠️ Gagal memproses fail.'; console.error(e);}
+}
+
+function renderJadualView(){
+  const bEl=document.getElementById('jadualBersihView');
+  const bItems=Object.values(jadualBersih).sort((a,b)=>a.tarikh.localeCompare(b.tarikh)).slice(0,30);
+  bEl.innerHTML=bItems.length?bItems.map(r=>`<div class="jadual-day"><div class="jd-date">${fmt(r.tarikh)}</div><div class="jd-info">${r.tugasan}</div><div class="jd-staff">👤 ${r.staff}</div></div>`).join(''):'<div class="empty">Belum ada jadual</div>';
+  const pEl=document.getElementById('jadualPostingView');
+  const pItems=Object.values(jadualPosting).sort((a,b)=>a.tarikh.localeCompare(b.tarikh)).slice(0,30);
+  pEl.innerHTML=pItems.length?pItems.map(r=>`<div class="jadual-day"><div class="jd-date">${fmt(r.tarikh)}</div><div class="jd-info">${r.tema}</div><div class="jd-staff">👤 ${r.staff} · ${r.platform}</div></div>`).join(''):'<div class="empty">Belum ada jadual</div>';
+}
+
+// ─── DETAIL MODALS ───
+const TUGASAN_LABELS={1:'TILL (POS A & B)',2:'AUDIT ROKOK',3:'SUSUN BARANG KEDAI/PROMOSI',4:'KEMAS STOR',5:'LAP NOZEL & MOP ISLAND',6:'BERSIHKAN TANDAS',7:'BERSIHKAN SURAU',8:'TUKAR AIR SQUEEZY',9:'BUANG SAMPAH & SAPU KELILING',10:'BERSIHKAN PAM ANGIN',11:'SAPU & MOP KEDAI,OFIS,KAUNTER',12:'SAPU LONGKANG & CEK PERANGKAP',13:'LAP HABUK KEDAI,OFIS,KAUNTER',14:'BERSIHKAN 4 BILIK',15:'POSTING FB,IG,TT',16:'BARANG KEDAI YANG SAMPAI',17:'RECEIVING BARANG KEDAI',18:'EOD TILL',19:'SETTLEMENT EDC',20:'BENDERA PETRONAS,MALAYSIA,SABAH',21:'POTONG RUMPUT',22:'CAT KURB',23:'GAS LPG 12KG',24:'GAS LPG 14KG',25:'DIPPING & READING'};
+const ROUND_LABELS={r1:'Kawasan Pam/Island',r2:'Tandas & Surau',r3:'Kedai Mesra',r4:'Kaunter & Ofis',r5:'Stor',r6:'Persekitaran Luar',r7:'Peralatan Keselamatan',r8:'Lampu & Papan Tanda'};
+
+window.closeDetail=function(){document.getElementById('detailModal').classList.remove('show');}
+
+window.openTugasanDetail=function(r){
+  document.getElementById('dmTitle').textContent=r.staffName+' — Syif '+r.shift;
+  document.getElementById('dmBadge').className='badge b-blue';
+  document.getElementById('dmBadge').textContent=fmt(r.date);
+  const checks=r.checks||{}, roundChecks=r.roundChecks||{};
+  const done=Object.keys(checks).length;
+  const roundIssues=Object.entries(roundChecks).filter(([k,v])=>v==='ISU').length;
+  let chkHtml='<div class="chk-grid">';
+  for(let i=1;i<=25;i++){const v=checks[i]||checks[String(i)]||'';const cls=v==='Y'?'ci-y':v==='T'?'ci-t':'ci-miss';const icon=v==='Y'?'✅':v==='T'?'✕':'—';chkHtml+=`<div class="chk-cell"><div class="ci-lbl">${i}. ${TUGASAN_LABELS[i]||'Item '+i}</div><div class="ci-val ${cls}">${icon} ${v||'Tiada'}</div></div>`;}
+  chkHtml+='</div>';
+  let roundHtml='';
+  Object.entries(ROUND_LABELS).forEach(([id,label])=>{const v=roundChecks[id]||'';const cls=v==='OK'?'rc-ok':v==='ISU'?'rc-isu':'rc-miss';const icon=v==='OK'?'✅ OK':v==='ISU'?'⚠️ ISU':'—';roundHtml+=`<div class="round-cell"><span class="rc-label">${label}</span><span class="${cls}">${icon}</span></div>`;});
+  const imgs=r.roundImgs||[];
+  const imgHtml=imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'';
+  document.getElementById('dmBody').innerHTML=`
+    <button class="btn-dl-pdf" onclick='downloadTugasanPDF(${JSON.stringify(r).replace(/'/g,"\\'")})'>⬇ Muat Turun PDF Laporan Tugasan</button>
+    <div class="dm-section"><div class="dm-sec-title">Maklumat Syif</div>
+      <div class="dm-row"><span class="dm-label">Tarikh</span><span class="dm-val">${fmt(r.date)}</span></div>
+      <div class="dm-row"><span class="dm-label">Syif</span><span class="dm-val">Syif ${r.shift}</span></div>
+      <div class="dm-row"><span class="dm-label">Tugasan Selesai</span><span class="dm-val" style="color:#166534">${done}/25 item</span></div>
+      ${r.gas12?`<div class="dm-row"><span class="dm-label">Gas LPG 12kg</span><span class="dm-val">${r.gas12} tong</span></div>`:''}
+      ${r.gas14?`<div class="dm-row"><span class="dm-label">Gas LPG 14kg</span><span class="dm-val">${r.gas14} tong</span></div>`:''}
+      ${r.nota?`<div class="dm-row"><span class="dm-label">Catatan</span><span class="dm-val" style="font-style:italic">${r.nota}</span></div>`:''}
+      <div class="dm-row"><span class="dm-label">Dihantar</span><span class="dm-val">${r.submittedAt}</span></div>
+    </div>
+    <div class="dm-section"><div class="dm-sec-title">Senarai Tugasan (25 Item)</div>${chkHtml}</div>
+    <div class="dm-section"><div class="dm-sec-title">Round Kawasan Stesen ${roundIssues>0?'<span style="color:#b91c1c">⚠️ '+roundIssues+' Isu</span>':'<span style="color:#166534">✅ OK</span>'}</div>${roundHtml}${r.roundNota?`<div style="font-size:12px;color:#7a6e62;margin-top:8px;padding:8px;background:#f8f8f8;border-radius:7px;font-style:italic">📝 ${r.roundNota}</div>`:''}</div>
+    ${imgs.length?`<div class="dm-section"><div class="dm-sec-title">Gambar Round (${imgs.length})</div>${imgHtml}</div>`:''}`;
+  document.getElementById('detailModal').classList.add('show');
+  document.getElementById('detailModal').scrollTop=0;
+}
+
+window.openPembDetail=function(r){
+  document.getElementById('dmTitle').textContent=r.staffName+' — Pembersihan';
+  document.getElementById('dmBadge').className='badge b-green';
+  document.getElementById('dmBadge').textContent=fmt(r.date);
+  const befores=r.beforeUrls||(r.beforeUrl?[r.beforeUrl]:[]);
+  const afters=r.afterUrls||(r.afterUrl?[r.afterUrl]:[]);
+  const befImgs=befores.length?'<div class="img-grid">'+befores.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
+  const aftImgs=afters.length?'<div class="img-grid">'+afters.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
+  document.getElementById('dmBody').innerHTML=`
+    <button class="btn-dl-pdf" onclick='downloadPembPDF(${JSON.stringify(r).replace(/'/g,"\\'")})'>⬇ Muat Turun PDF Laporan Pembersihan</button>
+    <div class="dm-section"><div class="dm-sec-title">Maklumat</div>
+      <div class="dm-row"><span class="dm-label">Tarikh</span><span class="dm-val">${fmt(r.date)}</span></div>
+      <div class="dm-row"><span class="dm-label">Kawasan/Tugasan</span><span class="dm-val">${r.area}</span></div>
+      ${r.nota?`<div class="dm-row"><span class="dm-label">Catatan</span><span class="dm-val" style="font-style:italic">${r.nota}</span></div>`:''}
+      <div class="dm-row"><span class="dm-label">Dihantar</span><span class="dm-val">${r.submittedAt}</span></div>
+    </div>
+    <div class="dm-section"><div class="dm-sec-title">📸 Gambar Sebelum (${befores.length})</div>${befImgs}</div>
+    <div class="dm-section"><div class="dm-sec-title">✨ Gambar Selepas (${afters.length})</div>${aftImgs}</div>`;
+  document.getElementById('detailModal').classList.add('show');
+  document.getElementById('detailModal').scrollTop=0;
+}
+
+window.openWCFDetail=function(r){
+  document.getElementById('dmTitle').textContent=r.staffName+' — WCF';
+  document.getElementById('dmBadge').className='badge b-blue';
+  document.getElementById('dmBadge').textContent=fmt(r.tarikh);
+  document.getElementById('dmBody').innerHTML=`
+    <button class="btn-dl-pdf" onclick='downloadWCFPDF(${JSON.stringify(r).replace(/'/g,"\\'")})'>⬇ Muat Turun PDF Borang WCF</button>
+    <div class="dm-section"><div class="dm-sec-title">Maklumat Kerja</div>
+      <div class="dm-row"><span class="dm-label">Tarikh</span><span class="dm-val">${fmt(r.tarikh)}</span></div>
+      <div class="dm-row"><span class="dm-label">Jenis Kerja</span><span class="dm-val">${r.jenis}</span></div>
+      <div class="dm-row"><span class="dm-label">Lokasi</span><span class="dm-val">${r.lokasi}</span></div>
+      ${r.penerangan?`<div class="dm-row"><span class="dm-label">Penerangan</span><span class="dm-val" style="font-style:italic">${r.penerangan}</span></div>`:''}
+      <div class="dm-row"><span class="dm-label">Permit Khas</span><span class="dm-val" style="color:${r.permit==='YA'?'#d97706':'#7a6e62'}">${r.permit}</span></div>
+      ${r.permitJenis?`<div class="dm-row"><span class="dm-label">Jenis Permit</span><span class="dm-val">${r.permitJenis}</span></div>`:''}
+      <div class="dm-row"><span class="dm-label">Dihantar</span><span class="dm-val">${r.submittedAt}</span></div>
+    </div>
+    <div class="dm-section"><div class="dm-sec-title">📸 Gambar Lokasi Kerja</div>${r.gambarLokasi?`<a href="${r.gambarLokasi}" target="_blank"><img src="${r.gambarLokasi}" style="width:100%;border-radius:9px;border:1.5px solid #d4e8da" loading="lazy"></a>`:'<div style="color:#aaa;font-size:12px">Tiada gambar</div>'}</div>
+    <div class="dm-section"><div class="dm-sec-title">🦺 Gambar PPE</div>${r.gambarPPE?`<a href="${r.gambarPPE}" target="_blank"><img src="${r.gambarPPE}" style="width:100%;border-radius:9px;border:1.5px solid #93c5fd" loading="lazy"></a>`:'<div style="color:#aaa;font-size:12px">Tiada gambar</div>'}</div>`;
+  document.getElementById('detailModal').classList.add('show');
+  document.getElementById('detailModal').scrollTop=0;
+}
+
+window.openHSEDetail=function(r){
+  const hseColor={hazard:'#f59e0b',uauc:'#ef4444',nearmiss:'#3b82f6',improve:'#00a650'};
+  const hseIcon={hazard:'⚠️',uauc:'🚫',nearmiss:'🎯',improve:'💡'};
+  document.getElementById('dmTitle').textContent=`${hseIcon[r.type]||''} ${r.typeLabel||r.type}`;
+  document.getElementById('dmBadge').className='badge b-amber';
+  document.getElementById('dmBadge').textContent=r.staffName;
+  const imgs=r.imgs||[];
+  const imgHtml=imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
+
+  let fields='';
+  if(r.type==='hazard'){
+    fields=`<div class="dm-row"><span class="dm-label">Lokasi</span><span class="dm-val">${r.lokasi||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Jenis Hazard</span><span class="dm-val">${r.jenis||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Tahap Risiko</span><span class="dm-val"><span class="risk-badge rb-${r.risk||'rendah'}">${r.risk||'—'}</span></span></div>
+      <div class="dm-row"><span class="dm-label">Penerangan</span><span class="dm-val" style="font-style:italic">${r.desc||'—'}</span></div>
+      ${r.action?`<div class="dm-row"><span class="dm-label">Tindakan Sementara</span><span class="dm-val">${r.action}</span></div>`:''}`;
+  } else if(r.type==='uauc'){
+    fields=`<div class="dm-row"><span class="dm-label">Kategori</span><span class="dm-val">${r.kategori||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Lokasi</span><span class="dm-val">${r.lokasi||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Pihak Terlibat</span><span class="dm-val">${r.terlibat||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Penerangan</span><span class="dm-val" style="font-style:italic">${r.desc||'—'}</span></div>
+      ${r.suggest?`<div class="dm-row"><span class="dm-label">Cadangan Tindakan</span><span class="dm-val">${r.suggest}</span></div>`:''}`;
+  } else if(r.type==='nearmiss'){
+    fields=`<div class="dm-row"><span class="dm-label">Lokasi</span><span class="dm-val">${r.lokasi||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Jenis Kejadian</span><span class="dm-val">${r.jenis||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Penerangan</span><span class="dm-val" style="font-style:italic">${r.desc||'—'}</span></div>
+      ${r.faktor?`<div class="dm-row"><span class="dm-label">Faktor Penyumbang</span><span class="dm-val">${r.faktor}</span></div>`:''}
+      ${r.save?`<div class="dm-row"><span class="dm-label">Yang Menyelamatkan</span><span class="dm-val">${r.save}</span></div>`:''}`;
+  } else if(r.type==='improve'){
+    fields=`<div class="dm-row"><span class="dm-label">Kategori</span><span class="dm-val">${r.kategori||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Tajuk Cadangan</span><span class="dm-val">${r.tajuk||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Masalah Semasa</span><span class="dm-val" style="font-style:italic">${r.masalah||'—'}</span></div>
+      <div class="dm-row"><span class="dm-label">Cadangan Penyelesaian</span><span class="dm-val">${r.penyelesaian||'—'}</span></div>
+      ${r.manfaat?`<div class="dm-row"><span class="dm-label">Manfaat Dijangka</span><span class="dm-val">${r.manfaat}</span></div>`:''}`;
+  }
+
+  document.getElementById('dmBody').innerHTML=`
+    <button class="btn-dl-pdf" onclick='downloadHSEPDF(${JSON.stringify(r).replace(/'/g,"\\'")})'>⬇ Muat Turun PDF Laporan HSE</button>
+    <div class="dm-section"><div class="dm-sec-title">Maklumat Laporan</div>
+      <div class="dm-row"><span class="dm-label">Jenis</span><span class="dm-val" style="color:${hseColor[r.type]||'#1a1a1a'};font-weight:700">${hseIcon[r.type]||''} ${r.typeLabel||r.type}</span></div>
+      <div class="dm-row"><span class="dm-label">Pelapor</span><span class="dm-val">${r.staffName}</span></div>
+      <div class="dm-row"><span class="dm-label">Tarikh / Masa</span><span class="dm-val">${r.datetime?fmtDt(r.datetime):(r.date||r.submittedAt||'—')}</span></div>
+      <div class="dm-row"><span class="dm-label">Dihantar</span><span class="dm-val">${r.submittedAt}</span></div>
+      ${fields}
+    </div>
+    ${imgs.length?`<div class="dm-section"><div class="dm-sec-title">📷 Gambar (${imgs.length})</div>${imgHtml}</div>`:''}`;
+  document.getElementById('detailModal').classList.add('show');
+  document.getElementById('detailModal').scrollTop=0;
+}
+
+// ─── PDF DOWNLOAD ───
+function makePDF(title, rows, note=''){
+  const d=new Date(); const ts=`${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const rowsHtml=rows.map(([l,v,color=''])=>`<tr><td style="padding:7px 10px;border:1px solid #e5e5e5;color:#666;font-size:12px;white-space:nowrap">${l}</td><td style="padding:7px 10px;border:1px solid #e5e5e5;font-size:12px;color:${color||'#1a1a1a'}">${v||'—'}</td></tr>`).join('');
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title>
+  <style>body{font-family:'DM Sans',Arial,sans-serif;padding:30px;color:#1a1a1a;max-width:700px;margin:0 auto;}
+  h1{font-size:18px;font-weight:800;color:#005c2e;margin-bottom:4px;}
+  .sub{font-size:12px;color:#7a6e62;margin-bottom:20px;}
+  table{width:100%;border-collapse:collapse;margin-bottom:20px;}
+  th{background:#005c2e;color:#fff;padding:8px 10px;font-size:12px;text-align:left;}
+  .footer{font-size:11px;color:#aaa;margin-top:20px;border-top:1px solid #e5e5e5;padding-top:10px;}
+  @media print{body{padding:10px;}}</style></head>
+  <body><h1>${title}</h1><div class="sub">PETRONAS Papar (PS Papar) · Dicetak: ${ts}</div>
+  <table><thead><tr><th>Maklumat</th><th>Nilai</th></tr></thead><tbody>${rowsHtml}</tbody></table>
+  ${note?`<div style="background:#fff8e1;border:1px solid #fcd34d;border-radius:8px;padding:12px;font-size:12px;margin-bottom:20px"><strong>Catatan:</strong> ${note}</div>`:''}
+  <div class="footer">Laporan ini dijana secara automatik oleh Boss Portal PETRONAS Papar · ${ts}</div>
+  <script>window.onload=function(){window.print();}<\/script></body></html>`;
+  const w=window.open('','_blank');
+  if(w){w.document.write(html);w.document.close();}
+  else{toast('⚠️ Benarkan popup untuk download PDF');}
+}
+
+window.downloadReqPDF=function(r){
+  const TL2={CT:'Cuti Tahunan',OFF:'Off Day',SYIF:'Request Syif',TUKAR:'Tukar Syif'};
+  const ST={pending:'⏳ Menunggu',approved:'✅ Diluluskan',rejected:'✕ Ditolak'};
+  makePDF(`Laporan Request — ${r.staffName}`,[
+    ['Nama Staff',r.staffName],['Jenis Request',TL2[r.type]||r.type],
+    ['Tarikh',fmt(r.date)],['Tarikh Request',fmt(r.receivedDate)],
+    ['Status',ST[r.status||'pending']||r.status],
+    ['Sebab/Nota',r.nota],
+    ...(r.type==='SYIF'?[['Syif Diminta',r.syifWant]]:r.type==='TUKAR'?[['Syif Asal',r.syifAsal],['Syif Diminta',r.syifMinta],['Swap Dengan',r.swapStaff||'—']]:[]),
+    ...(r.rejectReason?[['Sebab Ditolak',r.rejectReason,'#b91c1c']]:[])]
+  );
+}
+
+window.downloadTugasanPDF=function(r){
+  const checks=r.checks||{};
+  const done=Object.values(checks).filter(v=>v==='Y').length;
+  const notDone=Object.entries(checks).filter(([k,v])=>v==='T').map(([k])=>TUGASAN_LABELS[k]||k).join(', ');
+  makePDF(`Laporan Tugasan — ${r.staffName}`,[
+    ['Nama Staff',r.staffName],['Tarikh',fmt(r.date)],['Syif',`Syif ${r.shift}`],
+    ['Tugasan Selesai',`${done}/25 item`,'#166534'],
+    ['Gas LPG 12kg',r.gas12?r.gas12+' tong':'—'],['Gas LPG 14kg',r.gas14?r.gas14+' tong':'—'],
+    ['Item Tidak Selesai',notDone||'Semua selesai'],['Catatan',r.nota||'—'],
+    ['Round Stesen',Object.entries(r.roundChecks||{}).filter(([k,v])=>v==='ISU').length+' isu dikesan'],
+    ['Catatan Round',r.roundNota||'—'],['Dihantar',r.submittedAt]]
+  );
+}
+
+window.downloadPembPDF=function(r){
+  const befores=r.beforeUrls||(r.beforeUrl?[r.beforeUrl]:[]);
+  const afters=r.afterUrls||(r.afterUrl?[r.afterUrl]:[]);
+  makePDF(`Laporan Pembersihan — ${r.staffName}`,[
+    ['Nama Staff',r.staffName],['Tarikh',fmt(r.date)],
+    ['Kawasan/Tugasan',r.area],['Catatan',r.nota||'—'],
+    ['Gambar Sebelum',befores.length+' gambar'],['Gambar Selepas',afters.length+' gambar'],
+    ['Dihantar',r.submittedAt]]
+  );
+}
+
+window.downloadWCFPDF=function(r){
+  makePDF(`Borang WCF — ${r.staffName}`,[
+    ['Nama Pekerja',r.staffName],['Tarikh Kerja',fmt(r.tarikh)],
+    ['Jenis Kerja',r.jenis],['Lokasi Kerja',r.lokasi],
+    ['Penerangan Kerja',r.penerangan||'—'],
+    ['Permit Khas',r.permit],
+    ...(r.permitJenis?[['Jenis Permit',r.permitJenis]]:[]),
+    ['Gambar Lokasi',r.gambarLokasi?'✅ Ada':'—'],['Gambar PPE',r.gambarPPE?'✅ Ada':'—'],
+    ['Dihantar',r.submittedAt]]
+  );
+}
+
+window.downloadHSEPDF=function(r){
+  const hseLabel={hazard:'Hazard',uauc:'UA/UC',nearmiss:'Near Miss',improve:'Penambahbaikan'};
+  let rows=[
+    ['Jenis Laporan',hseLabel[r.type]||r.type],['Pelapor',r.staffName],
+    ['Tarikh/Masa',r.datetime||r.date||r.submittedAt]
+  ];
+  if(r.type==='hazard') rows=[...rows,['Lokasi',r.lokasi||'—'],['Jenis Hazard',r.jenis||'—'],['Tahap Risiko',(r.risk||'—').toUpperCase(),r.risk==='tinggi'?'#b91c1c':r.risk==='sederhana'?'#d97706':'#166534'],['Penerangan',r.desc||'—'],['Tindakan Sementara',r.action||'—']];
+  else if(r.type==='uauc') rows=[...rows,['Kategori',r.kategori||'—'],['Lokasi',r.lokasi||'—'],['Pihak Terlibat',r.terlibat||'—'],['Penerangan',r.desc||'—'],['Cadangan Tindakan',r.suggest||'—']];
+  else if(r.type==='nearmiss') rows=[...rows,['Lokasi',r.lokasi||'—'],['Jenis Kejadian',r.jenis||'—'],['Penerangan',r.desc||'—'],['Faktor Penyumbang',r.faktor||'—'],['Yang Menyelamatkan',r.save||'—']];
+  else if(r.type==='improve') rows=[...rows,['Kategori',r.kategori||'—'],['Tajuk Cadangan',r.tajuk||'—'],['Masalah Semasa',r.masalah||'—'],['Cadangan Penyelesaian',r.penyelesaian||'—'],['Manfaat Dijangka',r.manfaat||'—']];
+  rows.push(['Gambar Dilampirkan',(r.imgs||[]).length+' gambar']);
+  rows.push(['Dihantar',r.submittedAt]);
+  makePDF(`Laporan HSE — ${r.typeLabel||hseLabel[r.type]||r.type} — ${r.staffName}`,rows);
+}
+
+// NAV
+window.sw=function(tab){
+  document.querySelectorAll('.nav-tab').forEach((t,i)=>{
+    const tabs=['dashboard','request','tugasan','pembersihan','wcf','hse','jadual'];
+    t.classList.toggle('active',tabs[i]===tab);
+  });
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+tab).classList.add('active');
+  if(tab==='hse'){renderHSE();}
+}
+</script>
+</body>
+</html>
