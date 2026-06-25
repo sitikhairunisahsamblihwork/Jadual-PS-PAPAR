@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuiz TEA-13 | PS Papar</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --green: #00A19C;
+    --green-dark: #007A76;
+    --green-light: #E6F6F5;
+    --red: #D0021B;
+    --gold: #F5A623;
+    --beige: #FAF8F4;
+    --text: #1A1A1A;
+    --text-soft: #666;
+    --border: #E0E0E0;
+    --white: #FFFFFF;
+    --radius: 14px;
+    --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--beige);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 60px;
+  }
+
+  /* HEADER */
+  .header {
+    width: 100%;
+    max-width: 620px;
+    background: var(--green);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 24px rgba(0,161,156,0.3);
+  }
+  .header-logo {
+    width: 46px; height: 46px;
+    background: white;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .header h1 { color: white; font-size: 16px; font-weight: 800; }
+  .header p { color: rgba(255,255,255,0.75); font-size: 11.5px; margin-top: 2px; }
+
+  /* SCREENS */
+  .screen { width: 100%; max-width: 620px; display: none; }
+  .screen.active { display: block; }
+
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+
+  /* NAME SCREEN */
+  .name-screen h2 { font-size: 18px; font-weight: 800; margin-bottom: 6px; }
+  .name-screen .sub { font-size: 13px; color: var(--text-soft); margin-bottom: 22px; line-height: 1.5; }
+
+  .staff-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .staff-btn {
+    padding: 11px 14px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.15s;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .staff-btn:hover:not(.taken) { border-color: var(--green); background: var(--green-light); }
+  .staff-btn.selected { border-color: var(--green); background: var(--green-light); font-weight: 700; }
+  .staff-btn.taken {
+    background: #F5F5F5;
+    color: #AAA;
+    cursor: not-allowed;
+    border-color: #E8E8E8;
+  }
+  .staff-btn .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .staff-btn.selected .dot { background: var(--green); }
+  .staff-btn.taken .dot { background: #CCC; }
+
+  .taken-label {
+    font-size: 10px;
+    color: #AAA;
+    margin-left: auto;
+    font-weight: 600;
+  }
+
+  .btn-start {
+    width: 100%;
+    padding: 14px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .btn-start.ready { opacity: 1; pointer-events: all; }
+  .btn-start:hover { background: var(--green-dark); }
+
+  /* PROGRESS */
+  .progress-wrap { margin-bottom: 16px; }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .progress-bar { height: 5px; background: #E8E8E8; border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.35s ease; }
+
+  /* QUIZ CARD */
+  .q-eyebrow {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .q-text {
+    font-size: 15.5px;
+    font-weight: 600;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .options { display: flex; flex-direction: column; gap: 9px; }
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 15px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-size: 13.5px;
+    font-weight: 500;
+    background: white;
+    color: var(--text);
+    text-align: left;
+  }
+  .option:hover:not(.disabled) { border-color: var(--green); background: var(--green-light); }
+  .opt-letter {
+    width: 28px; height: 28px;
+    border-radius: 7px;
+    background: var(--beige);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .option.correct { border-color: var(--green); background: var(--green-light); }
+  .option.correct .opt-letter { background: var(--green); color: white; }
+  .option.wrong { border-color: var(--red); background: #FFF0F2; }
+  .option.wrong .opt-letter { background: var(--red); color: white; }
+  .option.disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 14px;
+    padding: 11px 15px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 500;
+    line-height: 1.55;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.ok { background: var(--green-light); color: var(--green-dark); border-left: 3px solid var(--green); }
+  .feedback.no { background: #FFF0F2; color: var(--red); border-left: 3px solid var(--red); }
+
+  .btn-next {
+    width: 100%;
+    padding: 13px;
+    background: var(--green);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    display: none;
+    transition: background 0.15s;
+  }
+  .btn-next.show { display: block; }
+  .btn-next:hover { background: var(--green-dark); }
+
+  /* SUBMITTING */
+  .submitting {
+    text-align: center;
+    padding: 40px 20px;
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid var(--green-light);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .submitting p { font-size: 14px; color: var(--text-soft); font-weight: 500; }
+
+  /* RESULT */
+  .result-inner { text-align: center; }
+  .result-emoji { font-size: 52px; margin-bottom: 10px; }
+  .result-name { font-size: 13px; color: var(--text-soft); font-weight: 600; margin-bottom: 4px; }
+  .result-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+  .result-score { font-size: 48px; font-weight: 800; color: var(--green); margin: 10px 0; }
+  .result-pct { font-size: 14px; color: var(--text-soft); margin-bottom: 6px; }
+  .result-desc { font-size: 13px; color: var(--text-soft); line-height: 1.6; margin-bottom: 22px; }
+
+  .breakdown {
+    background: var(--beige);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 22px;
+    text-align: left;
+  }
+  .breakdown h3 {
+    font-size: 11px; font-weight: 700; color: var(--text-soft);
+    text-transform: uppercase; letter-spacing: 0.9px; margin-bottom: 12px;
+  }
+  .bd-item {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12.5px; padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .bd-item:last-child { border-bottom: none; }
+  .bd-item span:last-child { font-weight: 700; }
+  .c { color: var(--green); }
+  .w { color: var(--red); }
+
+  .saved-note {
+    background: var(--green-light);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--green-dark);
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* LOCKED SCREEN */
+  .locked-inner { text-align: center; padding: 12px 0; }
+  .locked-inner .lock-icon { font-size: 48px; margin-bottom: 12px; }
+  .locked-inner h2 { font-size: 18px; font-weight: 800; margin-bottom: 8px; }
+  .locked-inner p { font-size: 13px; color: var(--text-soft); line-height: 1.6; }
+  .locked-score {
+    background: var(--green-light);
+    border-radius: 10px;
+    padding: 16px;
+    margin: 16px 0;
+  }
+  .locked-score .ls-label { font-size: 12px; color: var(--text-soft); font-weight: 600; }
+  .locked-score .ls-val { font-size: 36px; font-weight: 800; color: var(--green); }
+  .locked-score .ls-date { font-size: 11px; color: var(--text-soft); margin-top: 2px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">⛽</div>
+  <div>
+    <h1>Kuiz TEA-13 Checklist</h1>
+    <p>Stesen Minyak PETRONAS Papar · RYS0352</p>
+  </div>
+</div>
+
+<!-- LOADING SCREEN -->
+<div class="screen active" id="loadScreen">
+  <div class="card">
+    <div class="submitting">
+      <div class="spinner"></div>
+      <p>Memuat data staf...</p>
+    </div>
+  </div>
+</div>
+
+<!-- NAME SCREEN -->
+<div class="screen" id="nameScreen">
+  <div class="card name-screen">
+    <h2>👋 Pilih Nama Anda</h2>
+    <p class="sub">Pilih nama anda sebelum memulakan kuiz. Setiap staf hanya boleh menjawab <strong>sekali sahaja</strong>.</p>
+    <div class="staff-grid" id="staffGrid"></div>
+    <button class="btn-start" id="btnBegin" onclick="beginQuiz()">Mula Kuiz →</button>
+  </div>
+</div>
+
+<!-- QUIZ SCREEN -->
+<div class="screen" id="quizScreen">
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span id="progText">Soalan 1 / 10</span>
+      <span id="scoreText">Skor: 0</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:10%"></div></div>
+  </div>
+  <div class="card">
+    <div class="q-eyebrow" id="qNum">SOALAN 1</div>
+    <div class="q-text" id="qText"></div>
+    <div class="options" id="opts"></div>
+    <div class="feedback" id="feedback"></div>
+  </div>
+  <button class="btn-next" id="btnNext" onclick="nextQ()"></button>
+</div>
+
+<!-- SUBMITTING SCREEN -->
+<div class="screen" id="submitScreen">
+  <div class="card">
+    <div class="submitting">
+      <div class="spinner"></div>
+      <p>Menghantar keputusan ke sistem...</p>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div class="screen" id="resultScreen">
+  <div class="card">
+    <div class="result-inner">
+      <div class="result-emoji" id="rEmoji"></div>
+      <div class="result-name" id="rName"></div>
+      <div class="result-title" id="rTitle"></div>
+      <div class="result-score" id="rScore"></div>
+      <div class="result-pct" id="rPct"></div>
+      <div class="result-desc" id="rDesc"></div>
+      <div class="saved-note">✅ Markah telah dihantar ke sistem. Terima kasih!</div>
+      <div class="breakdown">
+        <h3>Ringkasan Jawapan</h3>
+        <div id="bdList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOCKED SCREEN -->
+<div class="screen" id="lockedScreen">
+  <div class="card">
+    <div class="locked-inner">
+      <div class="lock-icon">🔒</div>
+      <h2>Kuiz Telah Dijawab</h2>
+      <p id="lockedMsg">Anda telah menjawab kuiz ini. Sila hubungi pengurus jika ada pertanyaan.</p>
+      <div class="locked-score">
+        <div class="ls-label">Markah Anda</div>
+        <div class="ls-val" id="lockedScore">—</div>
+        <div class="ls-date" id="lockedDate"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+
+<script>
+// ── FIREBASE CONFIG ──────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyBpXSPGqDc-x1lJqAuaCxInCVUVxBq5kCE",
+  authDomain: "ps-papar.firebaseapp.com",
+  projectId: "ps-papar",
+  storageBucket: "ps-papar.appspot.com",
+  messagingSenderId: "1073428312745",
+  appId: "1:1073428312745:web:pspapar"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const COLLECTION = "kuiz_tea13";
+
+// ── STAFF LIST ───────────────────────────────────────────────
+const staffList = [
+  "ADENAN BIN AMIR",
+  "ARNOLD HENRY",
+  "CAROLINE ELVIS BINSALANG",
+  "FARAWAHIDA BINTI KAMARUDDIN",
+  "JURAIDAH BINTI LAKIM",
+  "MOHD KHAIRULNIZAM BIN YUSOF",
+  "MOHD SAIFUL BIN ISMAIL",
+  "MONIKA ANAK AMBIA",
+  "NAZIRA BINTI SALIMON",
+  "NOR AZLINA BINTI AHMAD",
+  "NORHASLINDA BINTI SAPAR",
+  "NORIZAN BINTI ABD RAHIM",
+  "SITI KHAIRUNNISA BINTI SAMBLIH",
+  "SURIANI BINTI MOHD YUNUS",
+  "YONGLE @ SAMBLIH BIN NIP KUI CHONG"
+];
+
+// ── QUESTIONS ────────────────────────────────────────────────
+const questions = [
+  { q: "Apakah kandungan air maksimum yang dibenarkan dalam tangki MOGAS?", opts: ["1 cm","2 cm","3 cm","5 cm"], ans: 1, explain: "Kandungan air tidak boleh melebihi 2 cm bagi MOGAS mengikut rekod dipping harian." },
+  { q: "Berapa kerap rekod dipping paras minyak dan air perlu dikemaskini?", opts: ["Setiap minggu","Setiap bulan","Setiap hari","Setiap syif"], ans: 2, explain: "Rekod dipping wajib dikemaskini setiap hari tanpa gagal." },
+  { q: "Apakah warna filling point untuk produk PX97?", opts: ["Kuning","Coklat","Biru","Merah"], ans: 3, explain: "PX97 = Merah. PX95 = Kuning, Diesel B10/B20 = Coklat, Diesel B7 = Biru." },
+  { q: "Pemadam api jenis apakah yang perlu ada di Bilik MSB?", opts: ["ABC","CO2","Air","Dry Powder"], ans: 1, explain: "Bilik MSB memerlukan pemadam api CO2 kerana melibatkan peralatan elektrik." },
+  { q: "Berapa lama rekod CCTV perlu disimpan mengikut checklist TEA-13?", opts: ["1 minggu","2 minggu","1 bulan","3 bulan"], ans: 1, explain: "Rekod CCTV perlu disimpan sekurang-kurangnya 2 minggu." },
+  { q: "Injap pelepas angin di bilik compressor perlu dibuka berapa kali sehari?", opts: ["Sekali (pagi sahaja)","Dua kali (pagi dan petang)","Tiga kali sehari","Tidak perlu dibuka"], ans: 1, explain: "Injap pelepas angin perlu dibuka setiap pagi DAN petang — dua kali sehari." },
+  { q: "Kandungan air maksimum yang dibenarkan dalam tangki Diesel adalah?", opts: ["2 cm","3 cm","1 cm","0.5 cm"], ans: 2, explain: "Bagi Diesel, had kandungan air adalah tidak melebihi 1 cm sahaja." },
+  { q: "Berapa unit pemadam api ABC diperlukan di ruangan kedai Mesra?", opts: ["1 unit","2 unit","3 unit","4 unit"], ans: 1, explain: "Dua (2) alat pemadam api jenis ABC diperlukan di ruangan kedai Mesra." },
+  { q: "Apakah suhu yang ditetapkan untuk penghawa dingin di Bilik Server?", opts: ["18°C","20°C","24°C","26°C"], ans: 2, explain: "Penghawa dingin Bilik Server wajib ditetapkan pada suhu 24°C." },
+  { q: "Apakah warna filling point untuk Diesel B10/B20?", opts: ["Merah","Biru","Kuning","Coklat"], ans: 3, explain: "Diesel B10/B20 = Coklat. Jangan keliru dengan Diesel B7 yang berwarna Biru." }
+];
+
+// ── STATE ────────────────────────────────────────────────────
+let selectedName = null;
+let current = 0;
+let score = 0;
+let userAnswers = [];
+let answered = [];
+let takenStaff = {};
+
+// ── INIT ─────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const snap = await db.collection(COLLECTION).get();
+    snap.forEach(doc => { takenStaff[doc.id] = doc.data(); });
+  } catch(e) {
+    console.warn("Firebase read error:", e);
+  }
+  renderStaffGrid();
+  show('nameScreen');
+});
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── STAFF GRID ───────────────────────────────────────────────
+function renderStaffGrid() {
+  const grid = document.getElementById('staffGrid');
+  grid.innerHTML = '';
+  staffList.forEach(name => {
+    const taken = !!takenStaff[name];
+    const btn = document.createElement('button');
+    btn.className = 'staff-btn' + (taken ? ' taken' : '');
+    btn.disabled = taken;
+    btn.innerHTML = `<span class="dot"></span><span style="flex:1">${formatName(name)}</span>${taken ? '<span class="taken-label">✓ Selesai</span>' : ''}`;
+    if (!taken) btn.onclick = () => selectStaff(name, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function formatName(name) {
+  // Shorten long names for display
+  return name.length > 22 ? name.substring(0, 20) + '…' : name;
+}
+
+function selectStaff(name, btn) {
+  document.querySelectorAll('.staff-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedName = name;
+  document.getElementById('btnBegin').classList.add('ready');
+}
+
+// ── BEGIN QUIZ ───────────────────────────────────────────────
+function beginQuiz() {
+  if (!selectedName) return;
+  // Double-check not taken
+  if (takenStaff[selectedName]) {
+    showLocked(selectedName);
+    return;
+  }
+  current = 0; score = 0; userAnswers = []; answered = [];
+  show('quizScreen');
+  loadQ();
+}
+
+// ── LOAD QUESTION ────────────────────────────────────────────
+function loadQ() {
+  const q = questions[current];
+  document.getElementById('qNum').textContent = `SOALAN ${current + 1}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('progText').textContent = `Soalan ${current + 1} / ${questions.length}`;
+  document.getElementById('scoreText').textContent = `Skor: ${score}`;
+  document.getElementById('progFill').style.width = `${((current) / questions.length) * 100 + 10}%`;
+
+  const opts = document.getElementById('opts');
+  opts.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  q.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<span class="opt-letter">${letters[i]}</span><span>${opt}</span>`;
+    btn.onclick = () => pickAns(i);
+    opts.appendChild(btn);
+  });
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('btnNext').className = 'btn-next';
+}
+
+// ── PICK ANSWER ──────────────────────────────────────────────
+function pickAns(idx) {
+  if (answered.includes(current)) return;
+  answered.push(current);
+  userAnswers[current] = idx;
+
+  const q = questions[current];
+  const optBtns = document.querySelectorAll('.option');
+  optBtns.forEach(b => b.classList.add('disabled'));
+
+  const fb = document.getElementById('feedback');
+  const isLast = current === questions.length - 1;
+
+  if (idx === q.ans) {
+    optBtns[idx].classList.add('correct');
+    score++;
+    fb.className = 'feedback show ok';
+    fb.textContent = `✅ Betul! ${q.explain}`;
+  } else {
+    optBtns[idx].classList.add('wrong');
+    optBtns[q.ans].classList.add('correct');
+    fb.className = 'feedback show no';
+    fb.textContent = `❌ Salah. Jawapan betul: ${['A','B','C','D'][q.ans]} — ${q.opts[q.ans]}. ${q.explain}`;
+  }
+
+  document.getElementById('scoreText').textContent = `Skor: ${score}`;
+
+  const btn = document.getElementById('btnNext');
+  btn.className = 'btn-next show';
+  btn.textContent = isLast ? 'Hantar Keputusan 🏁' : 'Soalan Seterusnya →';
+  btn.onclick = isLast ? submitResult : nextQ;
+}
+
+function nextQ() {
+  current++;
+  loadQ();
+}
+
+// ── SUBMIT ───────────────────────────────────────────────────
+async function submitResult() {
+  show('submitScreen');
+
+  const pct = Math.round((score / questions.length) * 100);
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('ms-MY', { day:'2-digit', month:'long', year:'numeric' });
+  const timeStr = now.toLocaleTimeString('ms-MY', { hour:'2-digit', minute:'2-digit' });
+
+  const payload = {
+    nama: selectedName,
+    skor: score,
+    jumlah: questions.length,
+    peratus: pct,
+    jawapan: userAnswers,
+    tarikh: dateStr,
+    masa: timeStr,
+    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    await db.collection(COLLECTION).doc(selectedName).set(payload);
+    takenStaff[selectedName] = payload;
+  } catch(e) {
+    console.error("Submit error:", e);
+  }
+
+  showResult(score, pct, dateStr, timeStr);
+}
+
+// ── SHOW RESULT ──────────────────────────────────────────────
+function showResult(sc, pct, dateStr, timeStr) {
+  let emoji, title, desc;
+  if (pct === 100) { emoji='🏆'; title='Cemerlang!'; desc='Markah penuh! Anda menguasai semua prosedur TEA-13. Syabas!'; }
+  else if (pct >= 80) { emoji='🎉'; title='Sangat Bagus!'; desc='Hampir sempurna! Ulang kaji soalan yang tersilap.'; }
+  else if (pct >= 60) { emoji='👍'; title='Lulus!'; desc='Anda lulus. Masih ada ruang untuk bertambah baik.'; }
+  else { emoji='📚'; title='Perlu Ulang Kaji'; desc='Skor kurang 60%. Sila semak semula checklist TEA-13.'; }
+
+  document.getElementById('rEmoji').textContent = emoji;
+  document.getElementById('rName').textContent = selectedName;
+  document.getElementById('rTitle').textContent = title;
+  document.getElementById('rScore').textContent = `${sc}/${questions.length}`;
+  document.getElementById('rPct').textContent = `${pct}% · ${dateStr}, ${timeStr}`;
+  document.getElementById('rDesc').textContent = desc;
+
+  const bdList = document.getElementById('bdList');
+  bdList.innerHTML = '';
+  questions.forEach((q, i) => {
+    const ok = userAnswers[i] === q.ans;
+    const d = document.createElement('div');
+    d.className = 'bd-item';
+    d.innerHTML = `<span>Soalan ${i+1}: ${q.opts[q.ans]}</span><span class="${ok?'c':'w'}">${ok?'✅ Betul':'❌ Salah'}</span>`;
+    bdList.appendChild(d);
+  });
+
+  show('resultScreen');
+}
+
+// ── LOCKED ───────────────────────────────────────────────────
+function showLocked(name) {
+  const data = takenStaff[name];
+  document.getElementById('lockedMsg').textContent = `${name} telah menjawab kuiz ini. Sila hubungi pengurus jika ada pertanyaan.`;
+  document.getElementById('lockedScore').textContent = data ? `${data.skor}/${data.jumlah}` : '—';
+  document.getElementById('lockedDate').textContent = data ? `${data.tarikh}, ${data.masa}` : '';
+  show('lockedScreen');
+}
+</script>
+</body>
+</html>

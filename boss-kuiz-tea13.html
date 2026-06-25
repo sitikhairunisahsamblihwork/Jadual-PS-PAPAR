@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keputusan Kuiz TEA-13 | Boss Portal</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  :root {
+    --green: #00A19C; --green-dark: #007A76; --green-light: #E6F6F5;
+    --red: #D0021B; --gold: #F5A623; --beige: #FAF8F4;
+    --text: #1A1A1A; --soft: #666; --border: #E0E0E0;
+    --radius: 14px; --shadow: 0 2px 16px rgba(0,0,0,0.08);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--beige); color: var(--text); min-height: 100vh; padding: 20px 16px 60px; }
+
+  .wrap { max-width: 720px; margin: 0 auto; }
+
+  /* HEADER */
+  .header {
+    background: var(--green); border-radius: var(--radius);
+    padding: 18px 22px; display: flex; align-items: center; gap: 14px;
+    margin-bottom: 24px; box-shadow: 0 4px 24px rgba(0,161,156,0.3);
+  }
+  .header-logo { width: 46px; height: 46px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .header h1 { color: white; font-size: 16px; font-weight: 800; }
+  .header p { color: rgba(255,255,255,0.75); font-size: 11.5px; margin-top: 2px; }
+  .header-right { margin-left: auto; }
+  .btn-refresh {
+    background: rgba(255,255,255,0.2); color: white; border: none;
+    border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: background 0.15s;
+  }
+  .btn-refresh:hover { background: rgba(255,255,255,0.35); }
+
+  /* PIN GATE */
+  .pin-card { background: white; border-radius: var(--radius); padding: 36px 24px; box-shadow: var(--shadow); text-align: center; }
+  .pin-card h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+  .pin-card p { font-size: 13px; color: var(--soft); margin-bottom: 24px; }
+  .pin-input {
+    width: 100%; padding: 14px; border: 2px solid var(--border); border-radius: 10px;
+    font-size: 20px; font-weight: 700; text-align: center; letter-spacing: 6px;
+    margin-bottom: 12px; outline: none; font-family: 'Inter', sans-serif;
+  }
+  .pin-input:focus { border-color: var(--green); }
+  .btn-unlock {
+    width: 100%; padding: 13px; background: var(--green); color: white;
+    border: none; border-radius: 10px; font-size: 14px; font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-unlock:hover { background: var(--green-dark); }
+  .pin-error { color: var(--red); font-size: 12px; margin-top: 8px; display: none; }
+
+  /* STATS ROW */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+  .stat-box { background: white; border-radius: var(--radius); padding: 18px 16px; box-shadow: var(--shadow); text-align: center; }
+  .stat-val { font-size: 28px; font-weight: 800; color: var(--green); }
+  .stat-lbl { font-size: 11px; color: var(--soft); margin-top: 3px; font-weight: 600; }
+
+  /* TABLE */
+  .table-card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 20px; }
+  .table-header {
+    padding: 16px 20px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .table-header h3 { font-size: 14px; font-weight: 700; }
+  .tbl-meta { font-size: 11px; color: var(--soft); }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 10px 16px; font-size: 11px; font-weight: 700; color: var(--soft); text-align: left; text-transform: uppercase; letter-spacing: 0.8px; border-bottom: 1px solid var(--border); background: var(--beige); }
+  td { padding: 12px 16px; font-size: 13px; border-bottom: 1px solid #F0F0F0; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #FAFAFA; }
+
+  .badge {
+    display: inline-block; padding: 3px 9px; border-radius: 20px;
+    font-size: 11px; font-weight: 700;
+  }
+  .badge-great { background: var(--green-light); color: var(--green-dark); }
+  .badge-pass { background: #FFF8E6; color: #A07000; }
+  .badge-fail { background: #FFF0F2; color: var(--red); }
+
+  .pending-section { background: white; border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .pending-section h3 { font-size: 14px; font-weight: 700; margin-bottom: 14px; color: var(--soft); }
+  .pending-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pending-chip {
+    padding: 6px 12px; background: #FFF0F2; border-radius: 20px;
+    font-size: 12px; font-weight: 600; color: var(--red);
+  }
+
+  .loading { text-align: center; padding: 40px; color: var(--soft); font-size: 14px; }
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--green-light); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .export-btn {
+    background: white; border: 2px solid var(--green); color: var(--green);
+    border-radius: 8px; padding: 7px 14px; font-size: 12px; font-weight: 700;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .export-btn:hover { background: var(--green); color: white; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-logo">📊</div>
+  <div>
+    <h1>Keputusan Kuiz TEA-13</h1>
+    <p>Boss Portal · Stesen PETRONAS Papar</p>
+  </div>
+  <div class="header-right">
+    <button class="btn-refresh" onclick="loadData()">🔄 Refresh</button>
+  </div>
+</div>
+
+<!-- PIN GATE -->
+<div id="pinGate">
+  <div class="pin-card">
+    <h2>🔐 Akses Terhad</h2>
+    <p>Halaman ini hanya untuk pengurus stesen.<br>Masukkan PIN untuk melihat keputusan kuiz.</p>
+    <input type="password" class="pin-input" id="pinInput" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter') checkPin()">
+    <button class="btn-unlock" onclick="checkPin()">Buka Akses</button>
+    <div class="pin-error" id="pinError">❌ PIN salah. Cuba lagi.</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none">
+  <div id="loadingDiv" class="loading"><div class="spinner"></div>Memuatkan keputusan...</div>
+  <div id="dashContent" style="display:none">
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat-box">
+        <div class="stat-val" id="statSelesai">0</div>
+        <div class="stat-lbl">Telah Menjawab</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statBelum" style="color:#D0021B">0</div>
+        <div class="stat-lbl">Belum Jawab</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statAvg">—</div>
+        <div class="stat-lbl">Purata Markah</div>
+      </div>
+    </div>
+
+    <!-- RESULTS TABLE -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3>📋 Keputusan Staf</h3>
+        <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nama Staf</th>
+            <th>Markah</th>
+            <th>%</th>
+            <th>Gred</th>
+            <th>Tarikh</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- PENDING -->
+    <div class="pending-section">
+      <h3>⏳ Belum Menjawab Kuiz</h3>
+      <div class="pending-list" id="pendingList"></div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- end wrap -->
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBpXSPGqDc-x1lJqAuaCxInCVUVxBq5kCE",
+  authDomain: "ps-papar.firebaseapp.com",
+  projectId: "ps-papar",
+  storageBucket: "ps-papar.appspot.com",
+  messagingSenderId: "1073428312745",
+  appId: "1:1073428312745:web:pspapar"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+const staffList = [
+  "ADENAN BIN AMIR","ARNOLD HENRY","CAROLINE ELVIS BINSALANG",
+  "FARAWAHIDA BINTI KAMARUDDIN","JURAIDAH BINTI LAKIM",
+  "MOHD KHAIRULNIZAM BIN YUSOF","MOHD SAIFUL BIN ISMAIL",
+  "MONIKA ANAK AMBIA","NAZIRA BINTI SALIMON","NOR AZLINA BINTI AHMAD",
+  "NORHASLINDA BINTI SAPAR","NORIZAN BINTI ABD RAHIM",
+  "SITI KHAIRUNNISA BINTI SAMBLIH","SURIANI BINTI MOHD YUNUS",
+  "YONGLE @ SAMBLIH BIN NIP KUI CHONG"
+];
+
+const PIN = "1234"; // ← Tukar PIN di sini
+let results = [];
+
+function checkPin() {
+  const val = document.getElementById('pinInput').value;
+  if (val === PIN) {
+    document.getElementById('pinGate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('pinError').style.display = 'block';
+    document.getElementById('pinInput').value = '';
+  }
+}
+
+async function loadData() {
+  document.getElementById('loadingDiv').style.display = 'block';
+  document.getElementById('dashContent').style.display = 'none';
+  results = [];
+
+  try {
+    const snap = await db.collection("kuiz_tea13").get();
+    snap.forEach(doc => results.push(doc.data()));
+  } catch(e) {
+    console.error(e);
+  }
+
+  renderDash();
+}
+
+function renderDash() {
+  const done = results.length;
+  const pending = staffList.filter(s => !results.find(r => r.nama === s));
+  const avg = done > 0 ? Math.round(results.reduce((a,r) => a + r.peratus, 0) / done) : 0;
+
+  document.getElementById('statSelesai').textContent = done;
+  document.getElementById('statBelum').textContent = pending.length;
+  document.getElementById('statAvg').textContent = done ? `${avg}%` : '—';
+
+  // Table
+  const tbody = document.getElementById('resultsBody');
+  tbody.innerHTML = '';
+  const sorted = [...results].sort((a,b) => b.peratus - a.peratus);
+  sorted.forEach((r, i) => {
+    const badgeClass = r.peratus >= 80 ? 'badge-great' : r.peratus >= 60 ? 'badge-pass' : 'badge-fail';
+    const badgeText = r.peratus >= 80 ? '✅ Cemerlang' : r.peratus >= 60 ? '👍 Lulus' : '❌ Gagal';
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--soft);font-weight:600">${i+1}</td>
+      <td style="font-weight:600">${r.nama}</td>
+      <td style="font-weight:700">${r.skor}/${r.jumlah}</td>
+      <td style="font-weight:700;color:${r.peratus>=60?'var(--green)':'var(--red)'}">${r.peratus}%</td>
+      <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+      <td style="color:var(--soft);font-size:12px">${r.tarikh || '—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Pending
+  const pl = document.getElementById('pendingList');
+  pl.innerHTML = '';
+  if (pending.length === 0) {
+    pl.innerHTML = '<span style="font-size:13px;color:var(--green);font-weight:600">✅ Semua staf telah menjawab kuiz!</span>';
+  } else {
+    pending.forEach(name => {
+      const chip = document.createElement('div');
+      chip.className = 'pending-chip';
+      chip.textContent = name;
+      pl.appendChild(chip);
+    });
+  }
+
+  document.getElementById('loadingDiv').style.display = 'none';
+  document.getElementById('dashContent').style.display = 'block';
+}
+
+function exportCSV() {
+  const rows = [['Nama','Skor','Jumlah','Peratus','Tarikh','Masa']];
+  results.forEach(r => rows.push([r.nama, r.skor, r.jumlah, r.peratus+'%', r.tarikh||'', r.masa||'']));
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'keputusan-kuiz-tea13.csv';
+  a.click();
+}
+</script>
+</body>
+</html>
