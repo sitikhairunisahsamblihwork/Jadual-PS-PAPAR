@@ -434,6 +434,7 @@ const HS_ST={terbuka:['hs-terbuka','🔴 Terbuka'],tindakan:['hs-tindakan','🛠
 const AD_ST={baru:['ad-st-baru','⏳ Baru'],siasat:['ad-st-siasat','🔍 Dalam Tindakan'],selesai:['ad-st-selesai','✅ Selesai']};
 const AD_KESAN={rendah:'🟢 Sedikit',sederhana:'🟡 Sederhana',tinggi:'🔴 Teruk'};
 function attrJ(o){return JSON.stringify(o).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function hsStatus(r){const v=(r&&r.status)||'';return HS_ST[v]?v:'terbuka';}
 const PIN = '1234'; // ← TUKAR PIN DI SINI
 const MONTHS=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
 const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
@@ -738,7 +739,7 @@ function renderHSEList(){
   let items=Object.entries(allHSE).map(([k,v])=>({...v,fbKey:k}));
   if(hseTypeFilter!=='all') items=items.filter(r=>r.type===hseTypeFilter);
   if(hseStaffFilter!=='all') items=items.filter(r=>r.staffName===hseStaffFilter);
-  if(hseStatusFilter!=='all') items=items.filter(r=>(r.status||'terbuka')===hseStatusFilter);
+  if(hseStatusFilter!=='all') items=items.filter(r=>hsStatus(r)===hseStatusFilter);
   items.sort((a,b)=>(b.submittedAt||'').localeCompare(a.submittedAt||''));
   if(!items.length){el.innerHTML='<div class="empty">Tiada laporan HSE</div>';return;}
 
@@ -783,7 +784,7 @@ window.filterHSEStaff=function(s,btn){
 
 
 // ─── HSE: TINDAKAN PENGURUS & CLOSE CASE ───
-function hseStatusBadge(r){const live=(r.fbKey&&allHSE[r.fbKey])||r;const [c,l]=HS_ST[live.status||'terbuka']||HS_ST.terbuka;return`<span class="hs-st ${c}">${l}</span>`;}
+function hseStatusBadge(r){const live=(r.fbKey&&allHSE[r.fbKey])||r;const [c,l]=HS_ST[hsStatus(live)];return`<span class="hs-st ${c}">${l}</span>`;}
 function hseLastAct(r){
   const live=(r.fbKey&&allHSE[r.fbKey])||r;
   if(live.status==='closed') return`<div style="font-size:11px;color:#166534;margin-top:3px">✅ Closed oleh ${escH(live.closedBy)} · ${escH(live.closedAt)}</div>`;
@@ -798,7 +799,7 @@ function imgsHtml(arr){return(arr||[]).length?'<div class="img-grid" style="marg
 function renderHSEAction(){
   const box=document.getElementById('hseActionBox'); if(!box||!hseActKey)return;
   const r=allHSE[hseActKey]; if(!r){box.innerHTML='';return;}
-  const st=r.status||'terbuka'; const [c,l]=HS_ST[st];
+  const st=hsStatus(r); const [c,l]=HS_ST[st];
   const logs=Object.values(r.tindakan||{}).sort((a,b)=>(a.ts||0)-(b.ts||0));
   const logHtml=logs.length?logs.map(t=>`<div class="act-log"><div class="al-meta">🛠 ${escH(t.oleh)} · ${escH(t.at)}</div><div style="white-space:pre-wrap">${escH(t.nota)}</div>${imgsHtml(t.imgs)}</div>`).join(''):'<div style="font-size:12px;color:#aaa;margin-bottom:6px">Belum ada tindakan direkod</div>';
   const pg=escH(getPengurus());
@@ -1254,7 +1255,7 @@ window.downloadHSEPDF=function(r){
   rows.push(['Gambar Dilampirkan',(r.imgs||[]).length+' gambar']);
   rows.push(['Dihantar',r.submittedAt]);
   const live=(r.fbKey&&allHSE[r.fbKey])||r;
-  rows.push(['Status Kes',HS_ST[live.status||'terbuka'][1]]);
+  rows.push(['Status Kes',HS_ST[hsStatus(live)][1]]);
   Object.values(live.tindakan||{}).sort((a,b)=>(a.ts||0)-(b.ts||0)).forEach((t,i)=>rows.push([`Tindakan ${i+1} (${escH(t.oleh)} · ${escH(t.at)})`,escH(t.nota)+((t.imgs||[]).length?` — ${t.imgs.length} gambar bukti`:'')]));
   if(live.status==='closed') rows.push(['Penyelesaian / Close Case',`${escH(live.closeNota)} — ditutup oleh ${escH(live.closedBy)} pada ${escH(live.closedAt)} (${(live.closeImgs||[]).length} gambar bukti)`,'#166534']);
   makePDF(`Laporan HSE — ${r.typeLabel||hseLabel[r.type]||r.type} — ${r.staffName}`,rows);
