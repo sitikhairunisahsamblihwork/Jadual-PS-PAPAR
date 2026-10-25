@@ -167,6 +167,19 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 /* Multi photo grid */
 .photo-thumb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px;}
 .photo-thumb-grid img{width:100%;height:68px;object-fit:cover;border-radius:7px;border:1.5px solid #d4e8da;}
+
+/* ADUAN */
+.ad-note{background:#fff8e1;border:1px solid #fcd34d;border-radius:10px;padding:10px 12px;font-size:12px;color:#6a5e52;line-height:1.5;margin-bottom:12px;}
+.ad-help{background:#eff6ff;border:1px solid #93c5fd;border-radius:10px;padding:10px 12px;font-size:12px;color:#1e3a8a;line-height:1.5;margin-bottom:12px;}
+.ad-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.ad-pill{flex:1;min-width:70px;text-align:center;padding:9px 6px;border-radius:9px;border:1.5px solid #b8d8c3;background:#f0f7f3;font-size:12px;font-weight:700;color:#6a5e52;cursor:pointer;}
+.ad-pill.sel{background:#00a650;border-color:#00a650;color:#fff;}
+.ad-rec{background:#fff;border:1px solid #d4e8da;border-left:3px solid #8b5cf6;border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.ad-st{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+.ad-st-baru{background:#fff8e1;color:#b45309;border:1px solid #f59e0b;}
+.ad-st-siasat{background:#eff6ff;color:#1d4ed8;border:1px solid #3b82f6;}
+.ad-st-selesai{background:#dcf0e4;color:#166534;border:1px solid #16a34a;}
+.ad-reply{background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:7px 9px;font-size:12px;color:#4c1d95;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -180,9 +193,9 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
     <div class="login-sub">Pilih nama kamu untuk teruskan</div>
     <select class="login-sel" id="loginSel">
       <option value="">— Pilih nama kamu —</option>
-      <option>NURUL IZYANA</option><option>MOHD MIZA</option><option>HASNAL</option>
+      <option>NURUL IZYANA</option><option>MOHD NAZRI BIN JASNI</option><option>HASNAL</option>
       <option>BELLA</option><option>LISA</option><option>SUHFEE</option>
-      <option>NELBOY</option><option>ATI</option><option>INSYIRAH</option>
+      <option>ATI</option><option>INSYIRAH</option>
       <option>JOHNY</option><option>SHAFIKAH</option><option>ANDIEKA</option>
       <option>FERENICA</option><option>SURIATI</option><option>ELFI</option>
     </select>
@@ -209,6 +222,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
     <div class="nav-tab" onclick="sw('medsos')">📱 Medsos</div>
     <div class="nav-tab" onclick="sw('wcf')">📄 WCF</div>
     <div class="nav-tab" onclick="sw('hse')">⚠️ HSE</div>
+    <div class="nav-tab" onclick="sw('aduan')">🗣 Aduan</div>
     <div class="nav-tab" onclick="sw('request')">📝 Request</div>
   </div>
 
@@ -587,6 +601,122 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
     <div id="hseHist"><div class="empty">Tiada rekod</div></div>
   </div><!-- /view-hse -->
 
+  <!-- ADUAN STAFF -->
+  <div class="view" id="view-aduan">
+    <div class="sec-hdr">🗣 Aduan Staff</div>
+    <div class="ad-note">🔒 <strong>Sulit.</strong> Aduan kamu hanya dihantar terus ke Boss Portal dan tidak dipaparkan kepada staff lain. Ceritakan dengan jujur — setiap aduan akan disemak.</div>
+    <div class="ad-help">🚨 Jika kamu dalam bahaya sekarang, hubungi <strong>999</strong>.<br>💬 Perlukan sokongan emosi / mental? <strong>Talian HEAL 15555</strong> (KKM).</div>
+
+    <div class="card">
+      <div class="card-title">Maklumat Aduan</div>
+      <div class="field"><label>Nama Pengadu</label><input type="text" id="adNama" readonly style="color:#6a5e52"></div>
+      <div class="field">
+        <label>Kategori Aduan *</label>
+        <select id="adKategori">
+          <option value="">— Pilih kategori —</option>
+          <optgroup label="🚑 Kejadian & Keselamatan">
+            <option>Kecederaan semasa bekerja</option>
+            <option>Kemalangan / insiden di stesen</option>
+            <option>Kecurian / kehilangan / rompakan</option>
+            <option>Ancaman / serangan fizikal</option>
+            <option>Pelanggan agresif / bergaduh</option>
+          </optgroup>
+          <optgroup label="🛑 Gangguan & Buli">
+            <option>Gangguan lisan (verbal harassment) — maki, hina, jerit</option>
+            <option>Gangguan seksual</option>
+            <option>Buli di tempat kerja</option>
+            <option>Ugutan / intimidasi</option>
+            <option>Diskriminasi (bangsa, agama, jantina, umur)</option>
+            <option>Gangguan atas talian (WhatsApp / media sosial)</option>
+          </optgroup>
+          <optgroup label="🧠 Kesejahteraan & Mental">
+            <option>Tekanan kerja (stress)</option>
+            <option>Kesihatan mental / emosi terganggu</option>
+            <option>Beban kerja berlebihan</option>
+            <option>Keletihan / waktu kerja terlalu panjang</option>
+            <option>Rasa tidak selamat / takut datang kerja</option>
+          </optgroup>
+          <optgroup label="🤝 Hubungan Kerja">
+            <option>Konflik dengan rakan sekerja</option>
+            <option>Konflik dengan penyelia / pengurusan</option>
+            <option>Layanan tidak adil / pilih kasih</option>
+            <option>Komunikasi / arahan tidak jelas</option>
+          </optgroup>
+          <optgroup label="🏢 Pengurusan & Kemudahan">
+            <option>Gaji / elaun / OT</option>
+            <option>Jadual syif / cuti</option>
+            <option>Peralatan / kemudahan rosak atau tiada</option>
+            <option>PPE tidak mencukupi</option>
+            <option>Lain-lain</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="field"><label>Tarikh & Masa Kejadian *</label><input type="datetime-local" id="adDatetime"></div>
+      <div class="field">
+        <label>Lokasi Kejadian *</label>
+        <select id="adLokasi">
+          <option value="">— Pilih lokasi —</option>
+          <option>Kawasan Pam / Island</option><option>Kedai Mesra</option>
+          <option>Tandas Awam</option><option>Kawasan Parkir</option>
+          <option>Bilik Kawalan / Ofis</option><option>Kawasan LPG</option>
+          <option>Surau</option><option>Stor</option>
+          <option>Luar stesen / dalam perjalanan kerja</option>
+          <option>Atas talian (WhatsApp / telefon / media sosial)</option>
+          <option>Lain-lain</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Pihak Terlibat</label>
+        <select id="adPihak">
+          <option value="">— Pilih (jika berkenaan) —</option>
+          <option>Rakan sekerja</option><option>Penyelia / Supervisor</option>
+          <option>Pengurusan</option><option>Pelanggan</option>
+          <option>Kontraktor / Vendor</option><option>Orang awam / tidak dikenali</option>
+          <option>Tiada (isu umum)</option>
+        </select>
+      </div>
+      <div class="field"><label>Nama Pihak Terlibat (jika tahu)</label><input type="text" id="adNamaPihak" placeholder="Boleh dikosongkan"></div>
+      <div class="field">
+        <label>Kekerapan *</label>
+        <div class="ad-pills" id="adKekerapanPills">
+          <div class="ad-pill" onclick="adPick('kekerapan',this,'Sekali')">Sekali</div>
+          <div class="ad-pill" onclick="adPick('kekerapan',this,'Berulang')">Berulang</div>
+          <div class="ad-pill" onclick="adPick('kekerapan',this,'Berterusan')">Berterusan</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Kesan Kepada Kamu *</label>
+        <div class="ad-pills" id="adKesanPills">
+          <div class="ad-pill" onclick="adPick('kesan',this,'rendah')">🟢 Sedikit</div>
+          <div class="ad-pill" onclick="adPick('kesan',this,'sederhana')">🟡 Sederhana</div>
+          <div class="ad-pill" onclick="adPick('kesan',this,'tinggi')">🔴 Teruk</div>
+        </div>
+      </div>
+      <div class="field"><label>Apa Yang Berlaku? *</label><textarea id="adDesc" placeholder="Ceritakan kejadian — siapa, apa yang dikatakan/dilakukan, bagaimana ia berlaku..." style="min-height:95px"></textarea></div>
+      <div class="field"><label>Saksi (jika ada)</label><input type="text" id="adSaksi" placeholder="Nama saksi"></div>
+      <div class="field"><label>Tindakan Yang Kamu Harapkan</label><textarea id="adHarap" placeholder="Contoh: mahu berbincang secara peribadi, tukar syif, amaran kepada pihak terlibat..." style="min-height:55px"></textarea></div>
+      <div class="field">
+        <label>Mahu Boss Hubungi Kamu Secara Peribadi?</label>
+        <div class="ad-pills" id="adHubungiPills">
+          <div class="ad-pill" onclick="adPick('hubungi',this,'Ya')">Ya</div>
+          <div class="ad-pill" onclick="adPick('hubungi',this,'Tidak')">Tidak perlu</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>📷 Bukti (gambar / screenshot — pilihan)</label>
+        <div class="img-box" onclick="document.getElementById('upAduan').click()"><div class="ico">📷</div><div class="txt">Tap untuk pilih gambar</div></div>
+        <input type="file" id="upAduan" accept="image/*" multiple style="display:none" onchange="handleAduanUp(this)">
+        <div class="photo-thumb-grid" id="prevAduan"></div>
+        <div class="upload-prog" id="progAduan">⏳ Menghantar gambar...</div>
+      </div>
+      <button class="submit-btn" style="background:#7c3aed" id="adSubmitBtn" onclick="submitAduan()">✓ Hantar Aduan</button>
+    </div>
+
+    <div class="divider"></div>
+    <div class="sec-hdr">Aduan Saya</div>
+    <div id="aduanHist"><div class="empty">Tiada aduan</div></div>
+  </div>
+
   <!-- REQUEST -->
   <div class="view" id="view-request">
     <div class="sec-hdr">Request Cuti & Syif</div>
@@ -613,7 +743,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
       <div class="field"><label>Syif Diminta</label><select id="rSyifMinta"><option value="">—</option><option value="A">Syif A</option><option value="B">Syif B</option><option value="C">Syif C</option></select></div>
       <div class="field"><label>Swap Dengan</label>
         <select id="rSwap"><option value="">— Tiada / Belum pasti —</option>
-        <option>NURUL IZYANA</option><option>MOHD MIZA</option><option>HASNAL</option><option>BELLA</option><option>LISA</option><option>SUHFEE</option><option>NELBOY</option><option>ATI</option><option>INSYIRAH</option><option>JOHNY</option><option>SHAFIKAH</option><option>ANDIEKA</option><option>FERENICA</option><option>SURIATI</option><option>ELFI</option></select>
+        <option>NURUL IZYANA</option><option>MOHD NAZRI BIN JASNI</option><option>HASNAL</option><option>BELLA</option><option>LISA</option><option>SUHFEE</option><option>ATI</option><option>INSYIRAH</option><option>JOHNY</option><option>SHAFIKAH</option><option>ANDIEKA</option><option>FERENICA</option><option>SURIATI</option><option>ELFI</option></select>
       </div>
     </div>
     <div class="card" id="rsCommon" style="display:none">
@@ -631,7 +761,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
@@ -719,7 +849,7 @@ window.doLogin=function(){
   document.getElementById('wcfNama').value=name;
   document.getElementById('wcfPekerja').value=name;
   // HSE name fields
-  ['hNama','uNama','nNama','iNama'].forEach(id=>document.getElementById(id).value=name);
+  ['hNama','uNama','nNama','iNama','adNama'].forEach(id=>document.getElementById(id).value=name);
   if(new Date().getDate()>LOCK_DAY) document.getElementById('lockBar').classList.add('show');
   const t=today();
   document.getElementById('tgDate').value=t;
@@ -729,17 +859,17 @@ window.doLogin=function(){
   document.getElementById('rReceived').value=t;
   document.getElementById('iDate').value=t;
   const nl=nowLocal();
-  ['hDatetime','uDatetime','nDatetime'].forEach(id=>document.getElementById(id).value=nl);
-  const shiftMap={'NURUL IZYANA':'B','MOHD MIZA':'B','HASNAL':'B','BELLA':'C','LISA':'B','SUHFEE':'C','NELBOY':'B','ATI':'C','INSYIRAH':'C','JOHNY':'A','SHAFIKAH':'B','ANDIEKA':'A','FERENICA':'C','SURIATI':'B','ELFI':'C'};
+  ['hDatetime','uDatetime','nDatetime','adDatetime'].forEach(id=>document.getElementById(id).value=nl);
+  const shiftMap={'NURUL IZYANA':'B','MOHD NAZRI BIN JASNI':'B','HASNAL':'B','BELLA':'C','LISA':'B','SUHFEE':'C','ATI':'C','INSYIRAH':'C','JOHNY':'A','SHAFIKAH':'B','ANDIEKA':'A','FERENICA':'C','SURIATI':'B','ELFI':'C'};
   const s=shiftMap[name]||'B';
   document.getElementById('tgShift').value=s;
   const st={A:'10PM – 6:30AM',B:'6AM – 2:30PM',C:'2PM – 10:30PM'};
   const d=new Date(t+'T00:00:00');
   document.getElementById('todayDateTxt').textContent=`${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
   document.getElementById('todayShiftTxt').textContent=`Syif ${s} · ${st[s]}`;
-  buildTgList();buildRoundList();buildMedsosChecks();renderTodayWidgets();renderMyReqs();updateHseStats();
+  buildTgList();buildRoundList();buildMedsosChecks();renderTodayWidgets();renderMyReqs();updateHseStats();startAduanListener();
 }
-window.doLogout=function(){me='';document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
+window.doLogout=function(){me='';if(aduanUnsub){aduanUnsub();aduanUnsub=null;}myAduan={};document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
 
 // TODAY WIDGETS
 function renderTodayWidgets(){
@@ -1073,6 +1203,81 @@ function renderHSEHist(){
   }).join('');
 }
 
+
+// ─── ADUAN STAFF ───
+let myAduan={}, aduanUnsub=null, adVals={kekerapan:'',kesan:'',hubungi:''}, aduanImgs=[];
+function escH(t){return String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function startAduanListener(){
+  if(aduanUnsub) aduanUnsub();
+  aduanUnsub=onValue(query(ref(db,'aduan_staff'),orderByChild('staffName'),equalTo(me)),s=>{myAduan=s.val()||{};renderAduanHist();});
+}
+window.adPick=function(key,el,val){
+  adVals[key]=val;
+  el.parentElement.querySelectorAll('.ad-pill').forEach(p=>p.classList.remove('sel'));
+  el.classList.add('sel');
+}
+window.handleAduanUp=async function(input){
+  const files=Array.from(input.files); if(!files.length)return;
+  const prog=document.getElementById('progAduan'), grid=document.getElementById('prevAduan');
+  prog.style.display='block';prog.className='upload-prog';prog.textContent=`⏳ Menghantar ${files.length} gambar...`;
+  let done=0;
+  for(const file of files){
+    const thumb=document.createElement('img');
+    thumb.src=URL.createObjectURL(file);
+    thumb.style.cssText='width:100%;height:68px;object-fit:cover;border-radius:7px;border:1.5px solid #d4e8da;';
+    grid.appendChild(thumb);
+    try{
+      const fd=new FormData();fd.append('file',file);fd.append('upload_preset',PRESET);fd.append('folder','ps-papar/aduan');
+      const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd});
+      const data=await res.json();
+      if(!data.secure_url) throw new Error('upload gagal');
+      aduanImgs.push(data.secure_url);done++;thumb.style.border='1.5px solid #86efac';
+    }catch(e){thumb.style.border='1.5px solid #f87171';console.error(e);}
+  }
+  prog.textContent=`✅ ${done}/${files.length} gambar berjaya dihantar!`;prog.className='upload-prog done';
+  setTimeout(()=>{prog.style.display='none';},2500);
+  input.value='';
+}
+window.submitAduan=async function(){
+  if(!me){toast('Sila log masuk');return;}
+  const g=id=>document.getElementById(id).value.trim();
+  const kategori=g('adKategori'), datetime=g('adDatetime'), lokasi=g('adLokasi'), desc=g('adDesc');
+  if(!kategori){toast('Pilih kategori aduan');return;}
+  if(!datetime){toast('Isi tarikh & masa kejadian');return;}
+  if(!lokasi){toast('Pilih lokasi kejadian');return;}
+  if(!adVals.kekerapan){toast('Pilih kekerapan');return;}
+  if(!adVals.kesan){toast('Pilih kesan kepada kamu');return;}
+  if(!desc){toast('Ceritakan apa yang berlaku');return;}
+  const btn=document.getElementById('adSubmitBtn'); btn.disabled=true;
+  const grp=document.getElementById('adKategori').selectedOptions[0].parentElement.label||'';
+  try{
+    await push(ref(db,'aduan_staff'),{
+      staffName:me,kategori,kumpulan:grp.replace(/^\S+\s/,''),datetime,lokasi,
+      pihak:g('adPihak'),namaPihak:g('adNamaPihak'),kekerapan:adVals.kekerapan,kesan:adVals.kesan,
+      desc,saksi:g('adSaksi'),harap:g('adHarap'),hubungi:adVals.hubungi||'Tidak dinyatakan',
+      imgs:aduanImgs,status:'baru',bossNota:'',submittedAt:ts(),createdAt:Date.now()
+    });
+    ['adKategori','adLokasi','adPihak','adNamaPihak','adDesc','adSaksi','adHarap'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('adDatetime').value=nowLocal();
+    adVals={kekerapan:'',kesan:'',hubungi:''};
+    document.querySelectorAll('#view-aduan .ad-pill').forEach(p=>p.classList.remove('sel'));
+    aduanImgs=[];document.getElementById('prevAduan').innerHTML='';
+    toast('✅ Aduan berjaya dihantar kepada Boss');
+  }catch(e){console.error(e);toast('⚠️ Gagal hantar. Cuba lagi.');}
+  btn.disabled=false;
+}
+function renderAduanHist(){
+  const el=document.getElementById('aduanHist'); if(!el)return;
+  const list=Object.values(myAduan).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));
+  if(!list.length){el.innerHTML='<div class="empty">Tiada aduan</div>';return;}
+  const st={baru:['ad-st-baru','⏳ Diterima'],siasat:['ad-st-siasat','🔍 Dalam Tindakan'],selesai:['ad-st-selesai','✅ Selesai']};
+  el.innerHTML=list.map(r=>{const [c,l]=st[r.status]||st.baru;return`<div class="ad-rec">
+    <div class="hist-top"><div><div class="hist-date">${escH(r.kategori)}</div><div class="hist-meta">${escH(r.lokasi)} · ${escH(r.submittedAt)}</div></div><span class="ad-st ${c}">${l}</span></div>
+    <div style="font-size:12px;color:#1a1a1a;margin-top:3px;line-height:1.4">${escH((r.desc||'').slice(0,90))}${(r.desc||'').length>90?'...':''}</div>
+    ${r.bossNota?`<div class="ad-reply">💬 <strong>Maklum balas Boss:</strong> ${escH(r.bossNota)}</div>`:''}
+  </div>`;}).join('');
+}
+
 // HSE MULTI UPLOAD
 window.handleHseMultiUp=async function(storeKey,input,previewId,progId){
   const files=Array.from(input.files); if(!files.length)return;
@@ -1224,13 +1429,14 @@ window.handleUp=async function(type,input){
 // NAV
 window.sw=function(tab){
   document.querySelectorAll('.nav-tab').forEach((t,i)=>{
-    const tabs=['home','tugasan','pembersihan','medsos','wcf','hse','request'];
+    const tabs=['home','tugasan','pembersihan','medsos','wcf','hse','aduan','request'];
     t.classList.toggle('active',tabs[i]===tab);
   });
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+tab).classList.add('active');
   if(tab==='pembersihan'||tab==='home') renderTodayWidgets();
   if(tab==='hse'){updateHseStats();renderHSEHist();}
+  if(tab==='aduan'){renderAduanHist();}
 }
 </script>
 </body>

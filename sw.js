@@ -1,4 +1,4 @@
-const CACHE = 'jadual-ps-v1';
+const CACHE = 'jadual-ps-v2';
 const FILES = [
   './jadual-petronas-v2.html',
   './manifest.json'

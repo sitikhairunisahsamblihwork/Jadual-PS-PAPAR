@@ -160,6 +160,17 @@ body{background:#f0f7f3;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 .btn-dl-pdf:active{opacity:.85;}
 /* TOAST */
 #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:#fff;padding:9px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:999;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap;}
+
+/* ADUAN */
+.ad-rec{background:#fff;border:1px solid #d4e8da;border-left:3px solid #8b5cf6;border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.ad-rec.k-tinggi{border-left-color:#ef4444;}
+.ad-st{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;}
+.ad-st-baru{background:#fff8e1;color:#b45309;border:1px solid #f59e0b;}
+.ad-st-siasat{background:#eff6ff;color:#1d4ed8;border:1px solid #3b82f6;}
+.ad-st-selesai{background:#dcf0e4;color:#166534;border:1px solid #16a34a;}
+.ad-grp{display:inline-block;font-size:10px;font-weight:700;color:#6d28d9;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:20px;padding:1px 7px;margin-top:4px;}
+.ad-act{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;padding:10px 12px;border-radius:10px;font-size:13px;font-family:inherit;min-height:70px;margin-bottom:8px;}
+.ad-btn{flex:1;padding:9px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid;}
 </style>
 </head>
 <body>
@@ -210,6 +221,7 @@ body{background:#f0f7f3;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
     <div class="nav-tab" onclick="sw('pembersihan')">🧹 Bersih</div>
     <div class="nav-tab" onclick="sw('wcf')">📄 WCF</div>
     <div class="nav-tab" onclick="sw('hse')">⚠️ HSE</div>
+    <div class="nav-tab" onclick="sw('aduan')">🗣 Aduan<span id="aduanBadge" style="display:none;margin-left:4px;background:#ef4444;color:#fff;border-radius:10px;padding:0 6px;font-size:10px"></span></div>
     <div class="nav-tab" onclick="sw('jadual')">📅 Jadual</div>
   </div>
 
@@ -220,6 +232,10 @@ body{background:#f0f7f3;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
     <div class="card">
       <div class="card-title">⏳ Request Menunggu Kelulusan</div>
       <div id="pendingRequests"><div class="empty">Tiada request menunggu</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗣 Aduan Staff Baru</div>
+      <div id="recentAduan"><div class="empty">Tiada aduan baru</div></div>
     </div>
     <div class="card">
       <div class="card-title">⚠️ Laporan HSE Terkini</div>
@@ -290,6 +306,27 @@ body{background:#f0f7f3;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
       <div class="filter-chip active" onclick="filterHSEStaff('all',this)">Semua Staff</div>
     </div>
     <div id="allHSE"><div class="empty">Tiada laporan HSE</div></div>
+  </div>
+
+  <!-- ADUAN STAFF -->
+  <div class="view" id="view-aduan">
+    <div class="sec-hdr">🗣 Aduan Staff (Sulit)</div>
+    <div class="stats-grid" id="aduanStatsGrid" style="grid-template-columns:repeat(4,1fr)"></div>
+    <div class="filter-row" id="aduanStatusFilter">
+      <div class="filter-chip active" onclick="filterAduan('status','all',this)">Semua</div>
+      <div class="filter-chip" onclick="filterAduan('status','baru',this)">⏳ Baru</div>
+      <div class="filter-chip" onclick="filterAduan('status','siasat',this)">🔍 Dalam Tindakan</div>
+      <div class="filter-chip" onclick="filterAduan('status','selesai',this)">✅ Selesai</div>
+    </div>
+    <div class="filter-row" id="aduanGrpFilter">
+      <div class="filter-chip active" onclick="filterAduan('grp','all',this)">Semua Kategori</div>
+      <div class="filter-chip" onclick="filterAduan('grp','Kejadian & Keselamatan',this)">🚑 Kejadian</div>
+      <div class="filter-chip" onclick="filterAduan('grp','Gangguan & Buli',this)">🛑 Gangguan</div>
+      <div class="filter-chip" onclick="filterAduan('grp','Kesejahteraan & Mental',this)">🧠 Mental/Stress</div>
+      <div class="filter-chip" onclick="filterAduan('grp','Hubungan Kerja',this)">🤝 Hubungan</div>
+      <div class="filter-chip" onclick="filterAduan('grp','Pengurusan & Kemudahan',this)">🏢 Pengurusan</div>
+    </div>
+    <div id="allAduan"><div class="empty">Tiada aduan</div></div>
   </div>
 
   <!-- JADUAL -->
@@ -381,6 +418,7 @@ let jadualBersih={}, jadualPosting={};
 let rejectTargetId=null;
 let reqFilter='all', tgFilter='all', pembFilter='all', wcfFilter='all';
 let hseTypeFilter='all', hseStaffFilter='all';
+let allAduan={}, aduanStFilter='all', aduanGrpFilter='all';
 
 // PIN
 window.pinPress=function(n){
@@ -414,6 +452,7 @@ onValue(ref(db,'pembersihan'),s=>{allPemb=s.val()||{};renderPemb();});
 onValue(ref(db,'medsos'),s=>{allMedsos=s.val()||{};});
 onValue(ref(db,'wcf'),s=>{allWCF=s.val()||{};renderWCF();});
 onValue(ref(db,'hse_reports'),s=>{allHSE=s.val()||{};renderHSE();renderDashboard();});
+onValue(ref(db,'aduan_staff'),s=>{allAduan=s.val()||{};renderAduan();renderAduanDash();});
 onValue(ref(db,'jadual_bersih'),s=>{jadualBersih=s.val()||{};renderJadualView();});
 onValue(ref(db,'jadual_posting'),s=>{jadualPosting=s.val()||{};renderJadualView();});
 
@@ -709,6 +748,107 @@ window.filterHSEStaff=function(s,btn){
   btn.classList.add('active'); renderHSEList();
 }
 
+
+// ─── ADUAN STAFF ───
+const AD_ST={baru:['ad-st-baru','⏳ Baru'],siasat:['ad-st-siasat','🔍 Dalam Tindakan'],selesai:['ad-st-selesai','✅ Selesai']};
+const AD_KESAN={rendah:'🟢 Sedikit',sederhana:'🟡 Sederhana',tinggi:'🔴 Teruk'};
+function escH(t){return String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function fmtDT(v){if(!v)return'—';const d=new Date(v);if(isNaN(d))return v;return`${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}, ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;}
+function aduanList(){return Object.entries(allAduan).map(([k,v])=>({...v,fbKey:k})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));}
+function aduanCard(r){
+  const [c,l]=AD_ST[r.status]||AD_ST.baru;
+  return`<div class="ad-rec k-${r.kesan||''}">
+    <div class="rcard-top">
+      <div><div class="rcard-name">${escH(r.kategori)}</div><div class="rcard-date">${escH(r.staffName)} · ${escH(r.submittedAt)}</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px"><span class="ad-st ${c}">${l}</span>${r.kesan?`<span style="font-size:10px;font-weight:700">${AD_KESAN[r.kesan]||''}</span>`:''}</div>
+    </div>
+    ${r.kumpulan?`<span class="ad-grp">${escH(r.kumpulan)}</span>`:''}
+    <div style="font-size:12px;color:#1a1a1a;margin-top:5px;line-height:1.4">${escH((r.desc||'').slice(0,110))}${(r.desc||'').length>110?'...':''}</div>
+    <div style="font-size:11px;color:#7a6e62;margin-top:3px">📍 ${escH(r.lokasi)}${r.pihak?' · 👥 '+escH(r.pihak):''}${r.hubungi==='Ya'?' · 📞 <strong style="color:#b91c1c">Mahu dihubungi</strong>':''}</div>
+    <div class="action-row" style="margin-top:8px">
+      <button onclick="openAduanDetail('${r.fbKey}')" style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔍 Lihat & Tindakan</button>
+      <button onclick="downloadAduanPDF('${r.fbKey}')" style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+    </div>
+  </div>`;
+}
+function renderAduan(){
+  const items=aduanList();
+  const cnt={baru:0,siasat:0,selesai:0,teruk:0};
+  items.forEach(r=>{cnt[r.status||'baru']=(cnt[r.status||'baru']||0)+1;if(r.kesan==='tinggi'&&r.status!=='selesai')cnt.teruk++;});
+  document.getElementById('aduanStatsGrid').innerHTML=`
+    <div class="stat-card" style="border-left:3px solid #f59e0b"><div class="stat-num" style="color:#b45309;font-size:20px">${cnt.baru}</div><div class="stat-lbl">⏳ Baru</div></div>
+    <div class="stat-card" style="border-left:3px solid #3b82f6"><div class="stat-num" style="color:#1d4ed8;font-size:20px">${cnt.siasat}</div><div class="stat-lbl">🔍 Tindakan</div></div>
+    <div class="stat-card" style="border-left:3px solid #16a34a"><div class="stat-num" style="color:#166534;font-size:20px">${cnt.selesai}</div><div class="stat-lbl">✅ Selesai</div></div>
+    <div class="stat-card" style="border-left:3px solid #ef4444"><div class="stat-num" style="color:#b91c1c;font-size:20px">${cnt.teruk}</div><div class="stat-lbl">🔴 Teruk</div></div>`;
+  const b=document.getElementById('aduanBadge');
+  b.textContent=cnt.baru; b.style.display=cnt.baru?'inline':'none';
+  let list=items;
+  if(aduanStFilter!=='all') list=list.filter(r=>(r.status||'baru')===aduanStFilter);
+  if(aduanGrpFilter!=='all') list=list.filter(r=>r.kumpulan===aduanGrpFilter);
+  document.getElementById('allAduan').innerHTML=list.length?list.map(aduanCard).join(''):'<div class="empty">Tiada aduan</div>';
+}
+function renderAduanDash(){
+  const el=document.getElementById('recentAduan'); if(!el)return;
+  const baru=aduanList().filter(r=>(r.status||'baru')!=='selesai').slice(0,3);
+  el.innerHTML=baru.length?baru.map(aduanCard).join('')+`<div style="text-align:center;margin-top:4px"><span onclick="sw('aduan')" style="font-size:12px;color:#00a650;font-weight:700;cursor:pointer">Lihat semua aduan →</span></div>`:'<div class="empty">Tiada aduan terbuka ✅</div>';
+}
+window.filterAduan=function(type,val,btn){
+  if(type==='status') aduanStFilter=val; else aduanGrpFilter=val;
+  btn.parentElement.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active'); renderAduan();
+}
+window.openAduanDetail=function(key){
+  const r=allAduan[key]; if(!r)return;
+  const [c,l]=AD_ST[r.status]||AD_ST.baru;
+  document.getElementById('dmTitle').textContent='🗣 Aduan Staff';
+  const badge=document.getElementById('dmBadge'); badge.className='ad-st '+c; badge.textContent=l;
+  const row=(lbl,val)=>`<div class="dm-row"><span class="dm-label">${lbl}</span><span class="dm-val">${escH(val||'—')}</span></div>`;
+  const imgs=r.imgs||[];
+  document.getElementById('dmBody').innerHTML=`
+    <div class="dm-section"><div class="dm-sec-title">Maklumat Aduan</div>
+      ${row('Pengadu',r.staffName)}${row('Kumpulan',r.kumpulan)}${row('Kategori',r.kategori)}
+      ${row('Tarikh & Masa Kejadian',fmtDT(r.datetime))}${row('Lokasi',r.lokasi)}
+      ${row('Pihak Terlibat',r.pihak)}${row('Nama Pihak',r.namaPihak)}
+      ${row('Kekerapan',r.kekerapan)}${row('Kesan',AD_KESAN[r.kesan]||r.kesan)}
+      ${row('Saksi',r.saksi)}${row('Mahu Dihubungi',r.hubungi)}${row('Dihantar',r.submittedAt)}
+    </div>
+    <div class="dm-section"><div class="dm-sec-title">Apa Yang Berlaku</div>
+      <div style="font-size:13px;line-height:1.55;white-space:pre-wrap">${escH(r.desc)}</div></div>
+    ${r.harap?`<div class="dm-section"><div class="dm-sec-title">Tindakan Yang Diharapkan</div><div style="font-size:13px;line-height:1.55;white-space:pre-wrap">${escH(r.harap)}</div></div>`:''}
+    <div class="dm-section"><div class="dm-sec-title">Bukti</div>
+      ${imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${escH(u)}" target="_blank"><img src="${escH(u)}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>'}</div>
+    <div class="dm-section"><div class="dm-sec-title">Tindakan Boss</div>
+      <textarea class="ad-act" id="adBossNota" placeholder="Maklum balas / tindakan diambil (staff boleh nampak nota ini)">${escH(r.bossNota||'')}</textarea>
+      <div class="action-row">
+        <button class="ad-btn" style="background:#fff8e1;border-color:#f59e0b;color:#b45309" onclick="setAduanStatus('${key}','baru')">⏳ Baru</button>
+        <button class="ad-btn" style="background:#eff6ff;border-color:#3b82f6;color:#1d4ed8" onclick="setAduanStatus('${key}','siasat')">🔍 Tindakan</button>
+        <button class="ad-btn" style="background:#dcf0e4;border-color:#16a34a;color:#166534" onclick="setAduanStatus('${key}','selesai')">✅ Selesai</button>
+      </div>
+      ${r.updatedAt?`<div style="font-size:11px;color:#7a6e62;margin-top:6px">Kemaskini terakhir: ${escH(r.updatedAt)}</div>`:''}
+    </div>`;
+  document.getElementById('detailModal').classList.add('show');
+}
+window.setAduanStatus=async function(key,status){
+  const nota=document.getElementById('adBossNota').value.trim();
+  const n=new Date(); const t=`${n.getDate()}/${n.getMonth()+1}/${n.getFullYear()} ${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`;
+  await update(ref(db,'aduan_staff/'+key),{status,bossNota:nota,updatedAt:t});
+  toast('✅ Status aduan dikemaskini');
+  openAduanDetail(key);
+}
+window.downloadAduanPDF=function(key){
+  const r=allAduan[key]; if(!r)return;
+  const e=v=>escH(v||'—');
+  makePDF(`Aduan Staff — ${e(r.staffName)} (SULIT)`,[
+    ['Pengadu',e(r.staffName)],['Kumpulan',e(r.kumpulan)],['Kategori',e(r.kategori)],
+    ['Tarikh & Masa Kejadian',e(fmtDT(r.datetime))],['Lokasi',e(r.lokasi)],
+    ['Pihak Terlibat',e(r.pihak)],['Nama Pihak',e(r.namaPihak)],
+    ['Kekerapan',e(r.kekerapan)],['Kesan',e(AD_KESAN[r.kesan]||r.kesan)],
+    ['Apa Yang Berlaku',e(r.desc)],['Saksi',e(r.saksi)],['Tindakan Diharapkan',e(r.harap)],
+    ['Mahu Dihubungi',e(r.hubungi)],['Bukti',(r.imgs||[]).length+' gambar'],
+    ['Status',(AD_ST[r.status]||AD_ST.baru)[1]],['Maklum Balas Boss',e(r.bossNota)],
+    ['Dihantar',e(r.submittedAt)]],'Dokumen SULIT — untuk kegunaan pengurusan sahaja.');
+}
+
 // ─── JADUAL ───
 window.uploadJadual=async function(type,input){
   const file=input.files[0]; if(!file)return;
@@ -972,12 +1112,13 @@ window.downloadHSEPDF=function(r){
 // NAV
 window.sw=function(tab){
   document.querySelectorAll('.nav-tab').forEach((t,i)=>{
-    const tabs=['dashboard','request','tugasan','pembersihan','wcf','hse','jadual'];
+    const tabs=['dashboard','request','tugasan','pembersihan','wcf','hse','aduan','jadual'];
     t.classList.toggle('active',tabs[i]===tab);
   });
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+tab).classList.add('active');
   if(tab==='hse'){renderHSE();}
+  if(tab==='aduan'){renderAduan();}
 }
 </script>
 </body>
