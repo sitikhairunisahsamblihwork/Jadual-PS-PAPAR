@@ -169,6 +169,16 @@ body{background:#f0f7f3;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 .ad-st-siasat{background:#eff6ff;color:#1d4ed8;border:1px solid #3b82f6;}
 .ad-st-selesai{background:#dcf0e4;color:#166534;border:1px solid #16a34a;}
 .ad-grp{display:inline-block;font-size:10px;font-weight:700;color:#6d28d9;background:#f5f3ff;border:1px solid #c4b5fd;border-radius:20px;padding:1px 7px;margin-top:4px;}
+.aw-st{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap;border:1px solid}
+.aw-Diterima{background:#fff8e1;color:#b45309;border-color:#f59e0b}
+.aw-Dalam-Siasatan{background:#eff6ff;color:#1d4ed8;border-color:#3b82f6}
+.aw-Tindakan-Diambil{background:#ecfeff;color:#0e7490;border-color:#06b6d4}
+.aw-Selesai{background:#dcf0e4;color:#166534;border-color:#16a34a}
+.aw-Ditolak{background:#fef2f2;color:#b91c1c;border-color:#ef4444}
+.aw-pri{display:inline-block;font-size:10px;font-weight:800;border-radius:20px;padding:1px 7px;margin:4px 4px 0 0}
+.aw-pri.SEGERA{background:#ef4444;color:#fff}.aw-pri.SULIT-ATASAN{background:#6d28d9;color:#fff}.aw-pri.BIASA{background:#e5e7eb;color:#374151}
+.ad-rec.aw-SEGERA{border-left-color:#ef4444}.ad-rec.aw-SULIT-ATASAN{border-left-color:#6d28d9}.ad-rec.aw-BIASA{border-left-color:#00a650}
+.aw-log{font-size:11.5px;color:#4b5563;border-left:2px solid #d4e8da;padding:2px 0 6px 10px;margin-left:4px}
 .ad-act{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;padding:10px 12px;border-radius:10px;font-size:13px;font-family:inherit;min-height:70px;margin-bottom:8px;}
 .ad-btn{flex:1;padding:9px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid;}
 
@@ -239,6 +249,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
     <div class="nav-tab" onclick="sw('wcf')">📄 WCF</div>
     <div class="nav-tab" onclick="sw('hse')">⚠️ HSE</div>
     <div class="nav-tab" onclick="sw('aduan')">🗣 Aduan<span id="aduanBadge" style="display:none;margin-left:4px;background:#ef4444;color:#fff;border-radius:10px;padding:0 6px;font-size:10px"></span></div>
+    <div class="nav-tab" onclick="sw('awam')">📢 Aduan Awam<span id="awamBadge" style="display:none;margin-left:4px;background:#ef4444;color:#fff;border-radius:10px;padding:0 6px;font-size:10px"></span></div>
     <div class="nav-tab" onclick="sw('jadual')">📅 Jadual</div>
   </div>
 
@@ -253,6 +264,10 @@ textarea.act-inp{min-height:65px;resize:vertical;}
     <div class="card">
       <div class="card-title">🗣 Aduan Staff Baru</div>
       <div id="recentAduan"><div class="empty">Tiada aduan baru</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📢 Aduan Awam Terbuka</div>
+      <div id="recentAwam"><div class="empty">Tiada aduan awam</div></div>
     </div>
     <div class="card">
       <div class="card-title">⚠️ Laporan HSE Terkini</div>
@@ -352,6 +367,27 @@ textarea.act-inp{min-height:65px;resize:vertical;}
     <div id="allAduan"><div class="empty">Tiada aduan</div></div>
   </div>
 
+  <!-- ADUAN AWAM (QR) -->
+  <div class="view" id="view-awam">
+    <div class="sec-hdr">📢 Aduan Awam — Borang QR</div>
+    <div class="stats-grid" id="awamStatsGrid" style="grid-template-columns:repeat(4,1fr)"></div>
+    <div class="filter-row">
+      <div class="filter-chip active" onclick="filterAwam('st','all',this)">Semua</div>
+      <div class="filter-chip" onclick="filterAwam('st','terbuka',this)">🔓 Terbuka</div>
+      <div class="filter-chip" onclick="filterAwam('st','Diterima',this)">⏳ Diterima</div>
+      <div class="filter-chip" onclick="filterAwam('st','Dalam Siasatan',this)">🔍 Siasatan</div>
+      <div class="filter-chip" onclick="filterAwam('st','Tindakan Diambil',this)">🛠 Tindakan</div>
+      <div class="filter-chip" onclick="filterAwam('st','Selesai',this)">✅ Selesai</div>
+    </div>
+    <div class="filter-row">
+      <div class="filter-chip active" onclick="filterAwam('pri','all',this)">Semua Keutamaan</div>
+      <div class="filter-chip" onclick="filterAwam('pri','SEGERA',this)">🚨 Segera</div>
+      <div class="filter-chip" onclick="filterAwam('pri','SULIT-ATASAN',this)">🔒 Sulit</div>
+      <div class="filter-chip" onclick="filterAwam('pri','BIASA',this)">Biasa</div>
+    </div>
+    <div id="allAwam"><div class="empty">Tiada aduan awam</div></div>
+  </div>
+
   <!-- JADUAL -->
   <div class="view" id="view-jadual">
     <div class="sec-hdr">Upload Jadual Bulanan</div>
@@ -449,6 +485,7 @@ let hseTypeFilter='all', hseStaffFilter='all', hseStatusFilter='all';
 const CLOUD='dlsvmwqtp', PRESET='ps-papar-uploads';
 let hseActUp={act:[],close:[]}, hseActKey=null;
 let allAduan={}, aduanStFilter='all', aduanGrpFilter='all';
+let allAwam={}, awamStFilter='all', awamPriFilter='all';
 
 // PIN
 window.pinPress=function(n){
@@ -483,6 +520,7 @@ onValue(ref(db,'medsos'),s=>{allMedsos=s.val()||{};});
 onValue(ref(db,'wcf'),s=>{allWCF=s.val()||{};renderWCF();});
 onValue(ref(db,'hse_reports'),s=>{allHSE=s.val()||{};renderHSE();renderDashboard();});
 onValue(ref(db,'aduan_staff'),s=>{allAduan=s.val()||{};renderAduan();renderAduanDash();});
+onValue(ref(db,'aduanAwam'),s=>{allAwam=s.val()||{};renderAwam();renderAwamDash();});
 onValue(ref(db,'jadual_bersih'),s=>{jadualBersih=s.val()||{};renderJadualView();});
 onValue(ref(db,'jadual_posting'),s=>{jadualPosting=s.val()||{};renderJadualView();});
 
@@ -1261,16 +1299,134 @@ window.downloadHSEPDF=function(r){
   makePDF(`Laporan HSE — ${r.typeLabel||hseLabel[r.type]||r.type} — ${r.staffName}`,rows);
 }
 
+// ─── ADUAN AWAM (borang QR) ───
+const AW_STATUS=['Diterima','Dalam Siasatan','Tindakan Diambil','Selesai','Ditolak'];
+const AW_ICON={'Diterima':'⏳','Dalam Siasatan':'🔍','Tindakan Diambil':'🛠','Selesai':'✅','Ditolak':'✖'};
+const AW_PRI={SEGERA:'🚨 SEGERA','SULIT-ATASAN':'🔒 SULIT','BIASA':'BIASA'};
+const awOpen=r=>!['Selesai','Ditolak'].includes(r.status||'Diterima');
+const awArr=v=>Array.isArray(v)?v:(v?Object.values(v):[]);
+const awJoin=v=>Array.isArray(v)?v.join(', '):(v||'');
+function awamList(){return Object.entries(allAwam).map(([k,v])=>({...v,fbKey:k})).sort((a,b)=>String(b.dihantarPada||'').localeCompare(String(a.dihantarPada||'')));}
+function awStBadge(st){st=st||'Diterima';return`<span class="aw-st aw-${st.replace(/ /g,'-')}">${AW_ICON[st]||''} ${escH(st)}</span>`;}
+function awamCard(r){
+  const pri=r.keutamaan||'BIASA';
+  return`<div class="ad-rec aw-${pri}">
+    <div class="rcard-top">
+      <div><div class="rcard-name">${escH(r.jenis)}</div><div class="rcard-date">${escH(r.ref||r.fbKey)} · ${escH(r.tanpaNama?'Tanpa nama':(r.nama||'—'))} (${escH(r.statusPelapor||'—')})</div></div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">${awStBadge(r.status)}<span style="font-size:10px;font-weight:700">${escH(r.tahap||'')}</span></div>
+    </div>
+    <span class="aw-pri ${pri}">${AW_PRI[pri]||pri}</span>${r.masihBerlaku==='Ya'&&awOpen(r)?'<span class="aw-pri SEGERA">MASIH BERLAKU</span>':''}
+    <div style="font-size:12px;color:#1a1a1a;margin-top:5px;line-height:1.4">${escH((r.penerangan||'').slice(0,110))}${(r.penerangan||'').length>110?'...':''}</div>
+    <div style="font-size:11px;color:#7a6e62;margin-top:3px">📍 ${escH(r.lokasi)} · 🗓 ${escH(r.tarikh)} ${escH(r.masa)}${awArr(r.bukti).length?' · 📷 '+awArr(r.bukti).length:''}${r.hubungi?' · 📞 <strong style="color:#b91c1c">Mahu dihubungi</strong>':''}</div>
+    <div class="action-row" style="margin-top:8px">
+      <button onclick="openAwamDetail('${r.fbKey}')" style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔍 Lihat & Tindakan</button>
+      <button onclick="downloadAwamPDF('${r.fbKey}')" style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+    </div>
+  </div>`;
+}
+function renderAwam(){
+  const items=awamList();
+  const open=items.filter(awOpen), seg=open.filter(r=>r.keutamaan==='SEGERA');
+  const baru=items.filter(r=>(r.status||'Diterima')==='Diterima');
+  const done=items.filter(r=>r.status==='Selesai');
+  document.getElementById('awamStatsGrid').innerHTML=`
+    <div class="stat-card" style="border-left:3px solid #f59e0b"><div class="stat-num" style="color:#b45309;font-size:20px">${baru.length}</div><div class="stat-lbl">⏳ Baru</div></div>
+    <div class="stat-card" style="border-left:3px solid #3b82f6"><div class="stat-num" style="color:#1d4ed8;font-size:20px">${open.length}</div><div class="stat-lbl">🔓 Terbuka</div></div>
+    <div class="stat-card" style="border-left:3px solid #ef4444"><div class="stat-num" style="color:#b91c1c;font-size:20px">${seg.length}</div><div class="stat-lbl">🚨 Segera</div></div>
+    <div class="stat-card" style="border-left:3px solid #16a34a"><div class="stat-num" style="color:#166534;font-size:20px">${done.length}</div><div class="stat-lbl">✅ Selesai</div></div>`;
+  const b=document.getElementById('awamBadge');
+  b.textContent=baru.length; b.style.display=baru.length?'inline':'none';
+  let list=items;
+  if(awamStFilter==='terbuka') list=list.filter(awOpen);
+  else if(awamStFilter!=='all') list=list.filter(r=>(r.status||'Diterima')===awamStFilter);
+  if(awamPriFilter!=='all') list=list.filter(r=>(r.keutamaan||'BIASA')===awamPriFilter);
+  document.getElementById('allAwam').innerHTML=list.length?list.map(awamCard).join(''):'<div class="empty">Tiada aduan awam</div>';
+}
+function renderAwamDash(){
+  const el=document.getElementById('recentAwam'); if(!el)return;
+  const pr={SEGERA:0,'SULIT-ATASAN':1,BIASA:2};
+  const open=awamList().filter(awOpen).sort((a,b)=>(pr[a.keutamaan]??2)-(pr[b.keutamaan]??2)).slice(0,3);
+  el.innerHTML=open.length?open.map(awamCard).join('')+`<div style="text-align:center;margin-top:4px"><span onclick="sw('awam')" style="font-size:12px;color:#00a650;font-weight:700;cursor:pointer">Lihat semua aduan awam →</span></div>`:'<div class="empty">Tiada aduan awam terbuka ✅</div>';
+}
+window.filterAwam=function(type,val,btn){
+  if(type==='st') awamStFilter=val; else awamPriFilter=val;
+  btn.parentElement.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  btn.classList.add('active'); renderAwam();
+}
+window.openAwamDetail=function(key){
+  const r=allAwam[key]; if(!r)return;
+  const st=r.status||'Diterima';
+  document.getElementById('dmTitle').textContent='📢 Aduan Awam · '+(r.ref||key);
+  const badge=document.getElementById('dmBadge'); badge.className='aw-st aw-'+st.replace(/ /g,'-'); badge.textContent=(AW_ICON[st]||'')+' '+st;
+  const row=(lbl,val)=>`<div class="dm-row"><span class="dm-label">${lbl}</span><span class="dm-val">${escH(val||'—')}</span></div>`;
+  const bukti=awArr(r.bukti);
+  const log=awArr(r.log);
+  document.getElementById('dmBody').innerHTML=`
+    <div class="dm-section"><div class="dm-sec-title">Pelapor</div>
+      ${row('Nama',r.tanpaNama?'Tanpa nama':r.nama)}${row('Status Pelapor',r.statusPelapor)}
+      ${row('Hubungi',r.hubungi)}${row('Cara Dihubungi',r.caraHubung)}</div>
+    <div class="dm-section"><div class="dm-sec-title">Kejadian</div>
+      ${row('No. Rujukan',r.ref||key)}${row('Keutamaan',AW_PRI[r.keutamaan]||r.keutamaan)}
+      ${row('Jenis',r.jenis)}${row('Tahap Keterukan',r.tahap)}
+      ${row('Tarikh & Masa',(r.tarikh||'')+' '+(r.masa||''))}${row('Lokasi',r.lokasi)}
+      ${row('Masih Berlaku',r.masihBerlaku)}${row('Individu Terlibat',r.terlibat)}
+      ${row('Saksi',r.saksi)}${row('Kesan',awJoin(r.kesan))}${row('Dihantar',fmtDT(r.dihantarPada))}</div>
+    <div class="dm-section"><div class="dm-sec-title">Penerangan</div>
+      <div style="font-size:13px;line-height:1.55;white-space:pre-wrap">${escH(r.penerangan)}</div></div>
+    <div class="dm-section"><div class="dm-sec-title">Tindakan Diharapkan</div>
+      <div style="font-size:13px">${escH(awJoin(r.harapan)||'—')}</div>
+      ${r.cadangan?`<div style="font-size:12px;color:#4b5563;margin-top:6px"><b>Cadangan:</b> ${escH(r.cadangan)}</div>`:''}</div>
+    <div class="dm-section"><div class="dm-sec-title">Bukti</div>
+      ${bukti.length?'<div class="img-grid">'+bukti.map(b=>b.jenis==='video'?`<a href="${escH(b.url)}" target="_blank" style="display:grid;place-items:center;background:#f0f7f3;border-radius:7px;aspect-ratio:1;font-size:12px;font-weight:700;color:#00a650">▶ Video</a>`:`<a href="${escH(b.url)}" target="_blank"><img src="${escH(b.url)}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':`<div style="color:#aaa;font-size:12px">${r.notaBukti?escH(r.notaBukti):'Tiada bukti'}</div>`}</div>
+    <div class="dm-section"><div class="dm-sec-title">Tindakan Boss</div>
+      <label style="font-size:11px;font-weight:700;color:#166534">Mesej kepada pelapor (dipaparkan bila pelapor semak status)</label>
+      <textarea class="ad-act" id="awPublic" placeholder="cth: Terima kasih. Lantai tandas telah dibaiki dan papan amaran dipasang.">${escH(r.kemaskiniAwam||'')}</textarea>
+      <label style="font-size:11px;font-weight:700;color:#b91c1c">Nota dalaman (sulit, pengurusan sahaja)</label>
+      <textarea class="ad-act" id="awInternal" placeholder="Siasatan, tindakan pembetulan, individu bertanggungjawab...">${escH(r.notaDalaman||'')}</textarea>
+      <div class="action-row" style="flex-wrap:wrap">
+        ${AW_STATUS.map(s=>`<button class="ad-btn aw-${s.replace(/ /g,'-')}" style="flex:1 1 30%;padding:8px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit;${s===st?'outline:2px solid #14232b':''}" onclick="setAwamStatus('${key}','${s}')">${AW_ICON[s]} ${s}</button>`).join('')}
+      </div>
+    </div>
+    ${log.length?`<div class="dm-section"><div class="dm-sec-title">Sejarah</div>${log.slice().reverse().map(l=>`<div class="aw-log"><b>${escH(l.status)}</b> · ${escH(fmtDT(l.masa))}${l.nota?'<br>'+escH(l.nota):''}</div>`).join('')}</div>`:''}`;
+  document.getElementById('detailModal').classList.add('show');
+}
+window.setAwamStatus=async function(key,status){
+  const r=allAwam[key]; if(!r)return;
+  const pub=document.getElementById('awPublic').value.trim();
+  const internal=document.getElementById('awInternal').value.trim();
+  const now=new Date().toISOString();
+  const log=awArr(r.log).concat([{masa:now,status,nota:pub||''}]);
+  await update(ref(db,'aduanAwam/'+key),{status,kemaskiniAwam:pub,notaDalaman:internal,dikemaskiniPada:now,log});
+  toast('✅ Aduan awam dikemaskini');
+  openAwamDetail(key);
+}
+window.downloadAwamPDF=function(key){
+  const r=allAwam[key]; if(!r)return;
+  const e=v=>escH(v||'—');
+  makePDF(`Aduan Awam ${e(r.ref||key)} — ${e(r.jenis)}`,[
+    ['No. Rujukan',e(r.ref||key)],['Keutamaan',e(AW_PRI[r.keutamaan]||r.keutamaan)],
+    ['Pelapor',e(r.tanpaNama?'Tanpa nama':r.nama)],['Status Pelapor',e(r.statusPelapor)],
+    ['Hubungi',e(r.hubungi)],['Jenis',e(r.jenis)],['Tahap Keterukan',e(r.tahap)],
+    ['Tarikh & Masa',e((r.tarikh||'')+' '+(r.masa||''))],['Lokasi',e(r.lokasi)],
+    ['Masih Berlaku',e(r.masihBerlaku)],['Individu Terlibat',e(r.terlibat)],['Saksi',e(r.saksi)],
+    ['Kesan',e(awJoin(r.kesan))],['Penerangan',e(r.penerangan)],
+    ['Tindakan Diharapkan',e(awJoin(r.harapan))],['Cadangan',e(r.cadangan)],
+    ['Bukti',awArr(r.bukti).length+' fail'],['Status',e(r.status||'Diterima')],
+    ['Mesej kepada Pelapor',e(r.kemaskiniAwam)],['Nota Dalaman',e(r.notaDalaman)],
+    ['Dihantar',e(fmtDT(r.dihantarPada))]],'Dokumen SULIT — untuk kegunaan pengurusan sahaja.');
+}
+
 // NAV
 window.sw=function(tab){
   document.querySelectorAll('.nav-tab').forEach((t,i)=>{
-    const tabs=['dashboard','request','tugasan','pembersihan','wcf','hse','aduan','jadual'];
+    const tabs=['dashboard','request','tugasan','pembersihan','wcf','hse','aduan','awam','jadual'];
     t.classList.toggle('active',tabs[i]===tab);
   });
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+tab).classList.add('active');
   if(tab==='hse'){renderHSE();}
   if(tab==='aduan'){renderAduan();}
+  if(tab==='awam'){renderAwam();}
 }
 </script>
 </body>

@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saluran Aduan PS Papar</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#00857c; --teal-d:#005f59; --teal-l:#e6f4f3; --ink:#14232b; --muted:#5d6d75;
+  --line:#dfe7ea; --bg:#f3f7f8; --card:#fff; --red:#c62828; --red-l:#fdecec;
+  --amber:#b26a00; --amber-l:#fff4e0; --green:#2e7d32; --radius:16px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+header{background:linear-gradient(135deg,var(--teal-d),var(--teal));color:#fff;padding:28px 16px 70px}
+.wrap{max-width:720px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:12px;font-size:13px;opacity:.9;letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+.brand .dot{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:20px}
+h1{font-size:clamp(22px,5vw,30px);margin:14px 0 4px;font-weight:800;line-height:1.2}
+.tag{font-style:italic;opacity:.92;margin:0}
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.badges span{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.25);padding:5px 11px;border-radius:99px;font-size:12.5px}
+main{margin-top:-46px;padding:0 16px 40px}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:0 6px 24px rgba(20,35,43,.08);padding:22px}
+.progress{display:flex;gap:6px;margin-bottom:18px}
+.progress div{flex:1;height:6px;border-radius:99px;background:var(--line);transition:.3s}
+.progress div.on{background:var(--teal)}
+.stepname{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.6px}
+h2{margin:2px 0 16px;font-size:20px}
+.step{display:none}.step.active{display:block;animation:fade .25s}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1}}
+label.q{display:block;font-weight:700;margin:18px 0 6px;font-size:14.5px}
+label.q small{font-weight:500;color:var(--muted)}
+.req{color:var(--red)}
+.hint{font-size:12.5px;color:var(--muted);margin:-2px 0 8px}
+input[type=text],input[type=tel],input[type=email],input[type=date],input[type=time],textarea,select{
+  width:100%;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;font:inherit;font-size:15px;background:#fff;color:var(--ink)}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-l)}
+textarea{min-height:130px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip span{display:inline-flex;align-items:center;gap:6px;padding:9px 13px;border:1.5px solid var(--line);border-radius:99px;font-size:13.5px;cursor:pointer;background:#fff;transition:.15s;user-select:none}
+.chip input:checked+span{background:var(--teal);border-color:var(--teal);color:#fff}
+.chip input:focus-visible+span{box-shadow:0 0 0 3px var(--teal-l)}
+.group-t{font-size:12px;font-weight:700;color:var(--teal-d);text-transform:uppercase;letter-spacing:.6px;margin:14px 0 8px}
+.sev{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sev .chip span{width:100%;justify-content:center;flex-direction:column;border-radius:12px;padding:10px 4px;font-size:12.5px;text-align:center}
+.sev .chip span b{font-size:14px}
+.sev .s1 input:checked+span{background:var(--green);border-color:var(--green)}
+.sev .s2 input:checked+span{background:#f9a825;border-color:#f9a825;color:#222}
+.sev .s3 input:checked+span{background:#ef6c00;border-color:#ef6c00}
+.sev .s4 input:checked+span{background:var(--red);border-color:var(--red)}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1.5px solid var(--line);border-radius:12px;background:var(--teal-l)}
+.toggle b{display:block;font-size:14.5px}.toggle small{color:var(--muted)}
+.switch{position:relative;width:50px;height:28px;flex:none}
+.switch input{opacity:0;width:0;height:0}
+.switch i{position:absolute;inset:0;background:#c5d0d4;border-radius:99px;transition:.2s;cursor:pointer}
+.switch i:before{content:"";position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.switch input:checked+i{background:var(--teal)}
+.switch input:checked+i:before{transform:translateX(22px)}
+.alert{border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:14px;display:none}
+.alert.show{display:block}
+.alert.red{background:var(--red-l);color:var(--red);border:1px solid #f5c2c2}
+.alert.amber{background:var(--amber-l);color:var(--amber);border:1px solid #f3d9a8}
+.alert.teal{background:var(--teal-l);color:var(--teal-d);border:1px solid #bfe2df}
+.alert a{color:inherit;font-weight:800}
+.guide{background:var(--bg);border-radius:12px;padding:10px 14px;font-size:13px;color:var(--muted);margin-bottom:8px}
+.guide ul{margin:4px 0 0;padding-left:18px}
+.counter{text-align:right;font-size:12px;color:var(--muted)}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:18px;text-align:center;cursor:pointer;color:var(--muted);font-size:14px;transition:.15s}
+.drop:hover{border-color:var(--teal);color:var(--teal-d)}
+.thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.thumbs div{position:relative;width:78px;height:78px;border-radius:10px;overflow:hidden;background:var(--bg);display:grid;place-items:center;font-size:11px;text-align:center}
+.thumbs img,.thumbs video{width:100%;height:100%;object-fit:cover}
+.thumbs button{position:absolute;top:3px;right:3px;border:0;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer}
+.consent{display:flex;gap:12px;padding:14px;border:1.5px solid var(--line);border-radius:12px;margin-top:10px;cursor:pointer;font-size:13.5px}
+.consent input{width:20px;height:20px;accent-color:var(--teal);flex:none;margin-top:2px}
+.review{background:var(--bg);border-radius:12px;padding:6px 14px;font-size:13.5px}
+.review dl{display:grid;grid-template-columns:140px 1fr;gap:6px 12px;margin:10px 0}
+.review dt{color:var(--muted)}.review dd{margin:0;font-weight:600;word-break:break-word}
+.nav{display:flex;gap:10px;margin-top:24px}
+button.btn{flex:1;padding:14px;border-radius:12px;border:0;font:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.btn.pri{background:var(--teal);color:#fff}.btn.pri:hover{background:var(--teal-d)}
+.btn.sec{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
+.btn:disabled{opacity:.6;cursor:wait}
+.err{color:var(--red);font-size:12.5px;margin-top:4px;display:none}
+.invalid .err{display:block}
+.invalid input,.invalid textarea,.invalid select{border-color:var(--red)}
+.success{text-align:center;padding:10px 0}
+.success .big{font-size:54px}
+.refbox{display:inline-flex;align-items:center;gap:10px;background:var(--teal-l);border:1.5px dashed var(--teal);padding:12px 18px;border-radius:12px;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--teal-d);margin:10px 0}
+.refbox button{border:0;background:var(--teal);color:#fff;border-radius:8px;padding:6px 10px;font:inherit;font-size:12px;cursor:pointer}
+.track{margin-top:16px}
+.track .card{padding:18px}
+.trackrow{display:flex;gap:8px}
+.trackrow input{flex:1;text-transform:uppercase}
+.trackrow button{padding:0 18px;border-radius:12px;border:0;background:var(--ink);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.status-pill{display:inline-block;padding:4px 12px;border-radius:99px;font-weight:700;font-size:13px}
+footer{text-align:center;font-size:12px;color:var(--muted);padding:10px 16px 30px}
+.demo{background:#fff3cd;color:#7a5a00;text-align:center;font-size:12px;padding:6px}
+@media(max-width:520px){.row{grid-template-columns:1fr}.sev{grid-template-columns:repeat(2,1fr)}.review dl{grid-template-columns:1fr}.review dt{margin-top:6px}}
+@media print{header,.nav,.track,footer{display:none}main{margin:0}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<div id="demoBar" class="demo" style="display:none">⚙️ MOD DEMO — Firebase belum disambung. Aduan hanya disimpan dalam pelayar ini.</div>
+
+<header>
+  <div class="wrap">
+    <div class="brand"><div class="dot">⛽</div>Stesen Minyak PETRONAS Papar · RYS0352</div>
+    <h1>Saluran Aduan HSE &amp; Hak Asasi Manusia</h1>
+    <p class="tag">"Suara Anda, Keselamatan dan Hak Anda Keutamaan Kami"</p>
+    <div class="badges">
+      <span>🔒 Sulit &amp; selamat</span><span>🛡️ Tiada tindakan balas</span><span>👤 Boleh tanpa nama</span><span>⏱️ ±3 minit</span>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+<div class="card" id="formCard">
+  <div class="progress" id="progress"><div></div><div></div><div></div><div></div></div>
+
+  <form id="f" novalidate>
+  <!-- STEP 1 -->
+  <section class="step active" data-name="Langkah 1 / 4">
+    <div class="stepname">Langkah 1 / 4</div>
+    <h2>Maklumat Pelapor</h2>
+
+    <div class="alert teal show">Syarikat komited menyediakan saluran aduan yang <b>selamat, adil dan bebas daripada tindakan balas (non-retaliation)</b>. Semua aduan disiasat secara profesional, sulit dan saksama.</div>
+
+    <label class="q">Hantar tanpa nama?</label>
+    <div class="toggle">
+      <div><b>Aduan tanpa nama</b><small>Nama &amp; maklumat hubungan tidak akan direkodkan</small></div>
+      <label class="switch"><input type="checkbox" id="anon"><i></i></label>
+    </div>
+
+    <div id="idFields">
+      <label class="q">Nama Pelapor <small>(pilihan)</small></label>
+      <input type="text" name="nama" autocomplete="name" placeholder="Nama penuh">
+
+      <label class="q">No. Telefon / Email <small>(pilihan)</small></label>
+      <p class="hint">Kongsi jika anda mahu dimaklumkan tentang tindakan yang diambil.</p>
+      <input type="text" name="hubungi" placeholder="cth: 012-3456789 atau nama@email.com">
+
+      <label class="q">Cara dihubungi yang dipilih</label>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="caraHubung" value="WhatsApp"><span>💬 WhatsApp</span></label>
+        <label class="chip"><input type="radio" name="caraHubung" value="Panggilan"><span>📞 Panggilan</span></label>
+        <label class="chip"><input type="radio" name="caraHubung" value="Email"><span>✉️ Email</span></label>
+        <label class="chip"><input type="radio" name="caraHubung" value="Tidak perlu"><span>🚫 Tidak perlu</span></label>
+      </div>
+    </div>
+
+    <div class="field" data-req="status">
+      <label class="q">Status Pelapor <span class="req">*</span></label>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="status" value="Pekerja"><span>👷 Pekerja</span></label>
+        <label class="chip"><input type="radio" name="status" value="Pelanggan"><span>🚗 Pelanggan</span></label>
+        <label class="chip"><input type="radio" name="status" value="Kontraktor"><span>🔧 Kontraktor</span></label>
+        <label class="chip"><input type="radio" name="status" value="Pemandu Tanker / Pembekal"><span>🚛 Pemandu Tanker / Pembekal</span></label>
+        <label class="chip"><input type="radio" name="status" value="Orang Awam / Penduduk"><span>🏘️ Orang Awam / Penduduk</span></label>
+      </div>
+      <div class="err">Sila pilih status anda.</div>
+    </div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="step" data-name="Langkah 2 / 4">
+    <div class="stepname">Langkah 2 / 4</div>
+    <h2>Apa yang berlaku?</h2>
+
+    <div class="field" data-req="jenis">
+      <label class="q">Jenis Laporan <span class="req">*</span></label>
+      <div class="group-t">🦺 Keselamatan &amp; Kesihatan</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="jenis" value="Keadaan / amalan kerja tidak selamat"><span>⚠️ Keadaan / amalan tidak selamat</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Kemalangan / kecederaan" data-urgent><span>🚑 Kemalangan / kecederaan</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Near miss (hampir berlaku)"><span>😰 Near miss</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Risiko kebakaran" data-urgent><span>🔥 Risiko kebakaran</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Tumpahan minyak / kimia" data-urgent><span>🛢️ Tumpahan minyak / kimia</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Peralatan rosak"><span>🛠️ Peralatan rosak</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Gangguan keselamatan (ancaman / jenayah)" data-urgent><span>🚨 Ancaman / gangguan keselamatan</span></label>
+      </div>
+      <div class="group-t">🌱 Alam Sekitar &amp; Kebersihan</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="jenis" value="Isu alam sekitar"><span>🌿 Isu alam sekitar</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Isu kebersihan"><span>🧹 Isu kebersihan</span></label>
+      </div>
+      <div class="group-t">⚖️ Hak Asasi &amp; Tingkah Laku</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="jenis" value="Diskriminasi / buli" data-sensitive><span>🙅 Diskriminasi / buli</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Gangguan seksual (Pekerja)" data-sensitive><span>⛔ Gangguan seksual (Pekerja)</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Gangguan seksual (Pelanggan)" data-sensitive><span>⛔ Gangguan seksual (Pelanggan)</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Pelanggaran hak pekerja" data-sensitive><span>📋 Pelanggaran hak pekerja</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Penyalahgunaan kuasa" data-sensitive><span>👔 Penyalahgunaan kuasa</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Pelanggaran polisi syarikat"><span>📑 Pelanggaran polisi syarikat</span></label>
+      </div>
+      <div class="group-t">💬 Lain-lain</div>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="jenis" value="Perkhidmatan pelanggan"><span>🙋 Perkhidmatan pelanggan</span></label>
+        <label class="chip"><input type="radio" name="jenis" value="Lain-lain" id="jenisLain"><span>➕ Lain-lain</span></label>
+      </div>
+      <input type="text" name="jenisLainTeks" id="jenisLainTeks" placeholder="Nyatakan jenis laporan" style="display:none;margin-top:10px">
+      <div class="err">Sila pilih jenis laporan.</div>
+    </div>
+
+    <div class="alert red" id="urgentAlert">🚨 <b>Kecemasan sedang berlaku?</b> Jangan tunggu borang ini. Hubungi <a href="tel:999">999</a> dan maklumkan kakitangan di kaunter Kedai MESRA <b>sekarang</b>. Hantar borang ini selepas keadaan selamat.</div>
+    <div class="alert amber" id="sensitiveAlert">🔒 Aduan jenis ini dikendalikan <b>terus oleh pengurusan atasan sahaja</b>, bukan oleh penyelia syif. Identiti anda dilindungi sepenuhnya.</div>
+
+    <div class="field" data-req="tahap">
+      <label class="q">Tahap Keterukan <span class="req">*</span></label>
+      <div class="sev">
+        <label class="chip s1"><input type="radio" name="tahap" value="Rendah"><span><b>Rendah</b>Tiada bahaya segera</span></label>
+        <label class="chip s2"><input type="radio" name="tahap" value="Sederhana"><span><b>Sederhana</b>Perlu tindakan</span></label>
+        <label class="chip s3"><input type="radio" name="tahap" value="Tinggi"><span><b>Tinggi</b>Boleh cederakan</span></label>
+        <label class="chip s4"><input type="radio" name="tahap" value="Kritikal" data-urgent><span><b>Kritikal</b>Bahaya nyawa</span></label>
+      </div>
+      <div class="err">Sila pilih tahap keterukan.</div>
+    </div>
+
+    <div class="row">
+      <div class="field" data-req="tarikh">
+        <label class="q">Tarikh Kejadian <span class="req">*</span></label>
+        <input type="date" name="tarikh" id="tarikh">
+        <div class="err">Sila isi tarikh.</div>
+      </div>
+      <div class="field" data-req="masa">
+        <label class="q">Anggaran Masa <span class="req">*</span></label>
+        <input type="time" name="masa" id="masa">
+        <div class="err">Sila isi masa.</div>
+      </div>
+    </div>
+
+    <div class="field" data-req="lokasi">
+      <label class="q">Lokasi Kejadian <span class="req">*</span></label>
+      <div class="chips">
+        <label class="chip"><input type="radio" name="lokasi" value="Pump Dispenser"><span>⛽ Pump Dispenser</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Forecourt"><span>🅿️ Forecourt</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Kedai MESRA"><span>🏪 Kedai MESRA</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Tandas"><span>🚻 Tandas</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Surau"><span>🕌 Surau</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Stor / Bilik Bahan Kimia"><span>📦 Stor / Bilik Bahan Kimia</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Kawasan Off Loading"><span>🚛 Off Loading</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Kawasan Dipping"><span>📏 Dipping</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Car Wash (KORPENA SDN BHD)"><span>🚿 Car Wash (KORPENA)</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Tempat Letak Kereta / Laluan Masuk-Keluar"><span>🚦 Parkir / Laluan Masuk-Keluar</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Pejabat / Bilik Rehat Pekerja"><span>🗄️ Pejabat / Bilik Rehat</span></label>
+        <label class="chip"><input type="radio" name="lokasi" value="Lain-lain" id="lokasiLain"><span>➕ Lain-lain</span></label>
+      </div>
+      <input type="text" name="lokasiLainTeks" id="lokasiLainTeks" placeholder="Nyatakan lokasi" style="display:none;margin-top:10px">
+      <div class="err">Sila pilih lokasi.</div>
+    </div>
+
+    <label class="q">Adakah keadaan ini masih berlaku sekarang?</label>
+    <div class="chips">
+      <label class="chip"><input type="radio" name="masihBerlaku" value="Ya"><span>Ya, masih berlaku</span></label>
+      <label class="chip"><input type="radio" name="masihBerlaku" value="Tidak"><span>Tidak, sudah selesai</span></label>
+      <label class="chip"><input type="radio" name="masihBerlaku" value="Tidak pasti"><span>Tidak pasti</span></label>
+    </div>
+  </section>
+
+  <!-- STEP 3 -->
+  <section class="step" data-name="Langkah 3 / 4">
+    <div class="stepname">Langkah 3 / 4</div>
+    <h2>Butiran &amp; Bukti</h2>
+
+    <div class="field" data-req="penerangan">
+      <label class="q">Penerangan Kejadian / Hazard <span class="req">*</span></label>
+      <div class="guide">Panduan:
+        <ul><li>Apakah yang berlaku?</li><li>Siapa yang terlibat?</li><li>Bagaimana kejadian berlaku?</li><li>Apakah kesannya kepada anda?</li></ul>
+      </div>
+      <textarea name="penerangan" id="penerangan" maxlength="2000" placeholder="Ceritakan dengan seberapa terperinci yang boleh…"></textarea>
+      <div class="counter"><span id="cnt">0</span> / 2000</div>
+      <div class="err">Sila beri penerangan sekurang-kurangnya 20 aksara.</div>
+    </div>
+
+    <label class="q">Individu yang terlibat <small>(pilihan)</small></label>
+    <p class="hint">Nama, jawatan, atau ciri-ciri (cth: pekerja syif malam, pelanggan kereta merah WXX 1234).</p>
+    <input type="text" name="terlibat">
+
+    <label class="q">Saksi <small>(pilihan)</small></label>
+    <input type="text" name="saksi" placeholder="Nama / no. telefon saksi jika ada">
+
+    <label class="q">Kecederaan / kerosakan <small>(pilihan)</small></label>
+    <div class="chips">
+      <label class="chip"><input type="checkbox" name="kesan" value="Kecederaan diri"><span>🤕 Kecederaan diri</span></label>
+      <label class="chip"><input type="checkbox" name="kesan" value="Kerosakan harta / kenderaan"><span>🚘 Kerosakan harta / kenderaan</span></label>
+      <label class="chip"><input type="checkbox" name="kesan" value="Pencemaran"><span>💧 Pencemaran</span></label>
+      <label class="chip"><input type="checkbox" name="kesan" value="Tekanan emosi"><span>😔 Tekanan emosi</span></label>
+      <label class="chip"><input type="checkbox" name="kesan" value="Tiada"><span>✅ Tiada</span></label>
+    </div>
+
+    <label class="q">Bukti Gambar / Video <small>(pilihan, maks. 3 fail, 10MB setiap satu)</small></label>
+    <div class="drop" id="drop">📷 Ketik untuk ambil gambar atau pilih fail</div>
+    <input type="file" id="fileIn" accept="image/*,video/*" multiple hidden>
+    <div class="thumbs" id="thumbs"></div>
+  </section>
+
+  <!-- STEP 4 -->
+  <section class="step" data-name="Langkah 4 / 4">
+    <div class="stepname">Langkah 4 / 4</div>
+    <h2>Tindakan &amp; Pengesahan</h2>
+
+    <div class="field" data-req="harapan">
+      <label class="q">Apakah tindakan yang anda harapkan? <span class="req">*</span> <small>(boleh pilih lebih dari satu)</small></label>
+      <div class="chips">
+        <label class="chip"><input type="checkbox" name="harapan" value="Siasatan dijalankan"><span>🔍 Siasatan dijalankan</span></label>
+        <label class="chip"><input type="checkbox" name="harapan" value="Pembaikan / pembetulan segera"><span>🛠️ Pembaikan segera</span></label>
+        <label class="chip"><input type="checkbox" name="harapan" value="Amaran kepada individu"><span>📣 Amaran kepada individu</span></label>
+        <label class="chip"><input type="checkbox" name="harapan" value="Kaunseling"><span>🤝 Kaunseling</span></label>
+        <label class="chip"><input type="checkbox" name="harapan" value="Tindakan tatatertib"><span>⚖️ Tindakan tatatertib</span></label>
+        <label class="chip"><input type="checkbox" name="harapan" value="Pendamaian"><span>🕊️ Pendamaian</span></label>
+        <label class="chip"><input type="checkbox" name="harapan" value="Latihan / taklimat kepada pekerja"><span>🎓 Latihan pekerja</span></label>
+        <label class="chip"><input type="checkbox" name="harapan" value="Hanya pelaporan, tiada tindakan diperlukan" id="hanyaLapor"><span>📝 Hanya pelaporan</span></label>
+      </div>
+      <div class="err">Sila pilih sekurang-kurangnya satu.</div>
+    </div>
+
+    <label class="q">Cadangan penambahbaikan <small>(pilihan)</small></label>
+    <textarea name="cadangan" style="min-height:80px" placeholder="Pada pendapat anda, bagaimana perkara ini boleh dielakkan?"></textarea>
+
+    <label class="q">Semak aduan anda</label>
+    <div class="review" id="review"></div>
+
+    <div class="field" data-req="akuan">
+      <label class="consent"><input type="checkbox" name="akuan"><span><b>Akuan Pengadu.</b> Saya mengesahkan bahawa maklumat yang diberikan adalah benar mengikut pengetahuan saya dan saya memahami bahawa memberi maklumat palsu boleh menjejaskan proses siasatan.</span></label>
+      <div class="err">Akuan diperlukan.</div>
+    </div>
+    <div class="field" data-req="privasi">
+      <label class="consent"><input type="checkbox" name="privasi"><span><b>Persetujuan Privasi.</b> Saya memahami bahawa maklumat ini digunakan hanya untuk tujuan siasatan dan dikendalikan secara sulit mengikut polisi syarikat serta Akta Perlindungan Data Peribadi 2010.</span></label>
+      <div class="err">Persetujuan diperlukan.</div>
+    </div>
+  </section>
+
+  <div class="nav">
+    <button type="button" class="btn sec" id="back" style="display:none">← Kembali</button>
+    <button type="button" class="btn pri" id="next">Seterusnya →</button>
+  </div>
+  </form>
+</div>
+
+<div class="card success" id="done" style="display:none">
+  <div class="big">✅</div>
+  <h2>Aduan diterima. Terima kasih.</h2>
+  <p>Simpan nombor rujukan ini untuk menyemak status aduan anda:</p>
+  <div class="refbox"><span id="refOut"></span><button type="button" id="copyRef">Salin</button></div>
+  <p class="hint" id="slaText"></p>
+  <div class="nav">
+    <button type="button" class="btn sec" onclick="window.print()">🖨️ Simpan / Cetak Resit</button>
+    <button type="button" class="btn pri" onclick="location.reload()">Aduan Baharu</button>
+  </div>
+</div>
+
+<div class="track">
+  <div class="card">
+    <b>🔎 Semak status aduan</b>
+    <p class="hint" style="margin:4px 0 10px">Masukkan nombor rujukan anda (cth: ADU-260125-AB12).</p>
+    <div class="trackrow"><input type="text" id="trackIn" placeholder="ADU-XXXXXX-XXXX"><button type="button" id="trackBtn">Semak</button></div>
+    <div id="trackOut" style="margin-top:12px"></div>
+  </div>
+</div>
+</main>
+
+<footer>Stesen Minyak PETRONAS Papar (Parmanis Sutera) · Semua aduan dikendalikan secara sulit<br>Kecemasan: <a href="tel:999">999</a></footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script>
+/* ============ KONFIGURASI ============
+   Disambung ke Firebase projek ps-papar (sama seperti Boss Portal).
+   Aduan disimpan di laluan: aduanAwam/{noRujukan}
+*/
+const firebaseConfig = {
+  apiKey: "AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
+  authDomain: "ps-papar.firebaseapp.com",
+  databaseURL: "https://ps-papar-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "ps-papar",
+  storageBucket: "ps-papar.firebasestorage.app",
+  messagingSenderId: "899715424164",
+  appId: "1:899715424164:web:91584f2d3db796095beb31"
+};
+const CLOUDINARY = { cloud: "dlsvmwqtp", preset: "ps-papar-uploads", folder: "aduan-awam" };
+const DB_PATH = "aduanAwam";
+/* ===================================== */
+
+let db = null;
+const DEMO = !firebaseConfig.apiKey || !firebaseConfig.databaseURL;
+if (!DEMO) { firebase.initializeApp(firebaseConfig); db = firebase.database(); }
+else document.getElementById('demoBar').style.display = 'block';
+
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const f = $('#f'), steps = $$('.step'), bars = $$('#progress div');
+let cur = 0, files = [];
+
+// Default tarikh & masa = sekarang
+const now = new Date(), pad = n => String(n).padStart(2,'0');
+$('#tarikh').value = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+$('#tarikh').max = $('#tarikh').value;
+$('#masa').value = `${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+// Tanpa nama
+$('#anon').addEventListener('change', e => {
+  $('#idFields').style.display = e.target.checked ? 'none' : 'block';
+});
+
+// "Lain-lain" teks
+const toggleOther = (radioName, otherId, txtId) =>
+  $$(`input[name=${radioName}]`).forEach(r => r.addEventListener('change', () => {
+    $('#'+txtId).style.display = $('#'+otherId).checked ? 'block' : 'none';
+  }));
+toggleOther('jenis','jenisLain','jenisLainTeks');
+toggleOther('lokasi','lokasiLain','lokasiLainTeks');
+
+// Amaran kecemasan / sensitif
+function updateAlerts(){
+  const j = f.querySelector('input[name=jenis]:checked'), t = f.querySelector('input[name=tahap]:checked');
+  const urgent = (j && j.hasAttribute('data-urgent')) || (t && t.value === 'Kritikal');
+  $('#urgentAlert').classList.toggle('show', !!urgent);
+  $('#sensitiveAlert').classList.toggle('show', !!(j && j.hasAttribute('data-sensitive')));
+}
+$$('input[name=jenis],input[name=tahap]').forEach(r => r.addEventListener('change', updateAlerts));
+
+// "Hanya pelaporan" eksklusif
+$$('input[name=harapan]').forEach(c => c.addEventListener('change', e => {
+  if (e.target.id === 'hanyaLapor' && e.target.checked)
+    $$('input[name=harapan]').forEach(x => { if (x.id !== 'hanyaLapor') x.checked = false; });
+  else if (e.target.checked) $('#hanyaLapor').checked = false;
+}));
+
+// Kaunter aksara
+$('#penerangan').addEventListener('input', e => $('#cnt').textContent = e.target.value.length);
+
+// Fail bukti
+$('#drop').onclick = () => $('#fileIn').click();
+$('#fileIn').addEventListener('change', e => {
+  for (const file of e.target.files) {
+    if (files.length >= 3) { alert('Maksimum 3 fail.'); break; }
+    if (file.size > 10*1024*1024) { alert(`${file.name} melebihi 10MB.`); continue; }
+    files.push(file);
+  }
+  e.target.value = ''; renderThumbs();
+});
+function renderThumbs(){
+  $('#thumbs').innerHTML = '';
+  files.forEach((file, i) => {
+    const d = document.createElement('div'), url = URL.createObjectURL(file);
+    d.innerHTML = file.type.startsWith('image') ? `<img src="${url}">` :
+                  file.type.startsWith('video') ? `<video src="${url}" muted></video>` : file.name;
+    const b = document.createElement('button'); b.type='button'; b.textContent='×';
+    b.onclick = () => { files.splice(i,1); renderThumbs(); };
+    d.appendChild(b); $('#thumbs').appendChild(d);
+  });
+}
+
+// Pengesahan
+const val = n => { const els = f.elements[n]; if (!els) return '';
+  if (els instanceof RadioNodeList) { const c = [...els].filter(x=>x.checked); return els[0].type==='checkbox' ? c.map(x=>x.value) : (c[0]?.value||''); }
+  return els.type==='checkbox' ? els.checked : els.value.trim(); };
+const rules = {
+  status: () => !!val('status'), jenis: () => !!val('jenis') && (val('jenis')!=='Lain-lain' || !!val('jenisLainTeks')),
+  tahap: () => !!val('tahap'), tarikh: () => !!val('tarikh'), masa: () => !!val('masa'),
+  lokasi: () => !!val('lokasi') && (val('lokasi')!=='Lain-lain' || !!val('lokasiLainTeks')),
+  penerangan: () => val('penerangan').length >= 20, harapan: () => val('harapan').length > 0,
+  akuan: () => val('akuan'), privasi: () => val('privasi')
+};
+function validStep(i){
+  let ok = true, first = null;
+  steps[i].querySelectorAll('.field[data-req]').forEach(fd => {
+    const good = rules[fd.dataset.req]();
+    fd.classList.toggle('invalid', !good);
+    if (!good) { ok = false; first = first || fd; }
+  });
+  if (first) first.scrollIntoView({behavior:'smooth', block:'center'});
+  return ok;
+}
+f.addEventListener('change', e => { const fd = e.target.closest('.field[data-req]'); if (fd && fd.classList.contains('invalid')) fd.classList.toggle('invalid', !rules[fd.dataset.req]()); });
+
+function collect(){
+  const anon = $('#anon').checked;
+  return {
+    tanpaNama: anon,
+    nama: anon ? '' : val('nama'), hubungi: anon ? '' : val('hubungi'), caraHubung: anon ? '' : val('caraHubung'),
+    statusPelapor: val('status'),
+    jenis: val('jenis')==='Lain-lain' ? 'Lain-lain: '+val('jenisLainTeks') : val('jenis'),
+    tahap: val('tahap'), tarikh: val('tarikh'), masa: val('masa'),
+    lokasi: val('lokasi')==='Lain-lain' ? 'Lain-lain: '+val('lokasiLainTeks') : val('lokasi'),
+    masihBerlaku: val('masihBerlaku'), penerangan: val('penerangan'),
+    terlibat: val('terlibat'), saksi: val('saksi'), kesan: val('kesan'),
+    harapan: val('harapan'), cadangan: val('cadangan')
+  };
+}
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function buildReview(){
+  const d = collect(), rows = [
+    ['Pelapor', d.tanpaNama ? 'Tanpa nama' : (d.nama || '—')], ['Status', d.statusPelapor],
+    ['Jenis', d.jenis], ['Keterukan', d.tahap], ['Tarikh / Masa', `${d.tarikh} ${d.masa}`],
+    ['Lokasi', d.lokasi], ['Penerangan', d.penerangan.slice(0,160)+(d.penerangan.length>160?'…':'')],
+    ['Bukti', files.length ? `${files.length} fail` : 'Tiada']
+  ];
+  $('#review').innerHTML = '<dl>'+rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v||'—')}</dd>`).join('')+'</dl>';
+}
+
+function show(i){
+  steps.forEach((s,j)=>s.classList.toggle('active', j===i));
+  bars.forEach((b,j)=>b.classList.toggle('on', j<=i));
+  $('#back').style.display = i ? 'block' : 'none';
+  $('#next').textContent = i === steps.length-1 ? 'Hantar Aduan ✓' : 'Seterusnya →';
+  if (i === steps.length-1) buildReview();
+  $('#formCard').scrollIntoView({behavior:'smooth'});
+}
+$('#back').onclick = () => show(--cur);
+$('#next').onclick = async () => {
+  if (!validStep(cur)) return;
+  if (cur < steps.length-1) return show(++cur);
+  await submit();
+};
+
+function makeRef(){
+  const d = new Date(), chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let r = ''; for (let i=0;i<4;i++) r += chars[Math.floor(Math.random()*chars.length)];
+  return `ADU-${String(d.getFullYear()).slice(2)}${pad(d.getMonth()+1)}${pad(d.getDate())}-${r}`;
+}
+async function uploadFiles(ref){
+  const out = [];
+  for (const file of files) {
+    const fd = new FormData();
+    fd.append('file', file); fd.append('upload_preset', CLOUDINARY.preset); fd.append('folder', `${CLOUDINARY.folder}/${ref}`);
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY.cloud}/auto/upload`, {method:'POST', body:fd});
+    if (!res.ok) throw new Error('Muat naik gagal');
+    const j = await res.json(); out.push({url:j.secure_url, jenis:j.resource_type});
+  }
+  return out;
+}
+async function submit(){
+  const btn = $('#next'); btn.disabled = true; btn.textContent = 'Menghantar…';
+  try {
+    const ref = makeRef(), d = collect();
+    const keutamaan = (d.tahap==='Kritikal' || d.tahap==='Tinggi') ? 'SEGERA' :
+                      /seksual|buli|Penyalahgunaan|hak pekerja/i.test(d.jenis) ? 'SULIT-ATASAN' : 'BIASA';
+    const record = { ...d, ref, keutamaan, bukti: [], status: 'Diterima',
+      dihantarPada: new Date().toISOString(), log: [{ masa: new Date().toISOString(), status:'Diterima', nota:'Aduan dihantar melalui borang awam' }] };
+    if (files.length) {
+      btn.textContent = 'Memuat naik bukti…';
+      try { record.bukti = await uploadFiles(ref); } catch(e){ record.bukti = []; record.notaBukti = 'Muat naik bukti gagal'; }
+    }
+    if (DEMO) { const all = JSON.parse(localStorage.getItem(DB_PATH)||'{}'); all[ref] = record; localStorage.setItem(DB_PATH, JSON.stringify(all)); }
+    else await db.ref(`${DB_PATH}/${ref}`).set(record);
+
+    $('#formCard').style.display = 'none'; $('#done').style.display = 'block';
+    $('#refOut').textContent = ref;
+    $('#slaText').textContent = keutamaan==='SEGERA' ? 'Aduan anda ditanda SEGERA dan akan disemak dalam masa 24 jam.'
+      : 'Aduan anda akan disemak dalam masa 3 hari bekerja.';
+    $('#done').scrollIntoView({behavior:'smooth'});
+  } catch(e) {
+    alert('Maaf, aduan gagal dihantar. Sila semak sambungan internet dan cuba lagi.');
+    btn.disabled = false; btn.textContent = 'Hantar Aduan ✓';
+  }
+}
+$('#copyRef').onclick = () => { navigator.clipboard?.writeText($('#refOut').textContent); $('#copyRef').textContent='Disalin ✓'; };
+
+// Semak status
+const statusColor = { 'Diterima':'#5d6d75', 'Dalam Siasatan':'#b26a00', 'Tindakan Diambil':'#00857c', 'Selesai':'#2e7d32', 'Ditolak':'#c62828' };
+$('#trackBtn').onclick = async () => {
+  const ref = $('#trackIn').value.trim().toUpperCase(), out = $('#trackOut');
+  if (!/^ADU-\d{6}-[A-Z0-9]{4}$/.test(ref)) { out.innerHTML = '<span class="err" style="display:block">Format nombor rujukan tidak sah.</span>'; return; }
+  out.textContent = 'Menyemak…';
+  try {
+    let st = null, kemaskini = null;
+    if (DEMO) { const r = JSON.parse(localStorage.getItem(DB_PATH)||'{}')[ref]; st = r?.status; }
+    else { const s = await db.ref(`${DB_PATH}/${ref}/status`).get(); st = s.val();
+           const k = await db.ref(`${DB_PATH}/${ref}/kemaskiniAwam`).get(); kemaskini = k.val(); }
+    out.innerHTML = st ? `Status: <span class="status-pill" style="background:${statusColor[st]||'#5d6d75'}22;color:${statusColor[st]||'#5d6d75'}">${esc(st)}</span>`
+      + (kemaskini ? `<p class="hint" style="margin-top:8px">${esc(kemaskini)}</p>` : '')
+      : 'Nombor rujukan tidak dijumpai.';
+  } catch(e){ out.textContent = 'Tidak dapat menyemak sekarang. Cuba lagi kemudian.'; }
+};
+</script>
+</body>
+</html>

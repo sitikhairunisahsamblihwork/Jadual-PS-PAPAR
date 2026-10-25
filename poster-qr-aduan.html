@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Poster QR Aduan</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<style>
+:root{--teal:#00857c;--teal-d:#005f59;--teal-l:#e6f4f3;--ink:#14232b;--muted:#5d6d75;--red:#c62828}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#e9eef0;color:var(--ink)}
+.tools{max-width:820px;margin:16px auto;padding:14px 16px;background:#fff;border-radius:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tools label{font-size:13px;font-weight:700;width:100%}
+.tools input{flex:1;min-width:220px;padding:10px 12px;border:1.5px solid #dfe7ea;border-radius:10px;font:inherit;font-size:13px}
+.tools button{padding:10px 14px;border:0;border-radius:10px;background:var(--teal);color:#fff;font:inherit;font-weight:700;cursor:pointer}
+.tools button.sec{background:var(--ink)}
+.tools small{width:100%;color:var(--muted)}
+.page{width:210mm;min-height:297mm;margin:0 auto 24px;background:#fff;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+.top{background:linear-gradient(135deg,var(--teal-d),var(--teal));color:#fff;padding:18mm 16mm 14mm;text-align:center}
+.top .st{font-size:13pt;letter-spacing:2px;text-transform:uppercase;font-weight:700;opacity:.9}
+.top h1{font-size:46pt;line-height:1;margin:6mm 0 3mm;font-weight:800}
+.top p{font-size:15pt;margin:0;font-style:italic;opacity:.95}
+.mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10mm 16mm}
+.qrwrap{padding:6mm;border:3px solid var(--teal);border-radius:8mm;background:#fff}
+#qr svg{display:block;width:95mm;height:95mm}
+.scan{font-size:22pt;font-weight:800;margin:7mm 0 1mm;color:var(--teal-d)}
+.scan-en{font-size:13pt;color:var(--muted);margin:0}
+.points{display:grid;grid-template-columns:repeat(3,1fr);gap:5mm;width:100%;margin-top:9mm}
+.points div{background:var(--teal-l);border-radius:5mm;padding:5mm 3mm;text-align:center;font-size:12pt;font-weight:700}
+.points div span{display:block;font-size:22pt;margin-bottom:2mm}
+.points div small{display:block;font-weight:500;color:var(--muted);font-size:9.5pt;margin-top:1mm}
+.types{margin-top:7mm;font-size:11pt;color:var(--muted);text-align:center;line-height:1.6}
+.emerg{background:var(--red);color:#fff;text-align:center;padding:5mm;font-size:15pt;font-weight:800}
+.emerg small{display:block;font-weight:500;font-size:10.5pt;opacity:.95}
+.foot{text-align:center;font-size:9.5pt;color:var(--muted);padding:4mm}
+@media screen and (max-width:840px){.page{zoom:.45}}
+@media print{@page{size:A4;margin:0}body{background:#fff}.tools{display:none}.page{margin:0;box-shadow:none;zoom:1}}
+</style>
+</head>
+<body>
+
+<div class="tools">
+  <label for="url">Link borang aduan (QR akan dikemas kini automatik)</label>
+  <input id="url" value="https://sitikhairunisahsamblihwork.github.io/Jadual-PS-PAPAR/aduan-ps-papar.html">
+  <button type="button" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+  <button type="button" class="sec" id="dl">⬇️ Muat turun QR (PNG)</button>
+  <small>Pastikan fail aduan-ps-papar.html sudah dimuat naik ke repo dan link ini boleh dibuka di telefon sebelum mencetak.</small>
+</div>
+
+<div class="page">
+  <div class="top">
+    <div class="st">Stesen Minyak PETRONAS Papar</div>
+    <h1>ADA ADUAN?</h1>
+    <p>Suara Anda, Keselamatan dan Hak Anda Keutamaan Kami</p>
+  </div>
+
+  <div class="mid">
+    <div class="qrwrap"><div id="qr"></div></div>
+    <div class="scan">📱 Imbas dengan kamera telefon</div>
+    <p class="scan-en">Scan to report a safety, hygiene or conduct concern</p>
+
+    <div class="points">
+      <div><span>🔒</span>Sulit<small>Confidential</small></div>
+      <div><span>👤</span>Boleh tanpa nama<small>Anonymous option</small></div>
+      <div><span>⏱️</span>±3 minit<small>Quick &amp; easy</small></div>
+    </div>
+
+    <div class="types">Keselamatan · Kemalangan / Near miss · Tumpahan · Kebersihan · Peralatan rosak<br>Buli · Gangguan · Diskriminasi · Perkhidmatan pelanggan</div>
+  </div>
+
+  <div class="emerg">🚨 KECEMASAN? Hubungi 999 &amp; maklumkan kaunter SEKARANG<small>Emergency? Call 999 and alert our counter staff immediately</small></div>
+  <div class="foot">Tiada tindakan balas terhadap pengadu · No retaliation against complainants · RYS0352</div>
+</div>
+
+<script>
+let qr;
+function draw(){
+  const url = document.getElementById('url').value.trim();
+  qr = qrcode(0, 'H'); qr.addData(url); qr.make();
+  document.getElementById('qr').innerHTML = qr.createSvgTag({cellSize: 8, margin: 0, scalable: true});
+}
+document.getElementById('url').addEventListener('input', draw);
+document.getElementById('dl').onclick = () => {
+  const n = qr.getModuleCount(), cell = 20, m = 4, size = (n + m*2) * cell;
+  const c = document.createElement('canvas'); c.width = c.height = size;
+  const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0,0,size,size); x.fillStyle = '#000';
+  for (let r=0;r<n;r++) for (let k=0;k<n;k++) if (qr.isDark(r,k)) x.fillRect((k+m)*cell,(r+m)*cell,cell,cell);
+  const a = document.createElement('a'); a.download = 'QR-Aduan-PS-Papar.png'; a.href = c.toDataURL('image/png'); a.click();
+};
+draw();
+</script>
+</body>
+</html>
