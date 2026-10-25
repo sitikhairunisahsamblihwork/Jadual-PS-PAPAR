@@ -1194,9 +1194,10 @@ function renderHSEHist(){
     return`<div class="hse-rec hr-${r.type}">
       <div class="hist-top">
         <div><div class="hist-date">${r.typeLabel||r.type}</div><div class="hist-meta">${r.lokasi||r.kategori||''} · ${r.submittedAt}</div></div>
-        <span class="badge ${badgeMap[r.type]||'b-green'}">✓ Dihantar</span>
+        <span class="badge ${r.status==='closed'?'b-green':r.status==='tindakan'?'b-blue':(badgeMap[r.type]||'b-green')}">${r.status==='closed'?'✅ Closed':r.status==='tindakan'?'🛠 Dalam Tindakan':'✓ Dihantar'}</span>
       </div>
       <div style="font-size:12px;color:#1a1a1a;margin-top:3px;line-height:1.4">${(r.desc||r.tajuk||'').slice(0,90)}${(r.desc||r.tajuk||'').length>90?'...':''}</div>
+      ${r.status==='closed'&&r.closeNota?`<div style="font-size:11px;color:#166534;background:#dcf0e4;border-radius:7px;padding:5px 8px;margin-top:5px">✅ ${escH(r.closeNota)}</div>`:''}
       <div style="display:flex;align-items:center;gap:8px;margin-top:5px">${extra}${imgCount?`<span style="font-size:10px;color:#7a6e62">📷 ${imgCount} gambar</span>`:''}
       </div>
     </div>`;
