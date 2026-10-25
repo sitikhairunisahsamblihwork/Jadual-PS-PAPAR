@@ -430,6 +430,10 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
+const HS_ST={terbuka:['hs-terbuka','🔴 Terbuka'],tindakan:['hs-tindakan','🛠 Dalam Tindakan'],closed:['hs-closed','✅ Closed']};
+const AD_ST={baru:['ad-st-baru','⏳ Baru'],siasat:['ad-st-siasat','🔍 Dalam Tindakan'],selesai:['ad-st-selesai','✅ Selesai']};
+const AD_KESAN={rendah:'🟢 Sedikit',sederhana:'🟡 Sederhana',tinggi:'🔴 Teruk'};
+function attrJ(o){return JSON.stringify(o).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 const PIN = '1234'; // ← TUKAR PIN DI SINI
 const MONTHS=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
 const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
@@ -544,12 +548,12 @@ function buildReqCard(r, compact=false){
     ?`<div class="action-row">
         <button class="btn-approve" onclick="approveReq('${rid}')">✅ Lulus</button>
         <button class="btn-reject"  onclick="openReject('${rid}','${r.staffName}','${r.date||''}')">✕ Tolak</button>
-        <button class="btn-pdf"     onclick="downloadReqPDF(${JSON.stringify(r).replace(/"/g,'&quot;')})">⬇ PDF</button>
+        <button class="btn-pdf"     onclick="downloadReqPDF(${attrJ(r)})">⬇ PDF</button>
         <button class="btn-del"     onclick="delReq('${rid}')">🗑</button>
       </div>`
     :`<div class="action-row">
         <button class="btn-undo" onclick="undoReq('${rid}')">↩ Undo</button>
-        <button class="btn-pdf"  onclick="downloadReqPDF(${JSON.stringify(r).replace(/"/g,'&quot;')})">⬇ PDF</button>
+        <button class="btn-pdf"  onclick="downloadReqPDF(${attrJ(r)})">⬇ PDF</button>
         <button class="btn-del"  onclick="delReq('${rid}')">🗑 Buang</button>
       </div>`;
   return`<div id="rc-${rid}" class="rcard">
@@ -650,8 +654,8 @@ function renderTugasan(){
       <div class="rcard-meta">${r.gas12?`LPG 12kg: ${r.gas12} tong · `:''}${r.gas14?`LPG 14kg: ${r.gas14} tong`:''}</div>
       ${roundIssues>0?`<div style="font-size:11px;color:#b91c1c;margin-top:3px">⚠️ ${roundIssues} isu dalam round stesen</div>`:''}
       <div class="action-row" style="margin-top:8px">
-        <button onclick='openTugasanDetail(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📋 Laporan Penuh</button>
-        <button onclick='downloadTugasanPDF(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+        <button onclick='openTugasanDetail(${attrJ(r)})' style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📋 Laporan Penuh</button>
+        <button onclick='downloadTugasanPDF(${attrJ(r)})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
       </div>
       <div style="font-size:10px;color:#aaa;margin-top:6px">${r.submittedAt}</div>
     </div>`;
@@ -678,8 +682,8 @@ function renderPemb(){
         ${afters.length?`<a href="${afters[0]}" target="_blank" class="img-link" style="background:#dcf0e4;border:1px solid #86efac;color:#166534">✨ Selepas${afters.length>1?' ('+afters.length+')':''}</a>`:''}
       </div>
       <div class="action-row" style="margin-top:6px">
-        ${(befores.length>1||afters.length>1)?`<button onclick='openPembDetail(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:3;background:#f8f8f8;border:1px solid #d4d4d4;color:#6a5e52;padding:7px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🖼 Semua Gambar</button>`:'<div style="flex:3"></div>'}
-        <button onclick='downloadPembPDF(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:7px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+        ${(befores.length>1||afters.length>1)?`<button onclick='openPembDetail(${attrJ(r)})' style="flex:3;background:#f8f8f8;border:1px solid #d4d4d4;color:#6a5e52;padding:7px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🖼 Semua Gambar</button>`:'<div style="flex:3"></div>'}
+        <button onclick='downloadPembPDF(${attrJ(r)})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:7px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
       </div>
       <div style="font-size:10px;color:#aaa;margin-top:6px">${r.submittedAt}</div>
     </div>`;
@@ -701,8 +705,8 @@ function renderWCF(){
       <div style="font-size:11px;color:${r.permit==='YA'?'#d97706':'#7a6e62'};margin-top:3px">Permit: ${r.permit}${r.permitJenis?' — '+r.permitJenis:''}</div>
       ${r.penerangan?`<div style="font-size:11px;color:#7a6e62;margin-top:3px;font-style:italic">📝 ${r.penerangan}</div>`:''}
       <div class="action-row" style="margin-top:8px">
-        <button onclick='openWCFDetail(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📄 Laporan WCF</button>
-        <button onclick='downloadWCFPDF(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+        <button onclick='openWCFDetail(${attrJ(r)})' style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">📄 Laporan WCF</button>
+        <button onclick='downloadWCFPDF(${attrJ(r)})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
       </div>
       <div style="font-size:10px;color:#aaa;margin-top:6px">${r.submittedAt}</div>
     </div>`).join('');
@@ -759,8 +763,8 @@ function renderHSEList(){
       ${(r.imgs||[]).length?`<div style="font-size:11px;color:#7a6e62;margin-top:2px">📷 ${r.imgs.length} gambar dilampirkan</div>`:''}
       ${hseLastAct(r)}
       <div class="action-row" style="margin-top:8px">
-        <button onclick='openHSEDetail(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔍 Lihat Penuh</button>
-        <button onclick='downloadHSEPDF(${JSON.stringify(r).replace(/'/g,"\\'")})' style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
+        <button onclick="openHSEDetail('${r.fbKey}')" style="flex:3;background:#eff6ff;border:1px solid #93c5fd;color:#1d4ed8;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🔍 Lihat Penuh</button>
+        <button onclick="downloadHSEPDF('${r.fbKey}')" style="flex:2;background:#f5f3ff;border:1px solid #c4b5fd;color:#6d28d9;padding:8px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⬇ PDF</button>
       </div>
     </div>`).join('');
 }
@@ -779,7 +783,6 @@ window.filterHSEStaff=function(s,btn){
 
 
 // ─── HSE: TINDAKAN PENGURUS & CLOSE CASE ───
-const HS_ST={terbuka:['hs-terbuka','🔴 Terbuka'],tindakan:['hs-tindakan','🛠 Dalam Tindakan'],closed:['hs-closed','✅ Closed']};
 function hseStatusBadge(r){const live=(r.fbKey&&allHSE[r.fbKey])||r;const [c,l]=HS_ST[live.status||'terbuka']||HS_ST.terbuka;return`<span class="hs-st ${c}">${l}</span>`;}
 function hseLastAct(r){
   const live=(r.fbKey&&allHSE[r.fbKey])||r;
@@ -892,8 +895,6 @@ window.filterHSEStatus=function(v,btn){
 }
 
 // ─── ADUAN STAFF ───
-const AD_ST={baru:['ad-st-baru','⏳ Baru'],siasat:['ad-st-siasat','🔍 Dalam Tindakan'],selesai:['ad-st-selesai','✅ Selesai']};
-const AD_KESAN={rendah:'🟢 Sedikit',sederhana:'🟡 Sederhana',tinggi:'🔴 Teruk'};
 function escH(t){return String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function fmtDT(v){if(!v)return'—';const d=new Date(v);if(isNaN(d))return v;return`${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}, ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`;}
 function aduanList(){return Object.entries(allAduan).map(([k,v])=>({...v,fbKey:k})).sort((a,b)=>(b.createdAt||0)-(a.createdAt||0));}
@@ -1054,7 +1055,7 @@ window.openTugasanDetail=function(r){
   const imgs=r.roundImgs||[];
   const imgHtml=imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'';
   document.getElementById('dmBody').innerHTML=`
-    <button class="btn-dl-pdf" onclick='downloadTugasanPDF(${JSON.stringify(r).replace(/'/g,"\\'")})'>⬇ Muat Turun PDF Laporan Tugasan</button>
+    <button class="btn-dl-pdf" onclick='downloadTugasanPDF(${attrJ(r)})'>⬇ Muat Turun PDF Laporan Tugasan</button>
     <div class="dm-section"><div class="dm-sec-title">Maklumat Syif</div>
       <div class="dm-row"><span class="dm-label">Tarikh</span><span class="dm-val">${fmt(r.date)}</span></div>
       <div class="dm-row"><span class="dm-label">Syif</span><span class="dm-val">Syif ${r.shift}</span></div>
@@ -1080,7 +1081,7 @@ window.openPembDetail=function(r){
   const befImgs=befores.length?'<div class="img-grid">'+befores.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
   const aftImgs=afters.length?'<div class="img-grid">'+afters.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
   document.getElementById('dmBody').innerHTML=`
-    <button class="btn-dl-pdf" onclick='downloadPembPDF(${JSON.stringify(r).replace(/'/g,"\\'")})'>⬇ Muat Turun PDF Laporan Pembersihan</button>
+    <button class="btn-dl-pdf" onclick='downloadPembPDF(${attrJ(r)})'>⬇ Muat Turun PDF Laporan Pembersihan</button>
     <div class="dm-section"><div class="dm-sec-title">Maklumat</div>
       <div class="dm-row"><span class="dm-label">Tarikh</span><span class="dm-val">${fmt(r.date)}</span></div>
       <div class="dm-row"><span class="dm-label">Kawasan/Tugasan</span><span class="dm-val">${r.area}</span></div>
@@ -1098,7 +1099,7 @@ window.openWCFDetail=function(r){
   document.getElementById('dmBadge').className='badge b-blue';
   document.getElementById('dmBadge').textContent=fmt(r.tarikh);
   document.getElementById('dmBody').innerHTML=`
-    <button class="btn-dl-pdf" onclick='downloadWCFPDF(${JSON.stringify(r).replace(/'/g,"\\'")})'>⬇ Muat Turun PDF Borang WCF</button>
+    <button class="btn-dl-pdf" onclick='downloadWCFPDF(${attrJ(r)})'>⬇ Muat Turun PDF Borang WCF</button>
     <div class="dm-section"><div class="dm-sec-title">Maklumat Kerja</div>
       <div class="dm-row"><span class="dm-label">Tarikh</span><span class="dm-val">${fmt(r.tarikh)}</span></div>
       <div class="dm-row"><span class="dm-label">Jenis Kerja</span><span class="dm-val">${r.jenis}</span></div>
@@ -1115,6 +1116,7 @@ window.openWCFDetail=function(r){
 }
 
 window.openHSEDetail=function(r){
+  if(typeof r==='string'){if(!allHSE[r]){toast('Laporan tidak dijumpai');return;}r={...allHSE[r],fbKey:r};}
   const hseColor={hazard:'#f59e0b',uauc:'#ef4444',nearmiss:'#3b82f6',improve:'#00a650'};
   const hseIcon={hazard:'⚠️',uauc:'🚫',nearmiss:'🎯',improve:'💡'};
   document.getElementById('dmTitle').textContent=`${hseIcon[r.type]||''} ${r.typeLabel||r.type}`;
@@ -1151,7 +1153,7 @@ window.openHSEDetail=function(r){
   }
 
   document.getElementById('dmBody').innerHTML=`
-    <button class="btn-dl-pdf" onclick='downloadHSEPDF(${JSON.stringify(r).replace(/'/g,"\\'")})'>⬇ Muat Turun PDF Laporan HSE</button>
+    <button class="btn-dl-pdf" onclick="downloadHSEPDF('${r.fbKey||''}')">⬇ Muat Turun PDF Laporan HSE</button>
     <div class="dm-section"><div class="dm-sec-title">Maklumat Laporan</div>
       <div class="dm-row"><span class="dm-label">Jenis</span><span class="dm-val" style="color:${hseColor[r.type]||'#1a1a1a'};font-weight:700">${hseIcon[r.type]||''} ${r.typeLabel||r.type}</span></div>
       <div class="dm-row"><span class="dm-label">Pelapor</span><span class="dm-val">${r.staffName}</span></div>
@@ -1239,6 +1241,7 @@ window.downloadWCFPDF=function(r){
 }
 
 window.downloadHSEPDF=function(r){
+  if(typeof r==='string'){if(!allHSE[r])return;r={...allHSE[r],fbKey:r};}
   const hseLabel={hazard:'Hazard',uauc:'UA/UC',nearmiss:'Near Miss',improve:'Penambahbaikan'};
   let rows=[
     ['Jenis Laporan',hseLabel[r.type]||r.type],['Pelapor',r.staffName],
