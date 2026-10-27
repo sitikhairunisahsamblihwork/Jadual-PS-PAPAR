@@ -204,12 +204,12 @@ const staffList = [
   "YONGLE @ SAMBLIH BIN NIP KUI CHONG"
 ];
 
-const PIN = "1234"; // ← Tukar PIN di sini
+const PINS = ["3012","1309","2605"]; // ← NISA, BOSS, SU
 let results = [];
 
 function checkPin() {
   const val = document.getElementById('pinInput').value;
-  if (val === PIN) {
+  if (PINS.includes(val)) {
     document.getElementById('pinGate').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
     loadData();
