@@ -493,6 +493,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
       </div>
       <div class="field"><label>Nama jabatan / unit</label><input id="pbJabatan"></div>
       <div class="field"><label>Klasifikasi industri (MSIC 2008)</label><input id="pbMsic"></div>
+      <div class="field"><label>Senarai jabatan/unit untuk staf pilih (pisahkan dengan koma)</label><input id="pbJabList"></div>
       <button class="btn-outline" onclick="pbSaveCfg()">💾 Simpan Tetapan</button>
       <div class="pb-note" style="margin-top:8px">Tukar kitaran (cth: 2027) untuk penilaian baharu — data lama kekal tersimpan.</div>
     </div>
@@ -503,18 +504,18 @@ textarea.act-inp{min-height:65px;resize:vertical;}
     </div>
     <div class="card">
       <div class="card-title">👥 Status Penyertaan</div>
-      <div class="pb-note">Staf dimaklumkan jawapan mereka SULIT (hanya PTP Parmanis Sutera boleh lihat). Laporan cetak &amp; Excel untuk JKKP guna R1, R2… tanpa nama.</div>
+      <div class="pb-note">Nama hanya untuk semak siapa sudah jawab. Jawapan <b>tidak</b> disimpan bersama nama — hanya jabatan/unit.</div>
       <div class="pb-names" id="pbNames"></div>
     </div>
 
     <div class="sec-hdr" style="margin-top:6px">Keputusan Organisasi (LEO26)</div>
+    <div class="field"><label>Papar keputusan untuk</label><select id="pbJabSel" onchange="pbSetJab(this.value)"></select></div>
     <div id="pbComps"></div>
 
     <div class="card">
-      <div class="card-title">📋 Skor Staf (SULIT)</div>
-      <div id="pbFollow"></div>
-      <div class="pb-note" style="margin-bottom:6px">Tekan nama untuk lihat jawapan penuh staf tersebut.</div>
-      <div style="overflow-x:auto"><table class="pb-tbl"><thead><tr><th>Nama</th><th>JC</th><th>WD</th><th>JS</th><th>Tahun</th></tr></thead><tbody id="pbInd"></tbody></table></div>
+      <div class="card-title">📋 Skor Responden (tanpa nama)</div>
+      <div class="pb-note" style="margin-bottom:6px">Tekan baris untuk lihat 26 jawapan responden tersebut.</div>
+      <div style="overflow-x:auto"><table class="pb-tbl"><thead><tr><th>Resp.</th><th>JC</th><th>WD</th><th>JS</th><th>Jabatan</th></tr></thead><tbody id="pbInd"></tbody></table></div>
       <div class="pb-note" style="margin-top:8px">Merah = risiko tinggi individu (JC &gt; 15.5 · WD &gt; 7.5 · JS &lt; 38.5)</div>
     </div>
 
@@ -586,7 +587,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-import { STAFF_LIST, LEO26, KOMPONEN, KOD, EPC23, PRIMA, skorOrganisasi, sah, namaKey } from "./prisma-data.js";
+import { STAFF_LIST, LEO26, KOMPONEN, KOD, EPC23, PRIMA, DEFAULT_JABATAN, skorOrganisasi, sah, namaKey } from "./prisma-data.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
@@ -1589,7 +1590,9 @@ function pbListen(){
 function pbSetVal(id,v){const el=document.getElementById(id);if(el&&document.activeElement!==el)el.value=v??'';}
 function pbFillCfg(){
   pbSetVal('pbKitaran',pbKit());pbSetVal('pbJumlah',pbJumlah());
-  pbSetVal('pbJabatan',pbCfg.jabatan||PB_DEF.jabatan);pbSetVal('pbMsic',pbCfg.msic||PB_DEF.msic);
+  pbSetVal('pbJabatan',pbCfg.jabatan||PB_DEF.jabatan);pbSetVal('pbJabList',pbJabs().join(', '));
+  const js=document.getElementById('pbJabSel');
+  if(js){const opts=['',...pbJabs()];js.innerHTML=opts.map(j=>`<option value="${pbEsc(j)}"${j===pbJab?' selected':''}>${j?pbEsc(j):'Semua jabatan'}</option>`).join('');}pbSetVal('pbMsic',pbCfg.msic||PB_DEF.msic);
   const on=!!pbCfg.buka, b=document.getElementById('pbBukaBtn');
   if(b){b.className='pb-sw '+(on?'on':'off');b.textContent=on?'Tutup':'Buka';}
   const t=document.getElementById('pbBukaTxt'); if(t)t.textContent=on?'Soal selidik DIBUKA ✅':'Soal selidik DITUTUP';
@@ -1606,7 +1609,7 @@ window.pbSaveCfg=async function(){
   const kit=(document.getElementById('pbKitaran').value||'').trim().replace(/[.#$\[\]\/]/g,'-');
   if(!kit){toast('Isi kitaran');return;}
   try{await update(ref(db,'prisma/config'),{kitaran:kit,jumlahStaf:Number(document.getElementById('pbJumlah').value)||STAFF_LIST.length,
-    jabatan:document.getElementById('pbJabatan').value.trim(),msic:document.getElementById('pbMsic').value.trim()});toast('✅ Tetapan disimpan');}catch(e){toast('❌ Gagal simpan');}
+    jabatan:document.getElementById('pbJabatan').value.trim(),jabatanList:document.getElementById('pbJabList').value.split(',').map(x=>x.trim()).filter(Boolean),msic:document.getElementById('pbMsic').value.trim()});toast('✅ Tetapan disimpan');}catch(e){toast('❌ Gagal simpan');}
 }
 window.pbSaveLaporan=async function(){
   try{await set(ref(db,pbPath('laporan')),{ulasan:document.getElementById('pbUlasan').value,ptp:document.getElementById('pbPtp').value,
@@ -1619,16 +1622,21 @@ window.pbEpc=async function(n,v){
 window.pbRemark=async function(kod,el){
   try{await set(ref(db,pbPath('prima/'+kod)),el.value||null);toast('✅ Catatan disimpan');}catch(e){toast('❌ Gagal simpan');}
 }
-function pbAnswers(){return Object.values(pbData.jawapan||{}).filter(r=>r&&sah(r.a));}
+let pbJab='';
+function pbJabs(){return (pbCfg.jabatanList&&pbCfg.jabatanList.length)?pbCfg.jabatanList:DEFAULT_JABATAN;}
+function pbAllAnswers(){return Object.values(pbData.jawapan||{}).filter(r=>r&&sah(r.a));}
+function pbAnswers(){return pbAllAnswers().filter(r=>!pbJab||r.jabatan===pbJab);}
+function pbUnitName(){return pbJab||(pbCfg.jabatan||PB_DEF.jabatan);}
+window.pbSetJab=function(v){pbJab=v;renderPrismaBoss(true);}
 
 window.renderPrismaBoss=function(force){
   if(!(currentUser&&currentUser.prisma))return;
   const v=document.getElementById('view-prisma');
   if(!v||(!force&&!v.classList.contains('active')))return;
   pbFillCfg();
-  const ans=pbAnswers(), org=skorOrganisasi(ans.map(r=>r.a)), N=org.N, J=pbJumlah();
-  document.getElementById('pbN').textContent=`${N} / ${J}`;
-  document.getElementById('pbPart').textContent=(J?Math.round(N/J*100):0)+'%';
+  const ans=pbAnswers(), org=skorOrganisasi(ans.map(r=>r.a)), N=org.N, J=pbJumlah(), NA=pbAllAnswers().length;
+  document.getElementById('pbN').textContent=`${NA} / ${J}`;
+  document.getElementById('pbPart').textContent=(J?Math.round(NA/J*100):0)+'%';
   const pes=pbData.peserta||{};
   document.getElementById('pbNames').innerHTML=STAFF_LIST.map(n=>`<span class="${pes[namaKey(n)]?'ok':'no'}">${pes[namaKey(n)]?'✓':'○'} ${pbEsc(n)}</span>`).join('');
 
@@ -1645,10 +1653,7 @@ window.renderPrismaBoss=function(force){
     </div>`;}).join('');
 
   // Individu
-  const rows=org.individu.map((r,i)=>({r,a:ans[i],i,h:KOD.filter(k=>r[k].tinggi)})).sort((x,y)=>y.h.length-x.h.length||(x.a.nama||'').localeCompare(y.a.nama||''));
-  const fol=rows.filter(x=>x.h.length===3);
-  document.getElementById('pbFollow').innerHTML=fol.length?`<div class="pb-follow"><h4>⚠ Perlu perhatian segera (tinggi dalam ketiga-tiga komponen)</h4>${fol.map(x=>`<div><b>${pbEsc(x.a.nama||'R'+(x.i+1))}</b> — JC ${x.r.JC.skor} · WD ${x.r.WD.skor} · JS ${x.r.JS.skor}</div>`).join('')}<div style="border:none;color:#7a6e62;font-size:11px">Cadangan: perbincangan peribadi secara tertutup, dengar dahulu, elak menyalahkan.</div></div>`:'';
-  document.getElementById('pbInd').innerHTML=N?rows.map(x=>`<tr class="pb-r" onclick="pbDet(${x.i})"><td style="font-weight:700">${pbEsc(x.a.nama||'R'+(x.i+1))} <span style="color:#dc4a2a;font-size:10px">${x.h.length?'●'.repeat(x.h.length):''}</span></td>${KOD.map(k=>`<td class="${x.r[k].tinggi?'hi':''}">${x.r[k].skor}</td>`).join('')}<td style="font-size:11px;color:#7a6e62">${pbEsc((x.a.tahun||'').replace(' tahun',''))}</td></tr><tr class="pb-det" id="pbDet${x.i}" style="display:none"><td colspan="5"></td></tr>`).join('')
+  document.getElementById('pbInd').innerHTML=N?org.individu.map((r,i)=>`<tr class="pb-r" onclick="pbDet(${i})"><td style="font-weight:700">R${i+1} <span style="color:#dc4a2a;font-size:10px">${'●'.repeat(KOD.filter(k=>r[k].tinggi).length)}</span></td>${KOD.map(k=>`<td class="${r[k].tinggi?'hi':''}">${r[k].skor}</td>`).join('')}<td style="font-size:11px;color:#7a6e62">${pbEsc(ans[i].jabatan||'—')}</td></tr><tr class="pb-det" id="pbDet${i}" style="display:none"><td colspan="5"></td></tr>`).join('')
     :'<tr><td colspan="5" class="empty">Belum ada jawapan</td></tr>';
 
   // Purata item
@@ -1693,7 +1698,7 @@ window.pbDet=function(i){
 function pbFmtDate(d){if(!d)return'';const [y,m,dd]=d.split('-');return `${dd}/${m}/${y}`;}
 window.pbPrint=function(){
   if(!(currentUser&&currentUser.prisma))return;
-  const ans=pbAnswers(), org=skorOrganisasi(ans.map(r=>r.a)), N=org.N, J=pbJumlah();
+  const ans=pbAnswers(), org=skorOrganisasi(ans.map(r=>r.a)), N=org.N, J=pbJab?0:pbJumlah();
   const epc=pbData.epc||{}, rem=pbData.prima||{}, lap=pbData.laporan||{};
   const lapNow={ulasan:document.getElementById('pbUlasan').value||lap.ulasan||'',ptp:document.getElementById('pbPtp').value||lap.ptp||'',
     tNilai:document.getElementById('pbTNilai').value||lap.tNilai||'',tSemula:document.getElementById('pbTSemula').value||lap.tSemula||''};
@@ -1708,7 +1713,7 @@ window.pbPrint=function(){
     const cell=arr=>arr.map(n=>epc[n]==='N'?`<span class="circ">${n}</span>`:n).join('<br>');
     return `<tr style="background:${p.warna}"><td>${cell(p.jc)}</td><td>${cell(p.wd)}</td><td>${cell(p.js)}</td><td><b>${p.en}</b></td>
     <td class="left"><ol>${p.tindakan.map(t=>`<li>${pbEsc(t[0])}</li>`).join('')}</ol></td><td class="left">${pbEsc(rem[p.kod]||'').replace(/\n/g,'<br>')}</td></tr>`;}).join('');
-  const indRows=org.individu.map((r,i)=>`<tr><td>R${i+1}</td>${KOD.map(k=>`<td${r[k].tinggi?' class="hi"':''}>${r[k].skor}</td>`).join('')}<td>${pbEsc(ans[i].tahun||'')}</td><td>${pbEsc(ans[i].kategori||'')}</td></tr>`).join('');
+  const indRows=org.individu.map((r,i)=>`<tr><td>R${i+1}</td>${KOD.map(k=>`<td${r[k].tinggi?' class="hi"':''}>${r[k].skor}</td>`).join('')}<td>${pbEsc(ans[i].jabatan||'')}</td><td>${pbEsc(ans[i].tahun||'')}</td><td>${pbEsc(ans[i].kategori||'')}</td></tr>`).join('');
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan PRisMA ${pbEsc(pbKit())} - PS Papar</title><style>
   @page{size:A4;margin:14mm}body{font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#111}
   h2{font-size:14px;color:#3d4a6b;border:1px solid #ccc;padding:6px 10px;display:flex;justify-content:space-between;margin:0 0 12px}
@@ -1723,8 +1728,8 @@ window.pbPrint=function(){
   .yn{font-size:14px;font-weight:bold;width:50px}.hi{color:#c0392b;font-weight:bold}.pb{page-break-before:always}
   .note{font-size:9.5px;font-style:italic}</style></head><body>
   <h2><span>PRisMA Reporting Form</span><i>Appendix 3</i></h2>
-  <table class="meta"><tr><td style="width:170px">Name of Department/Unit</td><td>: <span class="dots">${pbEsc(pbCfg.jabatan||PB_DEF.jabatan)} — ${PB_SYARIKAT}</span></td></tr>
-  <tr><td>Total Number of Staff</td><td>: <span class="dots" style="min-width:50px">${J}</span> &nbsp; Number of Staff Assessed: <span class="dots" style="min-width:50px">${N}</span> &nbsp; Participation: <span class="dots" style="min-width:50px">${J?Math.round(N/J*1000)/10:0}</span> %</td></tr></table>
+  <table class="meta"><tr><td style="width:170px">Name of Department/Unit</td><td>: <span class="dots">${pbEsc(pbUnitName())} — ${PB_SYARIKAT}</span></td></tr>
+  <tr><td>Total Number of Staff</td><td>: <span class="dots" style="min-width:50px">${J||''}</span> &nbsp; Number of Staff Assessed: <span class="dots" style="min-width:50px">${N}</span> &nbsp; Participation: <span class="dots" style="min-width:50px">${J?Math.round(N/J*1000)/10:''}</span> %</td></tr></table>
   <h3>WORKPLACE PSYCHOSOCIAL RISK REPORT</h3>
   <table><tr><th>LEO26 Components</th><th>Organisational Score (%)</th><th>LEO26 Cumulative High-Risk Percentage Cut-Off</th><th colspan="2">Organisational Psychosocial Risk Status*</th><th>LEO26 Items</th><th>Circle all No answer(s) of EPC23**</th></tr>${app3rows}</table>
   <div class="note">*Circle where is appropriate. **Refer to the PRiMA table (JC, JS &amp; WD).</div>
@@ -1744,8 +1749,8 @@ window.pbPrint=function(){
   <div class="pb"></div><h2><span>LEO26 Score Summary (anonymous)</span><i>Kitaran ${pbEsc(pbKit())}</i></h2>
   <p>Company: ${PB_SYARIKAT} · Classification: ${pbEsc(pbCfg.msic||PB_DEF.msic)} · Unit: ${pbEsc(pbCfg.jabatan||PB_DEF.jabatan)}<br>
   Individual high-risk cut-off: JC &gt; 15.5 · WD &gt; 7.5 · JS &lt; 38.5 (red)</p>
-  <table><tr><th>Respondent</th><th>JC</th><th>WD</th><th>JS</th><th>Years in unit</th><th>Category</th></tr>${indRows||'<tr><td colspan="6">No responses</td></tr>'}
-  <tr><td><b>TOTAL HIGH</b></td>${KOD.map(k=>`<td><b>${org[k].n}</b> (${org[k].pct}%)</td>`).join('')}<td colspan="2"></td></tr></table>
+  <table><tr><th>Respondent</th><th>JC</th><th>WD</th><th>JS</th><th>Department</th><th>Years in unit</th><th>Category</th></tr>${indRows||'<tr><td colspan="7">No responses</td></tr>'}
+  <tr><td><b>TOTAL HIGH</b></td>${KOD.map(k=>`<td><b>${org[k].n}</b> (${org[k].pct}%)</td>`).join('')}<td colspan="3"></td></tr></table>
   <script>window.onload=function(){setTimeout(function(){window.print()},350)}<\/script></body></html>`;
   const w=window.open('','_blank');
   if(w){w.document.open();w.document.write(html);w.document.close();return;}
@@ -1765,10 +1770,12 @@ window.pbExcel=async function(){
     const lap=pbData.laporan||{};
     const aoa=[[],['','LEO26 Score'],['','Company name:','',PB_SYARIKAT],['','Classification:','',pbCfg.msic||PB_DEF.msic],
       ['','Assessment date:','',pbFmtDate(lap.tNilai)||new Date().toLocaleDateString('en-GB')],['','Name of current department/unit:','',pbCfg.jabatan||PB_DEF.jabatan],
+      ['','Department filter:','',pbJab||'All departments'],
       ['','Total staff / assessed / participation:','',`${pbJumlah()} / ${N} / ${Math.round(N/pbJumlah()*1000)/10}%`],
       ['','NO.','QUESTION','SCALE',...R]];
     LEO26.forEach((q,i)=>aoa.push(['',q.n,q.en,'1   2   3   4   5',...ans.map(r=>r.a[i])]));
     aoa.push([],['','','','','']);
+    aoa.push(['','','','Department',...ans.map(r=>r.jabatan||'')]);
     aoa.push(['','','','Years in unit',...ans.map(r=>r.tahun||'')],['','','','Category',...ans.map(r=>r.kategori||'')],[]);
     aoa.push(['','','COMPONENT','',...R,'TOTAL HIGH','% HIGH','STATUS']);
     KOD.forEach(k=>aoa.push(['','',`${KOMPONEN[k].en.toUpperCase()} (${k})`,`items ${KOMPONEN[k].items.join(',')}`,...org.individu.map(r=>r[k].skor),org[k].n,org[k].pct,org[k].status]));
@@ -1779,10 +1786,6 @@ window.pbExcel=async function(){
     const ws2=XLSX.utils.aoa_to_sheet([['No','EPC23','Yes/No','PRiMA Theme'],...EPC23.map(e=>[e.n,e.en,epc[e.n]==='Y'?'√':epc[e.n]==='N'?'X':'',PRIMA.find(p=>p.kod===e.tema).en])]);
     ws2['!cols']=[{wch:5},{wch:80},{wch:8},{wch:24}];
     XLSX.utils.book_append_sheet(wb,ws2,'EPC23');
-    const ws3=XLSX.utils.aoa_to_sheet([['SULIT — untuk kegunaan pengurus sahaja. Jangan sertakan helaian ini dalam laporan JKKP.'],[],['Resp.','Nama','JC','WD','JS','Komponen tinggi'],
-      ...ans.map((r,i)=>{const s=org.individu[i];return['R'+(i+1),r.nama||'',s.JC.skor,s.WD.skor,s.JS.skor,KOD.filter(k=>s[k].tinggi).join(', ')];})]);
-    ws3['!cols']=[{wch:6},{wch:28},{wch:6},{wch:6},{wch:6},{wch:16}];
-    XLSX.utils.book_append_sheet(wb,ws3,'SULIT - Nama');
     XLSX.writeFile(wb,`PRisMA_LEO26_PSPapar_${pbKit()}.xlsx`);
   }catch(e){console.error(e);toast('❌ Gagal jana Excel');}
 }

@@ -22,6 +22,8 @@ export const SKALA = [
 ];
 
 export const TAHUN_PENGALAMAN = ['1 – 5 tahun','6 – 10 tahun','11 – 15 tahun','16 – 20 tahun','Lebih 20 tahun'];
+// Jabatan/unit lalai (boleh ubah di Boss Portal → PRisMA → Tetapan)
+export const DEFAULT_JABATAN = ['Operasi Pam (Forecourt)','Kedai Mesra / Kaunter','Pengurusan'];
 export const KATEGORI_PEKERJA = ['Operasi','Eksekutif / Penyelia','Pengurusan'];
 
 // 26 item LEO26 — BM + teks asal (EN)

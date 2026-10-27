@@ -798,7 +798,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, orderByChild, equalTo, update } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, STAFF_LIST, sah, namaKey } from "./prisma-data.js";
+import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, STAFF_LIST, DEFAULT_JABATAN, sah, namaKey } from "./prisma-data.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
@@ -1480,7 +1480,7 @@ window.sw=function(tab){
 
 // ─── PRISMA (LEO26) ───
 // Jawapan disimpan TANPA nama. Nama hanya direkod dalam senarai "peserta" (sudah/belum isi).
-let prCfg=null, prPeserta={}, prAns=new Array(26).fill(0), prTahun='', prKat='', prSending=false;
+let prCfg=null, prPeserta={}, prAns=new Array(26).fill(0), prTahun='', prKat='', prJab='', prSending=false;
 onValue(ref(db,'prisma/config'),s=>{prCfg=s.val()||{};prListenPeserta();if(me)renderPrisma();});
 let prPesertaUnsub=null, prPesertaKit=null;
 function prKitaran(){return (prCfg&&prCfg.kitaran)||String(new Date().getFullYear());}
@@ -1497,13 +1497,13 @@ window.renderPrisma=function(){
     box.innerHTML=`<div class="card pr-done"><div class="big">ℹ️</div><h3>Tidak perlu menjawab</h3><p>Nama anda tiada dalam senarai penilaian PRisMA kitaran ini.</p></div>`;return;
   }
   if(prPeserta[namaKey(me)]){
-    box.innerHTML=`<div class="card pr-done"><div class="big">✅</div><h3>Terima kasih, ${me.split(' ')[0]}!</h3><p>Anda telah menjawab soal selidik PRisMA bagi kitaran <b>${prKitaran()}</b>.<br>Jawapan anda adalah SULIT — hanya PTP Parmanis Sutera (Pn Siti Khairunisah) boleh melihatnya.</p></div>`;return;
+    box.innerHTML=`<div class="card pr-done"><div class="big">✅</div><h3>Terima kasih, ${me.split(' ')[0]}!</h3><p>Anda telah menjawab soal selidik PRisMA bagi kitaran <b>${prKitaran()}</b>.<br>Jawapan anda disimpan tanpa nama.</p></div>`;return;
   }
   if(!prCfg.buka){
     box.innerHTML=`<div class="card pr-done"><div class="big">🔒</div><h3>Soal selidik belum dibuka</h3><p>PTP akan maklumkan bila soal selidik PRisMA dibuka untuk dijawab.</p></div>`;return;
   }
   const legend=SKALA.map(s=>`<div><b>${s.v}</b>${s.bm}</div>`).join('');
-  const chips=(arr,cur,fn)=>arr.map(v=>`<button class="pr-chip${cur===v?' sel':''}" onclick="${fn}(this,'${v}')">${v}</button>`).join('');
+  const chips=(arr,cur,fn)=>arr.map(v=>`<button class="pr-chip${cur===v?' sel':''}" onclick="${fn}(this,this.dataset.v)" data-v="${String(v).replace(/"/g,'&quot;')}">${String(v).replace(/</g,'&lt;')}</button>`).join('');
   const qs=LEO26.map((q,i)=>`<div class="pr-q${prAns[i]?' done':''}" id="prq${i}">
       <div class="pr-q-no">SOALAN ${q.n} / 26</div>
       <div class="pr-q-bm">${q.bm}</div>
@@ -1514,11 +1514,13 @@ window.renderPrisma=function(){
     <div class="card pr-intro">
       <div class="card-title">🧠 Apa ini?</div>
       <p>Soal selidik ini dari <b>JKKP (PRisMA 2024)</b> untuk mengetahui keadaan kerja dan tekanan di tempat kerja. Sila jawab dengan <b>jujur</b> berdasarkan pengalaman anda dalam <b>6 bulan lepas</b>. Tiada jawapan betul atau salah.</p>
-      <div class="pr-lock">🔒<span><b>Jawapan anda SULIT.</b> Hanya <b>PTP Parmanis Sutera (Pn Siti Khairunisah)</b> boleh melihat jawapan anda — staf lain dan penyelia tidak boleh lihat. Jawapan digunakan untuk menambah baik keadaan kerja dan, jika perlu, PTP akan berbincang secara peribadi untuk membantu anda. Laporan kepada JKKP tidak memaparkan nama.</span></div>
+      <div class="pr-lock">🔒<span><b>Jawapan anda tidak disimpan bersama nama anda.</b> Hanya jabatan/unit anda direkod. Sistem cuma tandakan anda sudah menjawab. Keputusan keseluruhan hanya boleh dilihat oleh PTP Parmanis Sutera.</span></div>
       <div class="pr-legend">${legend}</div>
     </div>
     <div class="card">
-      <div class="card-title">Tempoh bekerja di unit/bahagian sekarang</div>
+      <div class="card-title">Jabatan / unit anda</div>
+      <div class="pr-chips" id="prJabBox">${chips((prCfg.jabatanList&&prCfg.jabatanList.length)?prCfg.jabatanList:DEFAULT_JABATAN,prJab,'prSetJab')}</div>
+      <div class="card-title" style="margin-top:14px">Tempoh bekerja di unit/bahagian sekarang</div>
       <div class="pr-chips" id="prTahunBox">${chips(TAHUN_PENGALAMAN,prTahun,'prSetTahun')}</div>
       <div class="card-title" style="margin-top:14px">Kategori pekerja</div>
       <div class="pr-chips" id="prKatBox">${chips(KATEGORI_PEKERJA,prKat,'prSetKat')}</div>
@@ -1546,9 +1548,11 @@ window.prPick=function(i,v,btn){
 }
 function prSetChip(box,btn){document.querySelectorAll('#'+box+' .pr-chip').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
 window.prSetTahun=function(btn,v){prTahun=v;prSetChip('prTahunBox',btn);}
+window.prSetJab=function(btn,v){prJab=v;prSetChip('prJabBox',btn);}
 window.prSetKat=function(btn,v){prKat=v;prSetChip('prKatBox',btn);}
 window.prSubmit=async function(){
   if(prSending)return;
+  if(!prJab){toast('Pilih jabatan / unit');document.getElementById('prJabBox').scrollIntoView({behavior:'smooth',block:'center'});return;}
   if(!prTahun){toast('Pilih tempoh bekerja');document.getElementById('prTahunBox').scrollIntoView({behavior:'smooth',block:'center'});return;}
   if(!prKat){toast('Pilih kategori pekerja');document.getElementById('prKatBox').scrollIntoView({behavior:'smooth',block:'center'});return;}
   const miss=prAns.findIndex(v=>!v);
@@ -1557,13 +1561,13 @@ window.prSubmit=async function(){
   if(!confirm('Hantar jawapan? Jawapan tidak boleh diubah selepas dihantar.'))return;
   prSending=true; const b=document.getElementById('prSubmit'); b.disabled=true; b.textContent='Menghantar...';
   const k=prKitaran();
-  const key=namaKey(me);
+  const key=push(ref(db,'prisma/kitaran/'+k+'/jawapan')).key;
   const upd={};
-  upd['prisma/kitaran/'+k+'/jawapan/'+key]={nama:me,a:prAns.slice(),tahun:prTahun,kategori:prKat,bulan:new Date().toISOString().slice(0,7)};
+  upd['prisma/kitaran/'+k+'/jawapan/'+key]={jabatan:prJab,a:prAns.slice(),tahun:prTahun,kategori:prKat,bulan:new Date().toISOString().slice(0,7)};
   upd['prisma/kitaran/'+k+'/peserta/'+namaKey(me)]=true;
   try{
     await update(ref(db),upd);
-    prAns=new Array(26).fill(0);prTahun='';prKat='';
+    prAns=new Array(26).fill(0);prTahun='';prKat='';prJab='';
     toast('✅ Jawapan dihantar. Terima kasih!');
     window.scrollTo({top:0,behavior:'smooth'});
   }catch(e){console.error(e);toast('❌ Gagal hantar. Cuba lagi.');b.disabled=false;b.textContent='✓ Hantar Jawapan';}
