@@ -623,8 +623,8 @@ textarea.act-inp{min-height:65px;resize:vertical;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-import { DASS21, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, TINDAKAN_PTP, dassSah, dassSkor } from "./dass-data.js?v=20261027b";
-import { STAFF_LIST, LEO26, KOMPONEN, KOD, EPC23, PRIMA, DEFAULT_JABATAN, skorOrganisasi, sah, namaKey } from "./prisma-data.js?v=20261027b";
+import { DASS_TAMBAHAN, DASS21, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, TINDAKAN_PTP, dassSah, dassSkor } from "./dass-data.js?v=20261027c";
+import { STAFF_LIST, LEO26, KOMPONEN, KOD, EPC23, PRIMA, DEFAULT_JABATAN, skorOrganisasi, sah, namaKey } from "./prisma-data.js?v=20261027c";
 
 const app = initializeApp({
   apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
@@ -1614,6 +1614,7 @@ window.sw=function(tab){
 }
 // ─── DASS-21 (PTP sahaja) ───
 let dbCfg={}, dbData={}, dbKitL=null, dbUnsub=null, dbOpen={};
+const DS_LIST=[...STAFF_LIST,...DASS_TAMBAHAN];
 const DS_STATUS=['Belum','Sudah dibincang','Dirujuk ke KK/doktor','Dalam pemantauan','Selesai'];
 function dbKit(){return dbCfg.kitaran||String(new Date().getFullYear());}
 function dbPath(x){return 'dass/kitaran/'+dbKit()+(x?'/'+x:'');}
@@ -1639,7 +1640,7 @@ window.renderDassBoss=function(force){
   b.className='pb-sw '+(on?'on':'off');b.textContent=on?'Tutup':'Buka';
   document.getElementById('dbBukaTxt').textContent=on?'Saringan DIBUKA ✅':'Saringan DITUTUP';
   const ki=document.getElementById('dbKitaran'); if(document.activeElement!==ki)ki.value=dbKit();
-  const rows=dbRows(), N=rows.length, J=STAFF_LIST.length;
+  const rows=dbRows(), N=rows.length, J=DS_LIST.length;
   document.getElementById('dbN').textContent=`${N} / ${J}`;
   const berat=rows.filter(x=>x.s.maks>=3).length, sed=rows.filter(x=>x.s.maks===2).length;
   document.getElementById('dbBerat').textContent=berat;
@@ -1647,7 +1648,7 @@ window.renderDassBoss=function(force){
   const belum=rows.filter(x=>x.s.maks>=2&&(!x.f.status||x.f.status==='Belum')).length;
   document.getElementById('dbBelum').textContent=belum;
   const done=new Set(rows.map(x=>x.key));
-  document.getElementById('dbPending').innerHTML=STAFF_LIST.map(n=>`<span class="${done.has(namaKey(n))?'ok':'no'}">${done.has(namaKey(n))?'✓':'○'} ${pbEsc(n)}</span>`).join('');
+  document.getElementById('dbPending').innerHTML=DS_LIST.map(n=>`<span class="${done.has(namaKey(n))?'ok':'no'}">${done.has(namaKey(n))?'✓':'○'} ${pbEsc(n)}</span>`).join('');
 
   document.getElementById('dbList').innerHTML=N?rows.map(x=>{
     const key=x.key, open=dbOpen[key], c=TAHAP_WARNA[x.s.maks];
@@ -1674,7 +1675,7 @@ window.dbPrint=function(){
   const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan DASS-21 SULIT ${pbEsc(dbKit())}</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;font-size:11px}
   h2{margin:0 0 4px;font-size:15px}table{width:100%;border-collapse:collapse}th{background:#374151;color:#fff;padding:5px;font-size:10px}td{border:1px solid #ccc;padding:5px;vertical-align:top}
   .t{color:#fff;font-weight:bold;padding:2px 6px;border-radius:8px;font-size:10px;white-space:nowrap}.sulit{color:#b91c1c;font-weight:bold}</style></head><body>
-  <h2>Laporan Saringan DASS-21 — ${PB_SYARIKAT}</h2><div class="sulit">SULIT — untuk PTP sahaja. Kitaran ${pbEsc(dbKit())} · ${rows.length}/${STAFF_LIST.length} dijawab</div><br>
+  <h2>Laporan Saringan DASS-21 — ${PB_SYARIKAT}</h2><div class="sulit">SULIT — untuk PTP sahaja. Kitaran ${pbEsc(dbKit())} · ${rows.length}/${DS_LIST.length} dijawab</div><br>
   <table><tr><th>#</th><th>Nama</th><th>Jabatan</th><th>Tarikh</th>${SUB_KOD.map(k=>`<th>${SUBSKALA[k].bm}</th>`).join('')}<th>Tindakan dicadangkan</th><th>Status &amp; catatan susulan</th></tr>
   ${rows.map((x,i)=>`<tr><td>${i+1}</td><td>${pbEsc(x.r.nama)}${x.s.item21>=2?' ⚠':''}</td><td>${pbEsc(x.r.jabatan||'')}</td><td>${pbEsc(x.r.tarikh||'')}</td>${SUB_KOD.map(k=>`<td>${x.s[k].skor}<br><span class="t" style="background:${TAHAP_WARNA[x.s[k].tahap]}">${x.s[k].label}</span></td>`).join('')}<td>${TINDAKAN_PTP[x.s.maks]}</td><td><b>${pbEsc(x.f.status||'Belum')}</b><br>${pbEsc(x.f.nota||'')}</td></tr>`).join('')}</table>
   <p style="font-size:9.5px">Skor DASS-21 (jumlah ×2). Had: Kemurungan 0–9 Normal, 10–13 Ringan, 14–20 Sederhana, 21–27 Teruk, 28+ Sangat Teruk · Kebimbangan 0–7, 8–9, 10–14, 15–19, 20+ · Stres 0–14, 15–18, 19–25, 26–33, 34+. ⚠ = item 21 dijawab 2 atau 3. DASS-21 ialah alat saringan, bukan diagnosis.</p>

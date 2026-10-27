@@ -5,6 +5,10 @@
 // Skor DASS-21 = jumlah item × 2
 // ═══════════════════════════════════════════════════════════════
 
+// Senarai saringan DASS = senarai PRisMA + tambahan di bawah
+export const DASS_TAMBAHAN = ['ANDIEKA'];
+export const DASS_JABATAN = ['Krew PETRONAS','Pengurusan Parmanis Sutera'];
+
 export const DASS_SKALA = [
   {v:0, bm:'Tidak Pernah', en:'Never'},
   {v:1, bm:'Jarang',       en:'Sometimes'},

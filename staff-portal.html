@@ -812,8 +812,8 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, orderByChild, equalTo, update, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-import { DASS21, DASS_SKALA, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, NASIHAT_STAF, dassSah, dassSkor } from "./dass-data.js?v=20261027b";
-import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, STAFF_LIST, DEFAULT_JABATAN, sah, namaKey } from "./prisma-data.js?v=20261027b";
+import { DASS_TAMBAHAN, DASS_JABATAN, DASS21, DASS_SKALA, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, NASIHAT_STAF, dassSah, dassSkor } from "./dass-data.js?v=20261027c";
+import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, STAFF_LIST, DEFAULT_JABATAN, sah, namaKey } from "./prisma-data.js?v=20261027c";
 
 const app = initializeApp({
   apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
@@ -1518,12 +1518,12 @@ function dsResultHtml(a){
 window.renderDass=function(){
   const box=document.getElementById('dsBox'); if(!box)return;
   if(dsCfg===null||dsMine===undefined){box.innerHTML='<div class="empty">Memuatkan...</div>';return;}
-  if(!STAFF_LIST.includes(me)){box.innerHTML=`<div class="card pr-done"><div class="big">ℹ️</div><h3>Tidak perlu menjawab</h3><p>Nama anda tiada dalam senarai saringan kitaran ini.</p></div>`;return;}
+  if(![...STAFF_LIST,...DASS_TAMBAHAN].includes(me)){box.innerHTML=`<div class="card pr-done"><div class="big">ℹ️</div><h3>Tidak perlu menjawab</h3><p>Nama anda tiada dalam senarai saringan kitaran ini.</p></div>`;return;}
   if(dsMine&&dassSah(dsMine.a)){
     box.innerHTML=`<div class="card pr-done" style="padding:18px 14px"><div class="big" style="font-size:36px">💚</div><h3>Keputusan saringan anda</h3><p>Kitaran ${dsEsc(dsKit())}</p></div>`+dsResultHtml(dsMine.a);return;
   }
   if(!dsCfg.buka){box.innerHTML=`<div class="card pr-done"><div class="big">🔒</div><h3>Saringan belum dibuka</h3><p>PTP akan maklumkan bila saringan DASS dibuka.</p></div>`;return;}
-  const jabs=(prCfg&&prCfg.jabatanList&&prCfg.jabatanList.length)?prCfg.jabatanList:DEFAULT_JABATAN;
+  const jabs=DASS_JABATAN;
   const legend=DASS_SKALA.map(x=>`<div><b>${x.v}</b>${x.bm}</div>`).join('');
   const qs=DASS21.map((q,i)=>`<div class="pr-q${dsAns[i]>=0?' done':''}" id="dsq${i}">
       <div class="pr-q-no">SOALAN ${q.n} / 21</div>
