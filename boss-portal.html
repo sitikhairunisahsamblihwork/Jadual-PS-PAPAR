@@ -252,6 +252,14 @@ textarea.act-inp{min-height:65px;resize:vertical;}
 .pb-names .no{background:#fef2f2;color:#b91c1c;}
 #view-prisma .field textarea{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;color:#1a1a1a;padding:10px 12px;border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;min-height:70px;}
 #view-prisma .submit-btn,#view-prisma .btn-outline{margin-top:8px;}
+#view-prisma .pb-tbl tr.pb-r{cursor:pointer;}
+#view-prisma .pb-tbl tr.pb-det td{background:#fafcfb;text-align:left;padding:8px 6px 12px;}
+.pb-ans{display:grid;grid-template-columns:22px 1fr 22px;gap:6px;font-size:11.5px;padding:4px 0;border-bottom:1px dashed #e5ece7;}
+.pb-ans b{text-align:center;border-radius:5px;}
+.pb-ans.bad b{background:#dc4a2a;color:#fff;}
+.pb-follow{background:#fff1ee;border:1.5px solid #f1a08c;border-radius:12px;padding:12px;margin-bottom:12px;}
+.pb-follow h4{font-size:13px;font-weight:800;color:#b42d12;margin-bottom:6px;}
+.pb-follow div{font-size:12px;padding:5px 0;border-bottom:1px solid rgba(0,0,0,.06);}
 </style>
 </head>
 <body>
@@ -495,7 +503,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
     </div>
     <div class="card">
       <div class="card-title">👥 Status Penyertaan</div>
-      <div class="pb-note">Nama hanya untuk semak siapa sudah jawab. Jawapan individu <b>tidak</b> dikaitkan dengan nama.</div>
+      <div class="pb-note">Staf dimaklumkan jawapan mereka SULIT (hanya pengurus boleh lihat). Laporan cetak &amp; Excel untuk JKKP guna R1, R2… tanpa nama.</div>
       <div class="pb-names" id="pbNames"></div>
     </div>
 
@@ -503,8 +511,10 @@ textarea.act-inp{min-height:65px;resize:vertical;}
     <div id="pbComps"></div>
 
     <div class="card">
-      <div class="card-title">📋 Skor Responden (tanpa nama)</div>
-      <div style="overflow-x:auto"><table class="pb-tbl"><thead><tr><th>Resp.</th><th>JC</th><th>WD</th><th>JS</th><th>Tahun</th></tr></thead><tbody id="pbInd"></tbody></table></div>
+      <div class="card-title">📋 Skor Staf (SULIT)</div>
+      <div id="pbFollow"></div>
+      <div class="pb-note" style="margin-bottom:6px">Tekan nama untuk lihat jawapan penuh staf tersebut.</div>
+      <div style="overflow-x:auto"><table class="pb-tbl"><thead><tr><th>Nama</th><th>JC</th><th>WD</th><th>JS</th><th>Tahun</th></tr></thead><tbody id="pbInd"></tbody></table></div>
       <div class="pb-note" style="margin-top:8px">Merah = risiko tinggi individu (JC &gt; 15.5 · WD &gt; 7.5 · JS &lt; 38.5)</div>
     </div>
 
@@ -1622,7 +1632,10 @@ window.renderPrismaBoss=function(force){
     </div>`;}).join('');
 
   // Individu
-  document.getElementById('pbInd').innerHTML=N?org.individu.map((r,i)=>`<tr><td>R${i+1}</td>${KOD.map(k=>`<td class="${r[k].tinggi?'hi':''}">${r[k].skor}</td>`).join('')}<td style="font-size:11px;color:#7a6e62">${pbEsc((ans[i].tahun||'').replace(' tahun',''))}</td></tr>`).join('')
+  const rows=org.individu.map((r,i)=>({r,a:ans[i],i,h:KOD.filter(k=>r[k].tinggi)})).sort((x,y)=>y.h.length-x.h.length||(x.a.nama||'').localeCompare(y.a.nama||''));
+  const fol=rows.filter(x=>x.h.length===3);
+  document.getElementById('pbFollow').innerHTML=fol.length?`<div class="pb-follow"><h4>⚠ Perlu perhatian segera (tinggi dalam ketiga-tiga komponen)</h4>${fol.map(x=>`<div><b>${pbEsc(x.a.nama||'R'+(x.i+1))}</b> — JC ${x.r.JC.skor} · WD ${x.r.WD.skor} · JS ${x.r.JS.skor}</div>`).join('')}<div style="border:none;color:#7a6e62;font-size:11px">Cadangan: perbincangan peribadi secara tertutup, dengar dahulu, elak menyalahkan.</div></div>`:'';
+  document.getElementById('pbInd').innerHTML=N?rows.map(x=>`<tr class="pb-r" onclick="pbDet(${x.i})"><td style="font-weight:700">${pbEsc(x.a.nama||'R'+(x.i+1))} <span style="color:#dc4a2a;font-size:10px">${x.h.length?'●'.repeat(x.h.length):''}</span></td>${KOD.map(k=>`<td class="${x.r[k].tinggi?'hi':''}">${x.r[k].skor}</td>`).join('')}<td style="font-size:11px;color:#7a6e62">${pbEsc((x.a.tahun||'').replace(' tahun',''))}</td></tr><tr class="pb-det" id="pbDet${x.i}" style="display:none"><td colspan="5"></td></tr>`).join('')
     :'<tr><td colspan="5" class="empty">Belum ada jawapan</td></tr>';
 
   // Purata item
@@ -1651,6 +1664,16 @@ window.renderPrismaBoss=function(force){
         <div class="src">EPC23 "Tidak": no. ${no.join(', ')}</div>
         <ol>${p.tindakan.map(t=>`<li>${pbEsc(t[1])}</li>`).join('')}</ol>
         <textarea placeholder="Catatan / tindakan yang akan diambil (Remarks)..." onchange="pbRemark('${p.kod}',this)">${pbEsc(rem[p.kod]||'')}</textarea></div>`;}).join('');
+}
+
+window.pbDet=function(i){
+  const tr=document.getElementById('pbDet'+i); if(!tr)return;
+  if(tr.style.display!=='none'){tr.style.display='none';return;}
+  const a=pbAnswers()[i].a;
+  const compOf=n=>KOD.find(k=>KOMPONEN[k].items.includes(n));
+  tr.firstElementChild.innerHTML=`<div class="pb-note" style="margin-bottom:4px">Merah = jawapan membimbangkan (4–5 bagi kenyataan negatif; 1–2 bagi kenyataan sokongan JS)</div>`+LEO26.map((q,j)=>{const c=compOf(q.n),v=a[j],bad=c==='JS'?v<=2:v>=4;
+    return `<div class="pb-ans${bad?' bad':''}"><span style="color:#7a6e62;font-weight:700">${q.n}</span><span>${pbEsc(q.bm)} <span style="font-size:10px;color:#9a8e82">${c}</span></span><b>${v}</b></div>`;}).join('');
+  tr.style.display='';
 }
 
 // ── CETAK BORANG (Appendix 3, 2, 4) ──
@@ -1741,6 +1764,10 @@ window.pbExcel=async function(){
     const ws2=XLSX.utils.aoa_to_sheet([['No','EPC23','Yes/No','PRiMA Theme'],...EPC23.map(e=>[e.n,e.en,epc[e.n]==='Y'?'√':epc[e.n]==='N'?'X':'',PRIMA.find(p=>p.kod===e.tema).en])]);
     ws2['!cols']=[{wch:5},{wch:80},{wch:8},{wch:24}];
     XLSX.utils.book_append_sheet(wb,ws2,'EPC23');
+    const ws3=XLSX.utils.aoa_to_sheet([['SULIT — untuk kegunaan pengurus sahaja. Jangan sertakan helaian ini dalam laporan JKKP.'],[],['Resp.','Nama','JC','WD','JS','Komponen tinggi'],
+      ...ans.map((r,i)=>{const s=org.individu[i];return['R'+(i+1),r.nama||'',s.JC.skor,s.WD.skor,s.JS.skor,KOD.filter(k=>s[k].tinggi).join(', ')];})]);
+    ws3['!cols']=[{wch:6},{wch:28},{wch:6},{wch:6},{wch:6},{wch:16}];
+    XLSX.utils.book_append_sheet(wb,ws3,'SULIT - Nama');
     XLSX.writeFile(wb,`PRisMA_LEO26_PSPapar_${pbKit()}.xlsx`);
   }catch(e){console.error(e);toast('❌ Gagal jana Excel');}
 }

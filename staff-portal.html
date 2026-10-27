@@ -1493,7 +1493,7 @@ window.renderPrisma=function(){
   const box=document.getElementById('prBox'); if(!box)return;
   if(prCfg===null){box.innerHTML='<div class="empty">Memuatkan...</div>';return;}
   if(prPeserta[namaKey(me)]){
-    box.innerHTML=`<div class="card pr-done"><div class="big">✅</div><h3>Terima kasih, ${me.split(' ')[0]}!</h3><p>Anda telah menjawab soal selidik PRisMA bagi kitaran <b>${prKitaran()}</b>.<br>Jawapan anda disimpan tanpa nama.</p></div>`;return;
+    box.innerHTML=`<div class="card pr-done"><div class="big">✅</div><h3>Terima kasih, ${me.split(' ')[0]}!</h3><p>Anda telah menjawab soal selidik PRisMA bagi kitaran <b>${prKitaran()}</b>.<br>Jawapan anda adalah SULIT — hanya pengurus stesen boleh melihatnya.</p></div>`;return;
   }
   if(!prCfg.buka){
     box.innerHTML=`<div class="card pr-done"><div class="big">🔒</div><h3>Soal selidik belum dibuka</h3><p>Pengurus akan maklumkan bila soal selidik PRisMA dibuka untuk dijawab.</p></div>`;return;
@@ -1510,7 +1510,7 @@ window.renderPrisma=function(){
     <div class="card pr-intro">
       <div class="card-title">🧠 Apa ini?</div>
       <p>Soal selidik ini dari <b>JKKP (PRisMA 2024)</b> untuk mengetahui keadaan kerja dan tekanan di tempat kerja. Sila jawab dengan <b>jujur</b> berdasarkan pengalaman anda dalam <b>6 bulan lepas</b>. Tiada jawapan betul atau salah.</p>
-      <div class="pr-lock">🔒<span><b>Jawapan anda tidak disimpan bersama nama anda.</b> Sistem hanya merekod bahawa anda sudah menjawab. Hanya pengurus boleh melihat keputusan keseluruhan.</span></div>
+      <div class="pr-lock">🔒<span><b>Jawapan anda SULIT.</b> Hanya pengurus stesen boleh melihat jawapan anda — staf lain tidak boleh lihat. Jawapan digunakan untuk menambah baik keadaan kerja dan, jika perlu, pengurus akan berbincang secara peribadi untuk membantu anda. Laporan kepada JKKP tidak memaparkan nama.</span></div>
       <div class="pr-legend">${legend}</div>
     </div>
     <div class="card">
@@ -1553,9 +1553,9 @@ window.prSubmit=async function(){
   if(!confirm('Hantar jawapan? Jawapan tidak boleh diubah selepas dihantar.'))return;
   prSending=true; const b=document.getElementById('prSubmit'); b.disabled=true; b.textContent='Menghantar...';
   const k=prKitaran();
-  const key=push(ref(db,'prisma/kitaran/'+k+'/jawapan')).key;
+  const key=namaKey(me);
   const upd={};
-  upd['prisma/kitaran/'+k+'/jawapan/'+key]={a:prAns.slice(),tahun:prTahun,kategori:prKat,bulan:new Date().toISOString().slice(0,7)};
+  upd['prisma/kitaran/'+k+'/jawapan/'+key]={nama:me,a:prAns.slice(),tahun:prTahun,kategori:prKat,bulan:new Date().toISOString().slice(0,7)};
   upd['prisma/kitaran/'+k+'/peserta/'+namaKey(me)]=true;
   try{
     await update(ref(db),upd);
