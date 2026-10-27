@@ -180,6 +180,34 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 .ad-st-siasat{background:#eff6ff;color:#1d4ed8;border:1px solid #3b82f6;}
 .ad-st-selesai{background:#dcf0e4;color:#166534;border:1px solid #16a34a;}
 .ad-reply{background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:7px 9px;font-size:12px;color:#4c1d95;margin-top:6px;}
+/* PRISMA */
+.pr-intro{background:linear-gradient(135deg,#e6f6ef,#fff);border:1px solid #b8d8c3;}
+.pr-intro p{font-size:13px;line-height:1.55;color:#3a3a3a;margin-bottom:8px;}
+.pr-lock{display:flex;gap:8px;align-items:flex-start;background:#fff8e1;border:1px solid #fcd34d;border-radius:10px;padding:10px;font-size:12px;color:#7a5200;line-height:1.5;}
+.pr-legend{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px;}
+.pr-legend div{text-align:center;font-size:10px;color:#6a5e52;line-height:1.25;}
+.pr-legend b{display:block;font-size:15px;color:#00a650;}
+.pr-prog{position:sticky;top:0;z-index:5;background:#f5f5f5;padding:8px 0 10px;}
+.pr-prog-bar{height:8px;background:#e3eee7;border-radius:6px;overflow:hidden;}
+.pr-prog-fill{height:100%;width:0;background:#00a650;transition:width .25s;}
+.pr-prog-txt{font-size:11px;font-weight:700;color:#6a5e52;margin-top:4px;display:flex;justify-content:space-between;}
+.pr-q{background:#fff;border:1px solid #d4e8da;border-radius:14px;padding:13px;margin-bottom:10px;transition:border-color .2s;}
+.pr-q.done{border-color:#86d3a5;}
+.pr-q-no{font-size:10px;font-weight:800;color:#00a650;letter-spacing:.5px;}
+.pr-q-bm{font-size:14px;font-weight:600;color:#1a1a1a;line-height:1.4;margin:3px 0 2px;}
+.pr-q-en{font-size:11px;color:#9a8e82;font-style:italic;margin-bottom:10px;}
+.pr-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.pr-opt{border:1.5px solid #c8dccf;background:#f6faf7;border-radius:10px;padding:7px 2px 6px;text-align:center;cursor:pointer;font-family:inherit;color:#3a3a3a;}
+.pr-opt b{display:block;font-size:17px;line-height:1.1;}
+.pr-opt span{display:block;font-size:9px;line-height:1.2;margin-top:2px;}
+.pr-opt.sel{background:#00a650;border-color:#00a650;color:#fff;}
+.pr-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.pr-chip{border:1.5px solid #c8dccf;background:#f6faf7;border-radius:20px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;color:#3a3a3a;}
+.pr-chip.sel{background:#00a650;border-color:#00a650;color:#fff;}
+.pr-done{text-align:center;padding:28px 16px;}
+.pr-done .big{font-size:46px;margin-bottom:8px;}
+.pr-done h3{font-size:17px;margin-bottom:6px;}
+.pr-done p{font-size:13px;color:#6a5e52;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -224,6 +252,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
     <div class="nav-tab" onclick="sw('hse')">⚠️ HSE</div>
     <div class="nav-tab" onclick="sw('aduan')">🗣 Aduan</div>
     <div class="nav-tab" onclick="sw('request')">📝 Request</div>
+    <div class="nav-tab" onclick="sw('prisma')">🧠 PRisMA</div>
   </div>
 
   <!-- HOME -->
@@ -756,12 +785,19 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
     <div id="myReqs"><div class="empty">Tiada request</div></div>
   </div>
 
+  <!-- PRISMA (LEO26) -->
+  <div class="view" id="view-prisma">
+    <div class="sec-hdr">Soal Selidik Risiko Psikososial (LEO26)</div>
+    <div id="prBox"><div class="empty">Memuatkan...</div></div>
+  </div>
+
 </div><!-- end mainApp -->
 <div id="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, query, orderByChild, equalTo, update } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, sah, namaKey } from "./prisma-data.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
@@ -1430,7 +1466,7 @@ window.handleUp=async function(type,input){
 // NAV
 window.sw=function(tab){
   document.querySelectorAll('.nav-tab').forEach((t,i)=>{
-    const tabs=['home','tugasan','pembersihan','medsos','wcf','hse','aduan','request'];
+    const tabs=['home','tugasan','pembersihan','medsos','wcf','hse','aduan','request','prisma'];
     t.classList.toggle('active',tabs[i]===tab);
   });
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1438,6 +1474,96 @@ window.sw=function(tab){
   if(tab==='pembersihan'||tab==='home') renderTodayWidgets();
   if(tab==='hse'){updateHseStats();renderHSEHist();}
   if(tab==='aduan'){renderAduanHist();}
+  if(tab==='prisma'){renderPrisma();}
+}
+
+// ─── PRISMA (LEO26) ───
+// Jawapan disimpan TANPA nama. Nama hanya direkod dalam senarai "peserta" (sudah/belum isi).
+let prCfg=null, prPeserta={}, prAns=new Array(26).fill(0), prTahun='', prKat='', prSending=false;
+onValue(ref(db,'prisma/config'),s=>{prCfg=s.val()||{};prListenPeserta();if(me)renderPrisma();});
+let prPesertaUnsub=null, prPesertaKit=null;
+function prKitaran(){return (prCfg&&prCfg.kitaran)||String(new Date().getFullYear());}
+function prListenPeserta(){
+  const k=prKitaran(); if(prPesertaKit===k)return;
+  if(prPesertaUnsub)prPesertaUnsub();
+  prPesertaKit=k;
+  prPesertaUnsub=onValue(ref(db,'prisma/kitaran/'+k+'/peserta'),s=>{prPeserta=s.val()||{};if(me&&document.getElementById('view-prisma').classList.contains('active'))renderPrisma();});
+}
+window.renderPrisma=function(){
+  const box=document.getElementById('prBox'); if(!box)return;
+  if(prCfg===null){box.innerHTML='<div class="empty">Memuatkan...</div>';return;}
+  if(prPeserta[namaKey(me)]){
+    box.innerHTML=`<div class="card pr-done"><div class="big">✅</div><h3>Terima kasih, ${me.split(' ')[0]}!</h3><p>Anda telah menjawab soal selidik PRisMA bagi kitaran <b>${prKitaran()}</b>.<br>Jawapan anda adalah SULIT — hanya pengurus stesen boleh melihatnya.</p></div>`;return;
+  }
+  if(!prCfg.buka){
+    box.innerHTML=`<div class="card pr-done"><div class="big">🔒</div><h3>Soal selidik belum dibuka</h3><p>Pengurus akan maklumkan bila soal selidik PRisMA dibuka untuk dijawab.</p></div>`;return;
+  }
+  const legend=SKALA.map(s=>`<div><b>${s.v}</b>${s.bm}</div>`).join('');
+  const chips=(arr,cur,fn)=>arr.map(v=>`<button class="pr-chip${cur===v?' sel':''}" onclick="${fn}(this,'${v}')">${v}</button>`).join('');
+  const qs=LEO26.map((q,i)=>`<div class="pr-q${prAns[i]?' done':''}" id="prq${i}">
+      <div class="pr-q-no">SOALAN ${q.n} / 26</div>
+      <div class="pr-q-bm">${q.bm}</div>
+      <div class="pr-q-en">${q.en}</div>
+      <div class="pr-opts">${SKALA.map(s=>`<button class="pr-opt${prAns[i]===s.v?' sel':''}" onclick="prPick(${i},${s.v},this)"><b>${s.v}</b><span>${s.bm}</span></button>`).join('')}</div>
+    </div>`).join('');
+  box.innerHTML=`
+    <div class="card pr-intro">
+      <div class="card-title">🧠 Apa ini?</div>
+      <p>Soal selidik ini dari <b>JKKP (PRisMA 2024)</b> untuk mengetahui keadaan kerja dan tekanan di tempat kerja. Sila jawab dengan <b>jujur</b> berdasarkan pengalaman anda dalam <b>6 bulan lepas</b>. Tiada jawapan betul atau salah.</p>
+      <div class="pr-lock">🔒<span><b>Jawapan anda SULIT.</b> Hanya pengurus stesen boleh melihat jawapan anda — staf lain tidak boleh lihat. Jawapan digunakan untuk menambah baik keadaan kerja dan, jika perlu, pengurus akan berbincang secara peribadi untuk membantu anda. Laporan kepada JKKP tidak memaparkan nama.</span></div>
+      <div class="pr-legend">${legend}</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Tempoh bekerja di unit/bahagian sekarang</div>
+      <div class="pr-chips" id="prTahunBox">${chips(TAHUN_PENGALAMAN,prTahun,'prSetTahun')}</div>
+      <div class="card-title" style="margin-top:14px">Kategori pekerja</div>
+      <div class="pr-chips" id="prKatBox">${chips(KATEGORI_PEKERJA,prKat,'prSetKat')}</div>
+    </div>
+    <div class="pr-prog"><div class="pr-prog-bar"><div class="pr-prog-fill" id="prFill"></div></div><div class="pr-prog-txt"><span id="prCount">0 / 26 dijawab</span><span>Kitaran ${prKitaran()}</span></div></div>
+    ${qs}
+    <button class="submit-btn" id="prSubmit" onclick="prSubmit()">✓ Hantar Jawapan</button>
+    <div style="font-size:11px;color:#7a6e62;text-align:center;margin-top:8px">Jawapan hanya boleh dihantar sekali.</div>`;
+  prUpdProg();
+}
+function prUpdProg(){
+  const n=prAns.filter(Boolean).length;
+  const f=document.getElementById('prFill'); if(f)f.style.width=(n/26*100)+'%';
+  const c=document.getElementById('prCount'); if(c)c.textContent=`${n} / 26 dijawab`;
+}
+window.prPick=function(i,v,btn){
+  prAns[i]=v;
+  const card=document.getElementById('prq'+i);
+  card.classList.add('done');
+  card.querySelectorAll('.pr-opt').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  prUpdProg();
+  const next=document.getElementById('prq'+(i+1));
+  if(next&&!prAns[i+1]) setTimeout(()=>next.scrollIntoView({behavior:'smooth',block:'center'}),180);
+}
+function prSetChip(box,btn){document.querySelectorAll('#'+box+' .pr-chip').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+window.prSetTahun=function(btn,v){prTahun=v;prSetChip('prTahunBox',btn);}
+window.prSetKat=function(btn,v){prKat=v;prSetChip('prKatBox',btn);}
+window.prSubmit=async function(){
+  if(prSending)return;
+  if(!prTahun){toast('Pilih tempoh bekerja');document.getElementById('prTahunBox').scrollIntoView({behavior:'smooth',block:'center'});return;}
+  if(!prKat){toast('Pilih kategori pekerja');document.getElementById('prKatBox').scrollIntoView({behavior:'smooth',block:'center'});return;}
+  const miss=prAns.findIndex(v=>!v);
+  if(miss>=0){toast(`Soalan ${miss+1} belum dijawab`);document.getElementById('prq'+miss).scrollIntoView({behavior:'smooth',block:'center'});return;}
+  if(!sah(prAns)){toast('Jawapan tidak lengkap');return;}
+  if(!confirm('Hantar jawapan? Jawapan tidak boleh diubah selepas dihantar.'))return;
+  prSending=true; const b=document.getElementById('prSubmit'); b.disabled=true; b.textContent='Menghantar...';
+  const k=prKitaran();
+  const key=namaKey(me);
+  const upd={};
+  upd['prisma/kitaran/'+k+'/jawapan/'+key]={nama:me,a:prAns.slice(),tahun:prTahun,kategori:prKat,bulan:new Date().toISOString().slice(0,7)};
+  upd['prisma/kitaran/'+k+'/peserta/'+namaKey(me)]=true;
+  try{
+    await update(ref(db),upd);
+    prAns=new Array(26).fill(0);prTahun='';prKat='';
+    toast('✅ Jawapan dihantar. Terima kasih!');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){console.error(e);toast('❌ Gagal hantar. Cuba lagi.');b.disabled=false;b.textContent='✓ Hantar Jawapan';}
+  prSending=false; renderPrisma();
 }
 </script>
 </body>
