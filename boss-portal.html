@@ -48,6 +48,21 @@ body{background:#f0f7f3;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 .stat-card{background:#fff;border:1px solid #d4e8da;border-radius:12px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,.04);}
 .stat-num{font-size:26px;font-weight:800;line-height:1;}
 .stat-lbl{font-size:11px;color:#7a6e62;margin-top:3px;}
+.tot-hero{background:linear-gradient(135deg,#00664a,#00a650);color:#fff;border-radius:14px;padding:16px;margin-bottom:10px;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;}
+.tot-hero .n{font-size:38px;font-weight:800;line-height:1;}
+.tot-hero .l{font-size:11px;opacity:.85;margin-top:4px;font-weight:600;letter-spacing:.3px;}
+.tot-hero .m{text-align:right;font-size:11px;opacity:.9;}
+.tot-hero .m b{display:block;font-size:20px;}
+.tot-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+.tot-item{background:#fff;border:1px solid #d4e8da;border-radius:12px;padding:10px 12px;cursor:pointer;}
+.tot-item .t{font-size:11px;color:#6a5e52;font-weight:700;}
+.tot-item .v{font-size:22px;font-weight:800;color:#1a1a1a;line-height:1.1;margin-top:4px;}
+.tot-item .s{font-size:10px;color:#8a7e72;margin-top:2px;}
+.tot-tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tot-tbl th{text-align:right;color:#7a6e62;font-weight:700;padding:5px 3px;border-bottom:1px solid #d4e8da;}
+.tot-tbl th:first-child,.tot-tbl td:first-child{text-align:left;}
+.tot-tbl td{text-align:right;padding:6px 3px;border-bottom:1px solid #eef5f0;}
+.tot-tbl td:last-child{font-weight:800;color:#00664a;}
 /* FIELDS */
 .field{margin-bottom:11px;}
 .field label{display:block;font-size:11px;font-weight:600;color:#6a5e52;margin-bottom:4px;}
@@ -331,6 +346,12 @@ textarea.act-inp{min-height:65px;resize:vertical;}
   <div class="view active" id="view-dashboard">
     <div class="sec-hdr">Ringkasan Hari Ini</div>
     <div class="stats-grid" id="statsGrid"></div>
+    <div class="sec-hdr">Jumlah Laporan Setakat Ini</div>
+    <div id="totalsBox"></div>
+    <div class="card">
+      <div class="card-title">👥 Laporan Ikut Staff (Setakat Ini)</div>
+      <div id="totalsStaff" style="overflow-x:auto"><div class="empty">Tiada laporan</div></div>
+    </div>
     <div class="card">
       <div class="card-title">⏳ Request Menunggu Kelulusan</div>
       <div id="pendingRequests"><div class="empty">Tiada request menunggu</div></div>
@@ -694,14 +715,14 @@ onValue(ref(db,'.info/connected'),s=>{
   document.getElementById('connBar').className='conn-bar'+(ok?' ok':'');
   document.getElementById('connTxt').textContent=ok?'Online — data terkini':'Tiada sambungan...';
 });
-onValue(ref(db,'requests'),s=>{allReqs=s.val()||{};renderDashboard();renderRequests();});
-onValue(ref(db,'tugasan'),s=>{allTugasan=s.val()||{};renderTugasan();renderDashboard();});
-onValue(ref(db,'pembersihan'),s=>{allPemb=s.val()||{};renderPemb();});
-onValue(ref(db,'medsos'),s=>{allMedsos=s.val()||{};});
-onValue(ref(db,'wcf'),s=>{allWCF=s.val()||{};renderWCF();});
-onValue(ref(db,'hse_reports'),s=>{allHSE=s.val()||{};renderHSE();renderDashboard();});
-onValue(ref(db,'aduan_staff'),s=>{allAduan=s.val()||{};renderAduan();renderAduanDash();});
-onValue(ref(db,'aduanAwam'),s=>{allAwam=s.val()||{};renderAwam();renderAwamDash();});
+onValue(ref(db,'requests'),s=>{allReqs=s.val()||{};renderDashboard();renderRequests();renderTotals();});
+onValue(ref(db,'tugasan'),s=>{allTugasan=s.val()||{};renderTugasan();renderDashboard();renderTotals();});
+onValue(ref(db,'pembersihan'),s=>{allPemb=s.val()||{};renderPemb();renderTotals();});
+onValue(ref(db,'medsos'),s=>{allMedsos=s.val()||{};renderTotals();});
+onValue(ref(db,'wcf'),s=>{allWCF=s.val()||{};renderWCF();renderTotals();});
+onValue(ref(db,'hse_reports'),s=>{allHSE=s.val()||{};renderHSE();renderDashboard();renderTotals();});
+onValue(ref(db,'aduan_staff'),s=>{allAduan=s.val()||{};renderAduan();renderAduanDash();renderTotals();});
+onValue(ref(db,'aduanAwam'),s=>{allAwam=s.val()||{};renderAwam();renderAwamDash();renderTotals();});
 onValue(ref(db,'jadual_bersih'),s=>{jadualBersih=s.val()||{};renderJadualView();});
 onValue(ref(db,'jadual_posting'),s=>{jadualPosting=s.val()||{};renderJadualView();});
 
@@ -752,6 +773,44 @@ function renderDashboard(){
   const recTg=Object.entries(allTugasan).sort((a,b)=>b[1].date.localeCompare(a[1].date)).slice(0,5);
   document.getElementById('recentTugasan').innerHTML=recTg.length
     ?recTg.map(([k,r])=>`<div class="rcard"><div class="rcard-top"><div><div class="rcard-name">${r.staffName}</div><div class="rcard-date">${fmt(r.date)}</div></div><span class="badge b-blue">Syif ${r.shift}</span></div><div class="rcard-meta">${Object.keys(r.checks||{}).length}/25 item${r.gas12?' · LPG 12kg: '+r.gas12+' tong':''}${r.gas14?' · LPG 14kg: '+r.gas14+' tong':''}</div></div>`).join('')
+    :'<div class="empty">Tiada laporan</div>';
+}
+
+// ─── JUMLAH LAPORAN SETAKAT INI ───
+function recDay(r){ // tarikh laporan dihantar (YYYY-MM-DD) jika boleh dikenal pasti
+  if(typeof r.createdAt==='number')return new Date(r.createdAt).toISOString().slice(0,10);
+  const iso=r.dihantarPada||r.receivedDate||r.date||r.tarikh||r.datetime||'';
+  return /^\d{4}-\d{2}-\d{2}/.test(iso)?iso.slice(0,10):'';
+}
+function renderTotals(){
+  const box=document.getElementById('totalsBox');if(!box)return;
+  const ym=today().slice(0,7);
+  const cats=[
+    {k:'tugasan',ic:'📋',lb:'Tugasan',d:allTugasan,staff:true},
+    {k:'pembersihan',ic:'🧹',lb:'Pembersihan',d:allPemb,staff:true},
+    {k:'medsos',ic:'📱',lb:'Media Sosial',d:allMedsos,staff:true,tab:'dashboard'},
+    {k:'wcf',ic:'📄',lb:'WCF',d:allWCF,staff:true},
+    {k:'hse',ic:'⚠️',lb:'HSE',d:allHSE,staff:true},
+    {k:'request',ic:'📝',lb:'Request',d:allReqs},
+    {k:'aduan',ic:'🗣',lb:'Aduan Staff',d:allAduan},
+    {k:'awam',ic:'📢',lb:'Aduan Awam',d:allAwam}
+  ].map(c=>{const v=Object.values(c.d||{});return{...c,list:v,n:v.length,m:v.filter(r=>recDay(r).startsWith(ym)).length};});
+  const total=cats.reduce((a,c)=>a+c.n,0), month=cats.reduce((a,c)=>a+c.m,0);
+  const d=new Date();
+  box.innerHTML=`<div class="tot-hero">
+      <div><div class="n">${total}</div><div class="l">JUMLAH SEMUA LAPORAN · SEHINGGA ${d.getDate()} ${MONTHS[d.getMonth()].toUpperCase()} ${d.getFullYear()}</div></div>
+      <div class="m"><b>${month}</b>bulan ini</div>
+    </div>
+    <div class="tot-grid">${cats.map(c=>`<div class="tot-item" onclick="sw('${c.tab||c.k}')">
+      <div class="t">${c.ic} ${c.lb}</div><div class="v">${c.n}</div><div class="s">${c.m} bulan ini</div></div>`).join('')}</div>`;
+
+  // Ikut staff — laporan operasi sahaja (aduan tidak dipaparkan ikut nama atas sebab kerahsiaan)
+  const sc=cats.filter(c=>c.staff), per={};
+  sc.forEach(c=>c.list.forEach(r=>{const n=r.staffName||'—';(per[n]=per[n]||{})[c.k]=(per[n][c.k]||0)+1;}));
+  const rows=Object.entries(per).map(([n,o])=>({n,o,t:sc.reduce((a,c)=>a+(o[c.k]||0),0)})).sort((a,b)=>b.t-a.t);
+  document.getElementById('totalsStaff').innerHTML=rows.length
+    ?`<table class="tot-tbl"><tr><th>Staff</th>${sc.map(c=>`<th title="${c.lb}">${c.ic}</th>`).join('')}<th>Jumlah</th></tr>
+      ${rows.map(r=>`<tr><td>${r.n}</td>${sc.map(c=>`<td>${r.o[c.k]||0}</td>`).join('')}<td>${r.t}</td></tr>`).join('')}</table>`
     :'<div class="empty">Tiada laporan</div>';
 }
 
