@@ -297,7 +297,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
   <div class="header">
     <div class="header-row">
       <div class="logo">PS</div>
-      <div style="flex:1"><div class="h-title">Boss Portal</div><div style="font-size:11px;color:#a3d9b8;margin-top:1px;font-weight:600">PENGURUSAN</div></div>
+      <div style="flex:1"><div class="h-title">Boss Portal</div><div style="font-size:11px;color:#a3d9b8;margin-top:1px;font-weight:600" id="bossUserTxt">PENGURUSAN</div></div>
       <button onclick="doLogout()" style="background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;padding:6px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Keluar</button>
     </div>
   </div>
@@ -313,7 +313,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
     <div class="nav-tab" onclick="sw('aduan')">🗣 Aduan<span id="aduanBadge" style="display:none;margin-left:4px;background:#ef4444;color:#fff;border-radius:10px;padding:0 6px;font-size:10px"></span></div>
     <div class="nav-tab" onclick="sw('awam')">📢 Aduan Awam<span id="awamBadge" style="display:none;margin-left:4px;background:#ef4444;color:#fff;border-radius:10px;padding:0 6px;font-size:10px"></span></div>
     <div class="nav-tab" onclick="sw('jadual')">📅 Jadual</div>
-    <div class="nav-tab" onclick="sw('prisma')">🧠 PRisMA</div>
+    <div class="nav-tab" id="navPrisma" style="display:none" onclick="sw('prisma')">🧠 PRisMA</div>
   </div>
 
   <!-- DASHBOARD -->
@@ -602,7 +602,13 @@ const AD_ST={baru:['ad-st-baru','⏳ Baru'],siasat:['ad-st-siasat','🔍 Dalam T
 const AD_KESAN={rendah:'🟢 Sedikit',sederhana:'🟡 Sederhana',tinggi:'🔴 Teruk'};
 function attrJ(o){return JSON.stringify(o).replace(/&/g,'&amp;').replace(/'/g,'&#39;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
 function hsStatus(r){const v=(r&&r.status)||'';return HS_ST[v]?v:'terbuka';}
-const PIN = '1234'; // ← TUKAR PIN DI SINI
+// ← TUKAR / TAMBAH PIN DI SINI. prisma:true = boleh lihat tab PRisMA (SULIT)
+const PINS = {
+  '3012':{nama:'NISA', prisma:true},
+  '1309':{nama:'BOSS', prisma:false},
+  '2605':{nama:'SU',   prisma:false},
+};
+let currentUser=null;
 const MONTHS=['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
 const DAYS=['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
 const TL={CT:'Cuti Tahunan',OFF:'Off Day',SYIF:'Request Syif',TUKAR:'Tukar Syif'};
@@ -624,7 +630,12 @@ window.pinPress=function(n){
   pinInput+=String(n); updatePinDots();
   if(pinInput.length===4){
     setTimeout(()=>{
-      if(pinInput===PIN){
+      if(PINS[pinInput]){
+        currentUser=PINS[pinInput];
+        document.getElementById('pinError').textContent='';pinInput='';updatePinDots();
+        document.getElementById('bossUserTxt').textContent='PENGURUSAN · '+currentUser.nama;
+        document.getElementById('navPrisma').style.display=currentUser.prisma?'':'none';
+        sw('dashboard');
         document.getElementById('loginScreen').style.display='none';
         document.getElementById('mainApp').style.display='block';
       } else {
@@ -636,7 +647,7 @@ window.pinPress=function(n){
 }
 window.pinDel=function(){if(pinInput.length>0){pinInput=pinInput.slice(0,-1);updatePinDots();document.getElementById('pinError').textContent='';}}
 function updatePinDots(){for(let i=0;i<4;i++){document.getElementById('pd'+i).className='pin-dot'+(i<pinInput.length?' filled':'');}}
-window.doLogout=function(){pinInput='';updatePinDots();document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
+window.doLogout=function(){currentUser=null;document.getElementById('navPrisma').style.display='none';sw('dashboard');pinInput='';updatePinDots();document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
 
 // FIREBASE
 onValue(ref(db,'.info/connected'),s=>{
@@ -1549,6 +1560,7 @@ window.downloadAwamPDF=function(key){
 
 // NAV
 window.sw=function(tab){
+  if(tab==='prisma'&&!(currentUser&&currentUser.prisma))tab='dashboard';
   document.querySelectorAll('.nav-tab').forEach((t,i)=>{
     const tabs=['dashboard','request','tugasan','pembersihan','wcf','hse','aduan','awam','jadual','prisma'];
     t.classList.toggle('active',tabs[i]===tab);
@@ -1610,6 +1622,7 @@ window.pbRemark=async function(kod,el){
 function pbAnswers(){return Object.values(pbData.jawapan||{}).filter(r=>r&&sah(r.a));}
 
 window.renderPrismaBoss=function(force){
+  if(!(currentUser&&currentUser.prisma))return;
   const v=document.getElementById('view-prisma');
   if(!v||(!force&&!v.classList.contains('active')))return;
   pbFillCfg();
@@ -1679,6 +1692,7 @@ window.pbDet=function(i){
 // ── CETAK BORANG (Appendix 3, 2, 4) ──
 function pbFmtDate(d){if(!d)return'';const [y,m,dd]=d.split('-');return `${dd}/${m}/${y}`;}
 window.pbPrint=function(){
+  if(!(currentUser&&currentUser.prisma))return;
   const ans=pbAnswers(), org=skorOrganisasi(ans.map(r=>r.a)), N=org.N, J=pbJumlah();
   const epc=pbData.epc||{}, rem=pbData.prima||{}, lap=pbData.laporan||{};
   const lapNow={ulasan:document.getElementById('pbUlasan').value||lap.ulasan||'',ptp:document.getElementById('pbPtp').value||lap.ptp||'',
@@ -1742,6 +1756,7 @@ window.pbPrint=function(){
 
 // ── EXCEL (format LEO26 SCORE JKKP) ──
 window.pbExcel=async function(){
+  if(!(currentUser&&currentUser.prisma))return;
   const ans=pbAnswers(); if(!ans.length){toast('Belum ada jawapan');return;}
   toast('⏳ Menjana Excel...');
   try{
