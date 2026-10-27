@@ -180,6 +180,13 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 .ad-st-siasat{background:#eff6ff;color:#1d4ed8;border:1px solid #3b82f6;}
 .ad-st-selesai{background:#dcf0e4;color:#166534;border:1px solid #16a34a;}
 .ad-reply{background:#f5f3ff;border:1px solid #c4b5fd;border-radius:8px;padding:7px 9px;font-size:12px;color:#4c1d95;margin-top:6px;}
+/* DASS */
+.ds-res{border-radius:12px;padding:12px;margin-bottom:8px;border:1.5px solid;}
+.ds-res-top{display:flex;justify-content:space-between;align-items:center;}
+.ds-res b{font-size:14px;}
+.ds-tag{font-size:11px;font-weight:800;color:#fff;padding:3px 10px;border-radius:20px;}
+.ds-help{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px;font-size:13px;line-height:1.55;color:#7f1d1d;margin-bottom:12px;}
+.ds-help a{color:#b91c1c;font-weight:800;}
 /* PRISMA */
 .pr-intro{background:linear-gradient(135deg,#e6f6ef,#fff);border:1px solid #b8d8c3;}
 .pr-intro p{font-size:13px;line-height:1.55;color:#3a3a3a;margin-bottom:8px;}
@@ -254,6 +261,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
     <div class="nav-tab" onclick="sw('aduan')">🗣 Aduan</div>
     <div class="nav-tab" onclick="sw('request')">📝 Request</div>
     <div class="nav-tab" onclick="sw('prisma')">🧠 PRisMA</div>
+    <div class="nav-tab" onclick="sw('dass')">💚 DASS</div>
   </div>
 
   <!-- HOME -->
@@ -792,12 +800,19 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
     <div id="prBox"><div class="empty">Memuatkan...</div></div>
   </div>
 
+  <!-- DASS-21 -->
+  <div class="view" id="view-dass">
+    <div class="sec-hdr">Saringan Kesihatan Mental (DASS-21)</div>
+    <div id="dsBox"><div class="empty">Memuatkan...</div></div>
+  </div>
+
 </div><!-- end mainApp -->
 <div id="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getDatabase, ref, push, onValue, query, orderByChild, equalTo, update } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { getDatabase, ref, push, onValue, query, orderByChild, equalTo, update, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { DASS21, DASS_SKALA, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, NASIHAT_STAF, dassSah, dassSkor } from "./dass-data.js";
 import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, STAFF_LIST, DEFAULT_JABATAN, sah, namaKey } from "./prisma-data.js";
 
 const app = initializeApp({
@@ -1467,7 +1482,7 @@ window.handleUp=async function(type,input){
 // NAV
 window.sw=function(tab){
   document.querySelectorAll('.nav-tab').forEach((t,i)=>{
-    const tabs=['home','tugasan','pembersihan','medsos','wcf','hse','aduan','request','prisma'];
+    const tabs=['home','tugasan','pembersihan','medsos','wcf','hse','aduan','request','prisma','dass'];
     t.classList.toggle('active',tabs[i]===tab);
   });
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1476,6 +1491,81 @@ window.sw=function(tab){
   if(tab==='hse'){updateHseStats();renderHSEHist();}
   if(tab==='aduan'){renderAduanHist();}
   if(tab==='prisma'){renderPrisma();}
+  if(tab==='dass'){dsListenMine();renderDass();}
+}
+
+// ─── DASS-21 ───
+// Keputusan disimpan bersama nama — SULIT, hanya PTP boleh lihat (staf dimaklumkan).
+let dsCfg=null, dsMine=undefined, dsMineUnsub=null, dsMineKey='', dsAns=new Array(21).fill(-1), dsJab='', dsSending=false;
+onValue(ref(db,'dass/config'),s=>{dsCfg=s.val()||{};dsMineKey='';if(me){dsListenMine();renderDass();}});
+function dsKit(){return (dsCfg&&dsCfg.kitaran)||String(new Date().getFullYear());}
+function dsListenMine(){
+  if(!me||dsCfg===null)return;
+  const key=dsKit()+'|'+namaKey(me); if(dsMineKey===key)return;
+  if(dsMineUnsub)dsMineUnsub(); dsMineKey=key; dsMine=undefined;
+  dsMineUnsub=onValue(ref(db,'dass/kitaran/'+dsKit()+'/jawapan/'+namaKey(me)),s=>{dsMine=s.val();if(document.getElementById('view-dass').classList.contains('active'))renderDass();});
+}
+function dsEsc(t){return String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function dsHelpBox(){return `<div class="ds-help">💬 <b>Anda tidak keseorangan.</b> Untuk sokongan emosi, hubungi <b>Talian HEAL 15555</b> (KKM). Jika anda atau sesiapa dalam bahaya segera, hubungi <a href="tel:999">999</a> atau pergi ke jabatan kecemasan hospital terdekat. Anda juga boleh berbincang secara sulit dengan PTP.</div>`;}
+function dsResultHtml(a){
+  const r=dassSkor(a);
+  return SUB_KOD.map(k=>{const x=r[k],c=TAHAP_WARNA[x.tahap];
+    return `<div class="ds-res" style="border-color:${c}55;background:${c}12"><div class="ds-res-top"><b>${SUBSKALA[k].bm}</b><span class="ds-tag" style="background:${c}">${x.label}</span></div><div style="font-size:11px;color:#6a5e52;margin-top:3px">Skor ${x.skor} · ${SUBSKALA[k].en}</div></div>`;}).join('')
+    +`<div class="card" style="margin-top:10px"><div class="card-title">Apa yang boleh anda buat</div><p style="font-size:13px;line-height:1.55">${NASIHAT_STAF[r.maks]}</p></div>`
+    +((r.maks>=3||r.item21>=2)?dsHelpBox():'')
+    +`<div style="font-size:11px;color:#7a6e62;text-align:center;line-height:1.5">DASS-21 ialah alat saringan, bukan diagnosis. Keputusan ini SULIT dan hanya dilihat oleh PTP Parmanis Sutera.</div>`;
+}
+window.renderDass=function(){
+  const box=document.getElementById('dsBox'); if(!box)return;
+  if(dsCfg===null||dsMine===undefined){box.innerHTML='<div class="empty">Memuatkan...</div>';return;}
+  if(!STAFF_LIST.includes(me)){box.innerHTML=`<div class="card pr-done"><div class="big">ℹ️</div><h3>Tidak perlu menjawab</h3><p>Nama anda tiada dalam senarai saringan kitaran ini.</p></div>`;return;}
+  if(dsMine&&dassSah(dsMine.a)){
+    box.innerHTML=`<div class="card pr-done" style="padding:18px 14px"><div class="big" style="font-size:36px">💚</div><h3>Keputusan saringan anda</h3><p>Kitaran ${dsEsc(dsKit())}</p></div>`+dsResultHtml(dsMine.a);return;
+  }
+  if(!dsCfg.buka){box.innerHTML=`<div class="card pr-done"><div class="big">🔒</div><h3>Saringan belum dibuka</h3><p>PTP akan maklumkan bila saringan DASS dibuka.</p></div>`;return;}
+  const jabs=(prCfg&&prCfg.jabatanList&&prCfg.jabatanList.length)?prCfg.jabatanList:DEFAULT_JABATAN;
+  const legend=DASS_SKALA.map(x=>`<div><b>${x.v}</b>${x.bm}</div>`).join('');
+  const qs=DASS21.map((q,i)=>`<div class="pr-q${dsAns[i]>=0?' done':''}" id="dsq${i}">
+      <div class="pr-q-no">SOALAN ${q.n} / 21</div>
+      <div class="pr-q-bm">${q.bm}</div>
+      <div class="pr-q-en">${q.en}</div>
+      <div class="pr-opts" style="grid-template-columns:repeat(4,1fr)">${DASS_SKALA.map(x=>`<button class="pr-opt${dsAns[i]===x.v?' sel':''}" onclick="dsPick(${i},${x.v},this)"><b>${x.v}</b><span>${x.bm}</span></button>`).join('')}</div>
+    </div>`).join('');
+  box.innerHTML=`
+    <div class="card pr-intro">
+      <div class="card-title">💚 Apa ini?</div>
+      <p><b>DASS-21</b> ialah saringan ringkas untuk mengesan tanda <b>kemurungan, kebimbangan dan stres</b>. Baca setiap kenyataan dan pilih nombor yang paling tepat menggambarkan diri anda <b>dalam tempoh seminggu yang lalu</b>. Tiada jawapan betul atau salah.</p>
+      <div class="pr-lock">🔒<span><b>Keputusan anda SULIT.</b> Ia disimpan bersama nama anda dan <b>hanya dilihat oleh PTP Parmanis Sutera</b> untuk tujuan membantu dan susulan. Ia tidak dikongsi dengan penyelia atau staf lain. Anda akan nampak keputusan anda sendiri selepas menghantar.</span></div>
+      <div class="pr-legend" style="grid-template-columns:repeat(4,1fr)">${legend}</div>
+    </div>
+    <div class="card"><div class="card-title">Jabatan / unit anda</div>
+      <div class="pr-chips" id="dsJabBox">${jabs.map(v=>`<button class="pr-chip${dsJab===v?' sel':''}" data-v="${dsEsc(v)}" onclick="dsSetJab(this)">${dsEsc(v)}</button>`).join('')}</div></div>
+    <div class="pr-prog"><div class="pr-prog-bar"><div class="pr-prog-fill" id="dsFill"></div></div><div class="pr-prog-txt"><span id="dsCount">0 / 21 dijawab</span><span>Kitaran ${dsEsc(dsKit())}</span></div></div>
+    ${qs}
+    <button class="submit-btn" id="dsSubmit" onclick="dsSubmit()">✓ Hantar & Lihat Keputusan</button>
+    <div style="font-size:11px;color:#7a6e62;text-align:center;margin-top:8px">Jawapan hanya boleh dihantar sekali bagi setiap kitaran.</div>`;
+  dsUpdProg();
+}
+function dsUpdProg(){const n=dsAns.filter(v=>v>=0).length;const f=document.getElementById('dsFill');if(f)f.style.width=(n/21*100)+'%';const c=document.getElementById('dsCount');if(c)c.textContent=`${n} / 21 dijawab`;}
+window.dsSetJab=function(btn){dsJab=btn.dataset.v;document.querySelectorAll('#dsJabBox .pr-chip').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+window.dsPick=function(i,v,btn){
+  dsAns[i]=v;const card=document.getElementById('dsq'+i);card.classList.add('done');
+  card.querySelectorAll('.pr-opt').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');dsUpdProg();
+  const next=document.getElementById('dsq'+(i+1));if(next&&dsAns[i+1]<0)setTimeout(()=>next.scrollIntoView({behavior:'smooth',block:'center'}),180);
+}
+window.dsSubmit=async function(){
+  if(dsSending)return;
+  if(!dsJab){toast('Pilih jabatan / unit');document.getElementById('dsJabBox').scrollIntoView({behavior:'smooth',block:'center'});return;}
+  const miss=dsAns.findIndex(v=>v<0);
+  if(miss>=0){toast(`Soalan ${miss+1} belum dijawab`);document.getElementById('dsq'+miss).scrollIntoView({behavior:'smooth',block:'center'});return;}
+  if(!dassSah(dsAns))return;
+  if(!confirm('Hantar jawapan? Jawapan tidak boleh diubah selepas dihantar.'))return;
+  dsSending=true;const b=document.getElementById('dsSubmit');b.disabled=true;b.textContent='Menghantar...';
+  try{
+    await set(ref(db,'dass/kitaran/'+dsKit()+'/jawapan/'+namaKey(me)),{nama:me,jabatan:dsJab,a:dsAns.slice(),tarikh:today()});
+    dsAns=new Array(21).fill(-1);dsJab='';toast('✅ Jawapan dihantar');window.scrollTo({top:0,behavior:'smooth'});
+  }catch(e){console.error(e);toast('❌ Gagal hantar. Cuba lagi.');b.disabled=false;b.textContent='✓ Hantar & Lihat Keputusan';}
+  dsSending=false;
 }
 
 // ─── PRISMA (LEO26) ───

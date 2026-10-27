@@ -252,6 +252,16 @@ textarea.act-inp{min-height:65px;resize:vertical;}
 .pb-names .no{background:#fef2f2;color:#b91c1c;}
 #view-prisma .field textarea{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;color:#1a1a1a;padding:10px 12px;border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;min-height:70px;}
 #view-prisma .submit-btn,#view-prisma .btn-outline{margin-top:8px;}
+.ds-t{display:inline-block;color:#fff;font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:12px;white-space:nowrap;}
+.ds-card{background:#fff;border:1px solid #d4e8da;border-left:5px solid;border-radius:12px;padding:12px;margin-bottom:10px;}
+.ds-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;cursor:pointer;}
+.ds-head b{font-size:14px;}
+.ds-tags{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;}
+.ds-tags small{display:block;font-size:10px;color:#7a6e62;margin-bottom:3px;}
+.ds-flag{margin-top:8px;background:#fef2f2;color:#991b1b;border-radius:8px;padding:7px 9px;font-size:11.5px;font-weight:700;}
+.ds-act{margin:10px 0;background:#f0f7f3;border-radius:8px;padding:9px;font-size:12px;line-height:1.5;}
+#view-dass .field textarea{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;padding:10px 12px;border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;min-height:64px;}
+#view-dass .btn-outline,#view-dass .submit-btn{margin-top:6px;}
 #view-prisma .pb-tbl tr.pb-r{cursor:pointer;}
 #view-prisma .pb-tbl tr.pb-det td{background:#fafcfb;text-align:left;padding:8px 6px 12px;}
 .pb-ans{display:grid;grid-template-columns:22px 1fr 22px;gap:6px;font-size:11.5px;padding:4px 0;border-bottom:1px dashed #e5ece7;}
@@ -314,6 +324,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
     <div class="nav-tab" onclick="sw('awam')">📢 Aduan Awam<span id="awamBadge" style="display:none;margin-left:4px;background:#ef4444;color:#fff;border-radius:10px;padding:0 6px;font-size:10px"></span></div>
     <div class="nav-tab" onclick="sw('jadual')">📅 Jadual</div>
     <div class="nav-tab" id="navPrisma" style="display:none" onclick="sw('prisma')">🧠 PRisMA</div>
+    <div class="nav-tab" id="navDass" style="display:none" onclick="sw('dass')">💚 DASS</div>
   </div>
 
   <!-- DASHBOARD -->
@@ -548,6 +559,31 @@ textarea.act-inp{min-height:65px;resize:vertical;}
     </div>
   </div>
 
+  <!-- DASS-21 (PTP) -->
+  <div class="view" id="view-dass">
+    <div class="sec-hdr">DASS-21 · Saringan Kesihatan Mental · SULIT (PTP)</div>
+    <div class="card">
+      <div class="card-title">⚙️ Tetapan Saringan</div>
+      <div class="pb-toggle"><div><b id="dbBukaTxt">Saringan DITUTUP</b><small>Bila dibuka, staf nampak borang di tab 💚 DASS</small></div><button class="pb-sw off" id="dbBukaBtn" onclick="dbToggleBuka()">Buka</button></div>
+      <div class="pb-row"><div class="field"><label>Kitaran</label><input id="dbKitaran"></div><div class="field" style="flex:0 0 auto;display:flex;align-items:flex-end"><button class="btn-outline" style="width:auto;padding:10px 14px" onclick="dbSaveKit()">💾 Simpan</button></div></div>
+      <div class="pb-note">Disyorkan saringan semula setiap 6–12 bulan, atau lebih awal bagi staf bertahap sederhana ke atas.</div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num" id="dbN" style="color:#00a650">0</div><div class="stat-lbl">Telah menjawab</div></div>
+      <div class="stat-card"><div class="stat-num" id="dbBerat" style="color:#b91c1c">0</div><div class="stat-lbl">Teruk / Sangat Teruk</div></div>
+      <div class="stat-card"><div class="stat-num" id="dbSed" style="color:#f59e0b">0</div><div class="stat-lbl">Sederhana</div></div>
+      <div class="stat-card"><div class="stat-num" id="dbBelum" style="color:#1d4ed8">0</div><div class="stat-lbl">Perlu susulan (belum)</div></div>
+    </div>
+    <div class="card"><div class="card-title">👥 Status Menjawab</div><div class="pb-names" id="dbPending"></div></div>
+    <div class="sec-hdr" style="margin-top:6px">Keputusan Individu (paling membimbangkan di atas)</div>
+    <div class="pb-note" style="margin-bottom:8px">Tekan nama untuk tindakan dicadangkan, catatan susulan & jawapan penuh.</div>
+    <div id="dbList"></div>
+    <div class="card"><div class="card-title">📊 Ringkasan Tahap</div><div id="dbSum"></div></div>
+    <div class="card"><div class="card-title">📘 Panduan Tindakan PTP</div>
+      <div id="dbGuide"></div></div>
+    <button class="submit-btn" onclick="dbPrint()">🖨 Cetak Laporan DASS (SULIT)</button>
+  </div>
+
 </div><!-- end mainApp -->
 
 <!-- DETAIL MODAL -->
@@ -587,6 +623,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { DASS21, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, TINDAKAN_PTP, dassSah, dassSkor } from "./dass-data.js";
 import { STAFF_LIST, LEO26, KOMPONEN, KOD, EPC23, PRIMA, DEFAULT_JABATAN, skorOrganisasi, sah, namaKey } from "./prisma-data.js";
 
 const app = initializeApp({
@@ -636,6 +673,7 @@ window.pinPress=function(n){
         document.getElementById('pinError').textContent='';pinInput='';updatePinDots();
         document.getElementById('bossUserTxt').textContent='PENGURUSAN · '+currentUser.nama;
         document.getElementById('navPrisma').style.display=currentUser.prisma?'':'none';
+        document.getElementById('navDass').style.display=currentUser.prisma?'':'none';
         sw('dashboard');
         document.getElementById('loginScreen').style.display='none';
         document.getElementById('mainApp').style.display='block';
@@ -648,7 +686,7 @@ window.pinPress=function(n){
 }
 window.pinDel=function(){if(pinInput.length>0){pinInput=pinInput.slice(0,-1);updatePinDots();document.getElementById('pinError').textContent='';}}
 function updatePinDots(){for(let i=0;i<4;i++){document.getElementById('pd'+i).className='pin-dot'+(i<pinInput.length?' filled':'');}}
-window.doLogout=function(){currentUser=null;document.getElementById('navPrisma').style.display='none';sw('dashboard');pinInput='';updatePinDots();document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
+window.doLogout=function(){currentUser=null;document.getElementById('navPrisma').style.display='none';document.getElementById('navDass').style.display='none';sw('dashboard');pinInput='';updatePinDots();document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
 
 // FIREBASE
 onValue(ref(db,'.info/connected'),s=>{
@@ -1561,9 +1599,9 @@ window.downloadAwamPDF=function(key){
 
 // NAV
 window.sw=function(tab){
-  if(tab==='prisma'&&!(currentUser&&currentUser.prisma))tab='dashboard';
+  if((tab==='prisma'||tab==='dass')&&!(currentUser&&currentUser.prisma))tab='dashboard';
   document.querySelectorAll('.nav-tab').forEach((t,i)=>{
-    const tabs=['dashboard','request','tugasan','pembersihan','wcf','hse','aduan','awam','jadual','prisma'];
+    const tabs=['dashboard','request','tugasan','pembersihan','wcf','hse','aduan','awam','jadual','prisma','dass'];
     t.classList.toggle('active',tabs[i]===tab);
   });
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
@@ -1572,7 +1610,79 @@ window.sw=function(tab){
   if(tab==='aduan'){renderAduan();}
   if(tab==='awam'){renderAwam();}
   if(tab==='prisma'){renderPrismaBoss(true);}
+  if(tab==='dass'){renderDassBoss(true);}
 }
+// ─── DASS-21 (PTP sahaja) ───
+let dbCfg={}, dbData={}, dbKitL=null, dbUnsub=null, dbOpen={};
+const DS_STATUS=['Belum','Sudah dibincang','Dirujuk ke KK/doktor','Dalam pemantauan','Selesai'];
+function dbKit(){return dbCfg.kitaran||String(new Date().getFullYear());}
+function dbPath(x){return 'dass/kitaran/'+dbKit()+(x?'/'+x:'');}
+onValue(ref(db,'dass/config'),s=>{dbCfg=s.val()||{};dbListen();renderDassBoss();});
+function dbListen(){const k=dbKit();if(dbKitL===k)return;if(dbUnsub)dbUnsub();dbKitL=k;dbUnsub=onValue(ref(db,'dass/kitaran/'+k),s=>{dbData=s.val()||{};renderDassBoss();});}
+function dbCan(){return !!(currentUser&&currentUser.prisma);}
+window.dbToggleBuka=async function(){if(!dbCan())return;try{await update(ref(db,'dass/config'),{buka:!dbCfg.buka,kitaran:dbKit()});toast(!dbCfg.buka?'Saringan dibuka':'Saringan ditutup');}catch(e){toast('❌ Gagal simpan');}}
+window.dbSaveKit=async function(){if(!dbCan())return;const k=(document.getElementById('dbKitaran').value||'').trim().replace(/[.#$\[\]\/]/g,'-');if(!k){toast('Isi kitaran');return;}
+  try{await update(ref(db,'dass/config'),{kitaran:k});toast('✅ Kitaran disimpan');}catch(e){toast('❌ Gagal simpan');}}
+window.dbSaveSusulan=async function(key){if(!dbCan())return;
+  const st=document.getElementById('dbSt_'+key).value, nota=document.getElementById('dbNota_'+key).value;
+  try{await set(ref(db,dbPath('susulan/'+key)),{status:st,nota,dikemaskini:new Date().toISOString().slice(0,10)});toast('✅ Susulan disimpan');}catch(e){toast('❌ Gagal simpan');}}
+window.dbToggle=function(key){dbOpen[key]=!dbOpen[key];renderDassBoss(true);}
+function dbRows(){
+  return Object.entries(dbData.jawapan||{}).filter(([k,r])=>r&&dassSah(r.a)).map(([key,r])=>({key,r,s:dassSkor(r.a),f:(dbData.susulan||{})[key]||{}}))
+    .sort((x,y)=>y.s.maks-x.s.maks||(y.s.item21-x.s.item21)||(y.s.D.skor+y.s.A.skor+y.s.S.skor)-(x.s.D.skor+x.s.A.skor+x.s.S.skor));
+}
+function dbTag(x){return `<span class="ds-t" style="background:${TAHAP_WARNA[x.tahap]}">${x.label}</span>`;}
+window.renderDassBoss=function(force){
+  if(!dbCan())return;
+  const v=document.getElementById('view-dass'); if(!v||(!force&&!v.classList.contains('active')))return;
+  const on=!!dbCfg.buka,b=document.getElementById('dbBukaBtn');
+  b.className='pb-sw '+(on?'on':'off');b.textContent=on?'Tutup':'Buka';
+  document.getElementById('dbBukaTxt').textContent=on?'Saringan DIBUKA ✅':'Saringan DITUTUP';
+  const ki=document.getElementById('dbKitaran'); if(document.activeElement!==ki)ki.value=dbKit();
+  const rows=dbRows(), N=rows.length, J=STAFF_LIST.length;
+  document.getElementById('dbN').textContent=`${N} / ${J}`;
+  const berat=rows.filter(x=>x.s.maks>=3).length, sed=rows.filter(x=>x.s.maks===2).length;
+  document.getElementById('dbBerat').textContent=berat;
+  document.getElementById('dbSed').textContent=sed;
+  const belum=rows.filter(x=>x.s.maks>=2&&(!x.f.status||x.f.status==='Belum')).length;
+  document.getElementById('dbBelum').textContent=belum;
+  const done=new Set(rows.map(x=>x.key));
+  document.getElementById('dbPending').innerHTML=STAFF_LIST.map(n=>`<span class="${done.has(namaKey(n))?'ok':'no'}">${done.has(namaKey(n))?'✓':'○'} ${pbEsc(n)}</span>`).join('');
+
+  document.getElementById('dbList').innerHTML=N?rows.map(x=>{
+    const key=x.key, open=dbOpen[key], c=TAHAP_WARNA[x.s.maks];
+    const flag=x.s.item21>=2?`<div class="ds-flag">⚠ Item 21 "hidup ini tidak bermakna" dijawab ${x.s.item21} — utamakan perbincangan segera.</div>`:'';
+    const st=x.f.status||'Belum';
+    return `<div class="ds-card" style="border-left-color:${c}">
+      <div class="ds-head" onclick="dbToggle('${key}')"><div><b>${pbEsc(x.r.nama||key)}</b><div class="pb-note">${pbEsc(x.r.jabatan||'—')} · ${pbEsc(x.r.tarikh||'')} · Susulan: <b>${pbEsc(st)}</b></div></div><span style="font-size:18px;color:#7a6e62">${open?'▴':'▾'}</span></div>
+      <div class="ds-tags">${SUB_KOD.map(k=>`<div><small>${SUBSKALA[k].bm} (${x.s[k].skor})</small>${dbTag(x.s[k])}</div>`).join('')}</div>
+      ${flag}
+      ${open?`<div class="ds-act"><b>Tindakan dicadangkan (${TAHAP[x.s.maks]}):</b> ${TINDAKAN_PTP[x.s.maks]}</div>
+        <div class="field"><label>Status susulan</label><select id="dbSt_${key}">${DS_STATUS.map(o=>`<option${o===st?' selected':''}>${o}</option>`).join('')}</select></div>
+        <div class="field"><label>Catatan susulan (SULIT)</label><textarea id="dbNota_${key}" placeholder="cth: Berbincang 30/10, dirujuk ke KK Papar...">${pbEsc(x.f.nota||'')}</textarea></div>
+        <button class="btn-outline" onclick="dbSaveSusulan('${key}')">💾 Simpan Susulan</button>
+        <details style="margin-top:10px"><summary class="pb-note" style="cursor:pointer">Lihat 21 jawapan</summary>${DASS21.map((q,i)=>`<div class="pb-ans${x.r.a[i]>=2?' bad':''}"><span style="color:#7a6e62;font-weight:700">${q.n}</span><span>${pbEsc(q.bm)} <span style="font-size:10px;color:#9a8e82">${SUBSKALA[q.k].bm}</span></span><b>${x.r.a[i]}</b></div>`).join('')}</details>`:''}
+    </div>`;}).join(''):'<div class="card"><div class="empty">Belum ada jawapan</div></div>';
+
+  // Ringkasan ikut subskala
+  document.getElementById('dbSum').innerHTML=`<table class="pb-tbl"><thead><tr><th>Tahap</th>${SUB_KOD.map(k=>`<th>${SUBSKALA[k].bm}</th>`).join('')}</tr></thead><tbody>`+
+    TAHAP.map((t,i)=>`<tr><td><span class="ds-t" style="background:${TAHAP_WARNA[i]}">${t}</span></td>${SUB_KOD.map(k=>`<td>${rows.filter(x=>x.s[k].tahap===i).length}</td>`).join('')}</tr>`).join('')+'</tbody></table>';
+}
+window.dbPrint=function(){
+  if(!dbCan())return;
+  const rows=dbRows();
+  const html=`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Laporan DASS-21 SULIT ${pbEsc(dbKit())}</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;font-size:11px}
+  h2{margin:0 0 4px;font-size:15px}table{width:100%;border-collapse:collapse}th{background:#374151;color:#fff;padding:5px;font-size:10px}td{border:1px solid #ccc;padding:5px;vertical-align:top}
+  .t{color:#fff;font-weight:bold;padding:2px 6px;border-radius:8px;font-size:10px;white-space:nowrap}.sulit{color:#b91c1c;font-weight:bold}</style></head><body>
+  <h2>Laporan Saringan DASS-21 — ${PB_SYARIKAT}</h2><div class="sulit">SULIT — untuk PTP sahaja. Kitaran ${pbEsc(dbKit())} · ${rows.length}/${STAFF_LIST.length} dijawab</div><br>
+  <table><tr><th>#</th><th>Nama</th><th>Jabatan</th><th>Tarikh</th>${SUB_KOD.map(k=>`<th>${SUBSKALA[k].bm}</th>`).join('')}<th>Tindakan dicadangkan</th><th>Status &amp; catatan susulan</th></tr>
+  ${rows.map((x,i)=>`<tr><td>${i+1}</td><td>${pbEsc(x.r.nama)}${x.s.item21>=2?' ⚠':''}</td><td>${pbEsc(x.r.jabatan||'')}</td><td>${pbEsc(x.r.tarikh||'')}</td>${SUB_KOD.map(k=>`<td>${x.s[k].skor}<br><span class="t" style="background:${TAHAP_WARNA[x.s[k].tahap]}">${x.s[k].label}</span></td>`).join('')}<td>${TINDAKAN_PTP[x.s.maks]}</td><td><b>${pbEsc(x.f.status||'Belum')}</b><br>${pbEsc(x.f.nota||'')}</td></tr>`).join('')}</table>
+  <p style="font-size:9.5px">Skor DASS-21 (jumlah ×2). Had: Kemurungan 0–9 Normal, 10–13 Ringan, 14–20 Sederhana, 21–27 Teruk, 28+ Sangat Teruk · Kebimbangan 0–7, 8–9, 10–14, 15–19, 20+ · Stres 0–14, 15–18, 19–25, 26–33, 34+. ⚠ = item 21 dijawab 2 atau 3. DASS-21 ialah alat saringan, bukan diagnosis.</p>
+  <script>window.onload=function(){setTimeout(function(){window.print()},350)}<\/script></body></html>`;
+  const w=window.open('','_blank');if(w){w.document.open();w.document.write(html);w.document.close();}else toast('Benarkan pop-up untuk cetak');
+}
+
+document.getElementById('dbGuide').innerHTML=TAHAP.map((t,i)=>`<div style="padding:7px 0;border-bottom:1px solid #eef4f0;font-size:12px;line-height:1.45"><span class="ds-t" style="background:${TAHAP_WARNA[i]}">${t}</span> ${TINDAKAN_PTP[i]}</div>`).join('');
 // ─── PRISMA (Boss) ───
 const PB_SYARIKAT='Stesen Minyak PETRONAS Papar (Parmanis Sutera)';
 const PB_DEF={jabatan:'OPERASI STESEN MINYAK',msic:'G — 47300 Runcit bahan api automotif'};
