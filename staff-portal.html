@@ -797,7 +797,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, orderByChild, equalTo, update } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, sah, namaKey } from "./prisma-data.js";
+import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, STAFF_LIST, sah, namaKey } from "./prisma-data.js";
 
 const app = initializeApp({
   apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
@@ -1492,6 +1492,9 @@ function prListenPeserta(){
 window.renderPrisma=function(){
   const box=document.getElementById('prBox'); if(!box)return;
   if(prCfg===null){box.innerHTML='<div class="empty">Memuatkan...</div>';return;}
+  if(!STAFF_LIST.includes(me)){
+    box.innerHTML=`<div class="card pr-done"><div class="big">ℹ️</div><h3>Tidak perlu menjawab</h3><p>Nama anda tiada dalam senarai penilaian PRisMA kitaran ini.</p></div>`;return;
+  }
   if(prPeserta[namaKey(me)]){
     box.innerHTML=`<div class="card pr-done"><div class="big">✅</div><h3>Terima kasih, ${me.split(' ')[0]}!</h3><p>Anda telah menjawab soal selidik PRisMA bagi kitaran <b>${prKitaran()}</b>.<br>Jawapan anda adalah SULIT — hanya PTP Parmanis Sutera (Pn Siti Khairunisah) boleh melihatnya.</p></div>`;return;
   }
