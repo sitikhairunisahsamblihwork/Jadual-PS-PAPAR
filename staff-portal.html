@@ -1496,7 +1496,7 @@ window.renderPrisma=function(){
     box.innerHTML=`<div class="card pr-done"><div class="big">✅</div><h3>Terima kasih, ${me.split(' ')[0]}!</h3><p>Anda telah menjawab soal selidik PRisMA bagi kitaran <b>${prKitaran()}</b>.<br>Jawapan anda adalah SULIT — hanya PTP Parmanis Sutera (Pn Siti Khairunisah) boleh melihatnya.</p></div>`;return;
   }
   if(!prCfg.buka){
-    box.innerHTML=`<div class="card pr-done"><div class="big">🔒</div><h3>Soal selidik belum dibuka</h3><p>Pengurus akan maklumkan bila soal selidik PRisMA dibuka untuk dijawab.</p></div>`;return;
+    box.innerHTML=`<div class="card pr-done"><div class="big">🔒</div><h3>Soal selidik belum dibuka</h3><p>PTP akan maklumkan bila soal selidik PRisMA dibuka untuk dijawab.</p></div>`;return;
   }
   const legend=SKALA.map(s=>`<div><b>${s.v}</b>${s.bm}</div>`).join('');
   const chips=(arr,cur,fn)=>arr.map(v=>`<button class="pr-chip${cur===v?' sel':''}" onclick="${fn}(this,'${v}')">${v}</button>`).join('');
