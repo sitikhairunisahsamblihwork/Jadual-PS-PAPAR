@@ -48,6 +48,18 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 .field select,.field input[type=text],.field input[type=date],.field input[type=datetime-local],.field input[type=number],.field textarea{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;color:#1a1a1a;padding:10px 12px;border-radius:10px;font-size:13px;font-family:'DM Sans',sans-serif;-webkit-appearance:none;}
 .field textarea{resize:vertical;min-height:65px;}
 .field select:focus,.field input:focus,.field textarea:focus{outline:none;border-color:#00a650;}
+/* WCF HIRARC */
+.wcf-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.wcf-chip{padding:7px 11px;border-radius:18px;border:1.5px solid #b8d8c3;background:#f0f7f3;color:#4a4036;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;}
+.wcf-chip.on{background:#00a650;border-color:#00a650;color:#fff;}
+.wcf-hz{display:flex;gap:9px;align-items:flex-start;padding:10px 11px;background:#f0f7f3;border:1px solid #d4e8da;border-radius:9px;margin-bottom:6px;cursor:pointer;}
+.wcf-hz input,.wcf-ack input,.wcf-lk input{margin-top:2px;width:17px;height:17px;accent-color:#00a650;flex-shrink:0;}
+.wcf-hz .t{font-size:12.5px;font-weight:700;color:#1a1a1a;}
+.wcf-hz .k{font-size:11px;color:#6a5e52;margin-top:3px;line-height:1.45;}
+.wcf-rmn{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle;}
+.wcf-lk{display:flex;gap:9px;align-items:flex-start;padding:8px 10px;border-bottom:1px solid #e6efe9;font-size:12.5px;cursor:pointer;}
+.wcf-ack{display:flex;gap:9px;align-items:flex-start;font-size:12px;line-height:1.5;color:#1a1a1a;cursor:pointer;}
+.wcf-time{width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;color:#1a1a1a;padding:10px 12px;border-radius:10px;font-size:13px;font-family:inherit;}
 /* CHECKLIST */
 .chk-item{display:flex;align-items:center;gap:8px;padding:9px 11px;background:#f0f7f3;border:1px solid #d4e8da;border-radius:9px;margin-bottom:5px;}
 .chk-label{flex:1;font-size:12px;line-height:1.4;}
@@ -383,45 +395,74 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
   <div class="view" id="view-wcf">
     <div class="sec-hdr">WCF — Borang Kebenaran Kerja</div>
     <div class="card">
-      <div class="card-title">Maklumat Kerja</div>
+      <div class="card-title">A. Maklumat Kerja</div>
       <div class="field"><label>1. Nama Pekerja</label><input type="text" id="wcfNama" readonly style="color:#6a5e52"></div>
-      <div class="field"><label>2. Jenis Kerja *</label><input type="text" id="wcfJenis" placeholder="Contoh: Penyelenggaraan pam, Elektrik..."></div>
+      <div class="field"><label>2. Aktiviti Kerja (ikut HIRARC) *</label>
+        <select id="wcfAktiviti" onchange="wcfPilihAktiviti(this.value)"><option value="">— Pilih aktiviti —</option></select>
+      </div>
+      <div class="field" id="wcfJenisLainField" style="display:none"><label>Nyatakan jenis kerja *</label><input type="text" id="wcfJenis" placeholder="Contoh: Penyelenggaraan pam oleh kontraktor..."></div>
       <div class="field"><label>3. Tarikh Kerja *</label><input type="date" id="wcfTarikh"></div>
-      <div class="field"><label>4. Lokasi Kerja *</label><input type="text" id="wcfLokasi" placeholder="Contoh: Pam No.3, Tandas, Stor..."></div>
-      <div class="field"><label>5. Penerangan Kerja</label><textarea id="wcfPenerangan" placeholder="Huraikan kerja yang akan/telah dilakukan..."></textarea></div>
+      <div style="display:flex;gap:8px">
+        <div class="field" style="flex:1"><label>4. Masa Mula *</label><input type="time" id="wcfMasaMula" class="wcf-time"></div>
+        <div class="field" style="flex:1"><label>Masa Tamat (anggaran) *</label><input type="time" id="wcfMasaTamat" class="wcf-time"></div>
+      </div>
+      <div class="field"><label>5. Di Mana Lokasi Kerja? *</label>
+        <div class="wcf-chips" id="wcfLokasiChips"></div>
+        <input type="text" id="wcfLokasi" placeholder="Butiran lokasi — contoh: Pam No.3, tandas lelaki..." style="margin-top:6px">
+      </div>
+      <div class="field"><label>6. Penerangan Kerja</label><textarea id="wcfPenerangan" placeholder="Huraikan kerja yang akan dilakukan..."></textarea></div>
+      <div class="field"><label>7. Pekerja Lain / Kontraktor Terlibat</label><input type="text" id="wcfPekerjaLain" placeholder="Nama & syarikat (jika ada) — kosongkan jika tiada"></div>
     </div>
     <div class="card">
-      <div class="card-title">Permit & Keselamatan</div>
+      <div class="card-title">B. Bahaya Yang Dikenal Pasti *</div>
+      <div id="wcfHazadBox"><div class="empty" style="padding:10px">Pilih aktiviti kerja dahulu — senarai bahaya daripada HIRARC akan dipaparkan.</div></div>
+      <div class="field" style="margin-top:8px"><label>Bahaya lain yang dilihat di tapak (jika ada)</label><textarea id="wcfHazadLain" placeholder="Contoh: lantai berminyak, wayar terdedah, cuaca hujan..." style="min-height:50px"></textarea></div>
+    </div>
+    <div class="card">
+      <div class="card-title">C. PPE Yang Digunakan *</div>
+      <div style="font-size:11px;color:#7a6e62;margin-bottom:8px">PPE cadangan HIRARC sudah ditanda — tanda/nyahtanda ikut apa yang anda benar-benar pakai.</div>
+      <div class="wcf-chips" id="wcfPPEChips"></div>
+      <input type="text" id="wcfPPELain" placeholder="PPE lain (jika ada)" style="margin-top:6px;width:100%;background:#f0f7f3;border:1.5px solid #b8d8c3;padding:10px 12px;border-radius:10px;font-size:13px;font-family:inherit">
+    </div>
+    <div class="card">
+      <div class="card-title">D. Langkah Keselamatan Sebelum Mula</div>
+      <div id="wcfLangkahBox"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">E. Permit</div>
       <div class="field">
-        <label>6. Adakah Kerja Memerlukan Permit Khas? *</label>
+        <label>Adakah Kerja Memerlukan Permit Khas? *</label>
         <div style="display:flex;gap:8px;margin-top:4px">
           <button class="cb" id="permitYa" onclick="setPermit('YA')">YA</button>
           <button class="cb" id="permitTidak" onclick="setPermit('Tidak')">Tidak</button>
         </div>
       </div>
       <div class="field" id="permitJenisField" style="display:none">
-        <label>7. Jika Ya — Nyatakan Jenis Permit</label>
-        <input type="text" id="wcfPermitJenis" placeholder="Contoh: Permit Kerja Panas, Permit Ketinggian...">
+        <label>Jenis Permit</label>
+        <select id="wcfPermitJenis"><option value="">— Pilih —</option><option>Permit Kerja Panas (Hot Work)</option><option>Permit Kerja Elektrik</option><option>Permit Kerja di Ketinggian</option><option>Permit Ruang Terkurung</option><option>Permit Penggalian</option><option>Lain-lain</option></select>
       </div>
     </div>
     <div class="card">
-      <div class="card-title">Gambar & PPE</div>
+      <div class="card-title">F. Gambar</div>
       <div class="field">
-        <label>8. Gambar Lokasi Kerja (Sebelum Mula) *</label>
+        <label>Gambar Lokasi Kerja (Sebelum Mula) *</label>
         <div class="img-box" onclick="trigUp('wcfbefore')"><div class="ico">📷</div><div class="txt">Ambil gambar atau pilih dari galeri</div></div>
         <input type="file" id="upWcfbefore" accept="image/*" style="display:none" onchange="handleUp('wcfbefore',this)">
         <img id="prevWcfbefore" class="img-preview">
         <div class="upload-prog" id="progWcfbefore">⏳ Menghantar...</div>
       </div>
       <div class="field">
-        <label>9. Gambar PPE Yang Digunakan *</label>
+        <label>Gambar PPE Yang Dipakai *</label>
         <div class="img-box" onclick="trigUp('wcfppe')"><div class="ico">📷</div><div class="txt">Ambil gambar atau pilih dari galeri</div></div>
         <input type="file" id="upWcfppe" accept="image/*" style="display:none" onchange="handleUp('wcfppe',this)">
         <img id="prevWcfppe" class="img-preview">
         <div class="upload-prog" id="progWcfppe">⏳ Menghantar...</div>
       </div>
     </div>
-    <div class="card"><button class="submit-btn" onclick="submitWCF()">✓ Hantar Borang WCF</button></div>
+    <div class="card">
+      <label class="wcf-ack"><input type="checkbox" id="wcfAkuan"> <span>Saya telah membaca bahaya &amp; kawalan risiko di atas, memakai PPE yang diperlukan, dan akan berhenti kerja serta melapor kepada penyelia jika keadaan menjadi tidak selamat.</span></label>
+      <button class="submit-btn" onclick="submitWCF()" style="margin-top:10px">✓ Hantar Borang WCF</button>
+    </div>
     <div class="divider"></div>
     <div class="sec-hdr">Rekod WCF</div>
     <div id="wcfHist"><div class="empty">Tiada rekod</div></div>
@@ -814,6 +855,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebas
 import { getDatabase, ref, push, onValue, query, orderByChild, equalTo, update, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 import { DASS_TAMBAHAN, DASS_JABATAN, DASS21, DASS_SKALA, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, NASIHAT_STAF, dassSah, dassSkor } from "./dass-data.js?v=20261027c";
 import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, STAFF_LIST, DEFAULT_JABATAN, sah, namaKey } from "./prisma-data.js?v=20261027c";
+import { AKTIVITI, PPE_LIST, LANGKAH, LOKASI_LIST, tahapRisiko } from "./wcf-hirarc.js?v=20261031a";
 
 const app = initializeApp({
   apiKey:"AIzaSyCu7bM27mdlpt6Wptec3SHNImK5EiJxlow",
@@ -1074,22 +1116,77 @@ window.setPermit=function(v){
   document.getElementById('permitJenisField').style.display=v==='YA'?'block':'none';
 }
 
+// ── WCF ↔ HIRARC ──
+let wcfLokasiSel=new Set(), wcfPPESel=new Set(), wcfAkt=null;
+function wcfBuildChips(boxId,list,set){
+  document.getElementById(boxId).innerHTML=list.map((x,i)=>`<button type="button" class="wcf-chip${set.has(x)?' on':''}" data-i="${i}">${escH(x)}</button>`).join('');
+  document.querySelectorAll('#'+boxId+' .wcf-chip').forEach(b=>b.onclick=()=>{const v=list[+b.dataset.i];set.has(v)?set.delete(v):set.add(v);b.classList.toggle('on');});
+}
+function wcfInit(){
+  const sel=document.getElementById('wcfAktiviti');
+  sel.innerHTML='<option value="">— Pilih aktiviti —</option>'+AKTIVITI.map(a=>`<option value="${a.id}">${a.id}. ${escH(a.nama)}</option>`).join('')+'<option value="lain">Lain-lain (tiada dalam HIRARC)</option>';
+  wcfBuildChips('wcfLokasiChips',LOKASI_LIST,wcfLokasiSel);
+  wcfBuildChips('wcfPPEChips',PPE_LIST,wcfPPESel);
+  wcfRenderLangkah([]);
+}
+function wcfRenderLangkah(cadangan){
+  document.getElementById('wcfLangkahBox').innerHTML=LANGKAH.map((l,i)=>`<label class="wcf-lk"><input type="checkbox" data-lk="${i}"${cadangan.includes(i)?' checked':''}><span>${escH(l)}${cadangan.includes(i)?' <span style="font-size:10px;color:#00a650;font-weight:700">· disyorkan</span>':''}</span></label>`).join('')
+    +'<div style="font-size:10.5px;color:#7a6e62;margin-top:6px">Tanda hanya langkah yang SUDAH dibuat.</div>';
+  // nyahtanda semua — staf mesti tanda sendiri
+  document.querySelectorAll('#wcfLangkahBox input').forEach(c=>c.checked=false);
+}
+window.wcfPilihAktiviti=function(v){
+  document.getElementById('wcfJenisLainField').style.display=v==='lain'?'block':'none';
+  wcfAkt=AKTIVITI.find(a=>String(a.id)===v)||null;
+  const box=document.getElementById('wcfHazadBox');
+  if(!wcfAkt){
+    box.innerHTML=v==='lain'?'<div style="font-size:12px;color:#b45309;background:#fef3c7;border-radius:9px;padding:10px">Aktiviti ini tiada dalam HIRARC — nyatakan bahaya di ruangan bawah. Maklumkan PTP untuk kemas kini HIRARC.</div>':'<div class="empty" style="padding:10px">Pilih aktiviti kerja dahulu — senarai bahaya daripada HIRARC akan dipaparkan.</div>';
+    wcfRenderLangkah([]);return;
+  }
+  box.innerHTML='<div style="font-size:11px;color:#7a6e62;margin-bottom:8px">Daripada HIRARC PS Papar. Tanda bahaya yang ADA di tapak hari ini.</div>'+wcfAkt.hazad.map((z,i)=>{const t=tahapRisiko(z.rmn);return`<label class="wcf-hz"><input type="checkbox" data-hz="${i}" checked><div><div class="t">${escH(z.h)}<span class="wcf-rmn" style="background:${t.bg};color:${t.warna}">RMN ${z.rmn} · ${t.label}</span></div><div class="k">⚠️ ${escH(z.kesan)}</div><div class="k">🛡️ <b>Kawalan:</b> ${escH(z.sedia)}; ${escH(z.tambah)}</div></div></label>`;}).join('');
+  wcfLokasiSel.clear(); wcfAkt.lokasi.forEach(l=>wcfLokasiSel.add(l)); wcfBuildChips('wcfLokasiChips',LOKASI_LIST,wcfLokasiSel);
+  wcfPPESel.clear(); wcfAkt.ppe.forEach(p=>wcfPPESel.add(p)); wcfBuildChips('wcfPPEChips',PPE_LIST,wcfPPESel);
+  wcfRenderLangkah(wcfAkt.langkah);
+}
+wcfInit();
+
 async function submitWCF(){
-  const jenis=document.getElementById('wcfJenis').value.trim();
+  const aktV=document.getElementById('wcfAktiviti').value;
+  const jenis=aktV==='lain'?document.getElementById('wcfJenis').value.trim():(wcfAkt?wcfAkt.nama:'');
   const tarikh=document.getElementById('wcfTarikh').value;
-  const lokasi=document.getElementById('wcfLokasi').value.trim();
+  const masaMula=document.getElementById('wcfMasaMula').value;
+  const masaTamat=document.getElementById('wcfMasaTamat').value;
+  const lokasiDetail=document.getElementById('wcfLokasi').value.trim();
+  const lokasiKawasan=[...wcfLokasiSel];
+  const lokasi=[lokasiKawasan.join(', '),lokasiDetail].filter(Boolean).join(' — ');
   const penerangan=document.getElementById('wcfPenerangan').value.trim();
+  const pekerjaLain=document.getElementById('wcfPekerjaLain').value.trim();
+  const hazadLain=document.getElementById('wcfHazadLain').value.trim();
+  const ppeLain=document.getElementById('wcfPPELain').value.trim();
   const permitJenis=document.getElementById('wcfPermitJenis').value.trim();
-  if(!jenis){toast('Isi jenis kerja');return;}
+  const hazad=wcfAkt?[...document.querySelectorAll('#wcfHazadBox input[data-hz]:checked')].map(c=>{const z=wcfAkt.hazad[+c.dataset.hz];return{h:z.h,kesan:z.kesan,kawalan:z.sedia+'; '+z.tambah,rmn:z.rmn,baki:z.baki};}):[];
+  const ppe=[...wcfPPESel]; if(ppeLain) ppe.push(ppeLain);
+  const langkah=[...document.querySelectorAll('#wcfLangkahBox input:checked')].map(c=>LANGKAH[+c.dataset.lk]);
+  if(!aktV){toast('Pilih aktiviti kerja');return;}
+  if(!jenis){toast('Nyatakan jenis kerja');return;}
   if(!tarikh){toast('Pilih tarikh kerja');return;}
-  if(!lokasi){toast('Isi lokasi kerja');return;}
+  if(!masaMula||!masaTamat){toast('Isi masa mula & tamat');return;}
+  if(!lokasiKawasan.length&&!lokasiDetail){toast('Nyatakan lokasi kerja');return;}
+  if(!hazad.length&&!hazadLain){toast('Nyatakan sekurang-kurangnya 1 bahaya');return;}
+  if(!ppe.length){toast('Pilih PPE yang digunakan (atau tulis "Tiada")');return;}
   if(!permitVal){toast('Pilih status permit');return;}
+  if(permitVal==='YA'&&!permitJenis){toast('Pilih jenis permit');return;}
   if(!uploads.wcfbefore){toast('Upload gambar lokasi kerja');return;}
   if(!uploads.wcfppe){toast('Upload gambar PPE');return;}
-  await push(ref(db,'wcf'),{staffName:me,jenis,tarikh,lokasi,penerangan,permit:permitVal,permitJenis:permitVal==='YA'?permitJenis:'',gambarLokasi:uploads.wcfbefore,gambarPPE:uploads.wcfppe,submittedAt:ts()});
-  uploads.wcfbefore='';uploads.wcfppe='';permitVal='';
+  if(!document.getElementById('wcfAkuan').checked){toast('Tanda akuan keselamatan');return;}
+  const rmnMaks=hazad.reduce((m,z)=>Math.max(m,z.rmn),0);
+  await push(ref(db,'wcf'),{staffName:me,aktivitiId:aktV,jenis,tarikh,masaMula,masaTamat,lokasi,lokasiKawasan,lokasiDetail,penerangan,pekerjaLain,hazad,hazadLain,rmnMaks,ppe,langkah,permit:permitVal,permitJenis:permitVal==='YA'?permitJenis:'',gambarLokasi:uploads.wcfbefore,gambarPPE:uploads.wcfppe,akuan:true,submittedAt:ts()});
+  uploads.wcfbefore='';uploads.wcfppe='';permitVal='';wcfAkt=null;
   ['prevWcfbefore','prevWcfppe'].forEach(id=>document.getElementById(id).style.display='none');
-  ['wcfJenis','wcfLokasi','wcfPenerangan','wcfPermitJenis'].forEach(id=>document.getElementById(id).value='');
+  ['wcfJenis','wcfLokasi','wcfPenerangan','wcfPermitJenis','wcfMasaMula','wcfMasaTamat','wcfPekerjaLain','wcfHazadLain','wcfPPELain','wcfAktiviti'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('wcfAkuan').checked=false;
+  wcfLokasiSel.clear();wcfPPESel.clear();wcfPilihAktiviti('');
+  wcfBuildChips('wcfLokasiChips',LOKASI_LIST,wcfLokasiSel);wcfBuildChips('wcfPPEChips',PPE_LIST,wcfPPESel);
   ['permitYa','permitTidak'].forEach(id=>document.getElementById(id).classList.remove('y','sel'));
   document.getElementById('permitJenisField').style.display='none';
   toast('✅ Borang WCF dihantar!');
@@ -1100,7 +1197,7 @@ function renderWCFHist(){
   const el=document.getElementById('wcfHist');
   const mine=Object.values(allWCF).filter(r=>r.staffName===me).sort((a,b)=>b.tarikh.localeCompare(a.tarikh)).slice(0,8);
   if(!mine.length){el.innerHTML='<div class="empty">Tiada rekod</div>';return;}
-  el.innerHTML=mine.map(r=>`<div class="hist"><div class="hist-top"><div class="hist-date">${fmt(r.tarikh)}</div><span class="badge b-green">✅ Dihantar</span></div><div class="hist-meta">${r.jenis} · ${r.lokasi} · ${r.submittedAt}</div><div style="display:flex;gap:6px;margin-top:7px"><a href="${r.gambarLokasi}" target="_blank" style="flex:1;background:#f8f8f8;border:1px solid #3a3a3a;border-radius:7px;padding:5px;text-align:center;font-size:11px;color:#6a5e52;text-decoration:none">📸 Lokasi</a><a href="${r.gambarPPE}" target="_blank" style="flex:1;background:#e8f0ff;border:1px solid #0369a1;border-radius:7px;padding:5px;text-align:center;font-size:11px;color:#7dd3fc;text-decoration:none">🦺 PPE</a></div></div>`).join('');
+  el.innerHTML=mine.map(r=>`<div class="hist"><div class="hist-top"><div class="hist-date">${fmt(r.tarikh)}</div><span class="badge b-green">✅ Dihantar</span></div><div class="hist-meta">${r.jenis} · ${r.lokasi}${r.masaMula?' · '+r.masaMula+'–'+r.masaTamat:''} · ${r.submittedAt}</div>${r.hazad?`<div class="hist-meta">⚠️ ${r.hazad.length} bahaya · 🦺 ${(r.ppe||[]).length} PPE</div>`:''}<div style="display:flex;gap:6px;margin-top:7px"><a href="${r.gambarLokasi}" target="_blank" style="flex:1;background:#f8f8f8;border:1px solid #3a3a3a;border-radius:7px;padding:5px;text-align:center;font-size:11px;color:#6a5e52;text-decoration:none">📸 Lokasi</a><a href="${r.gambarPPE}" target="_blank" style="flex:1;background:#e8f0ff;border:1px solid #0369a1;border-radius:7px;padding:5px;text-align:center;font-size:11px;color:#7dd3fc;text-decoration:none">🦺 PPE</a></div></div>`).join('');
 }
 
 // =============================================
