@@ -243,7 +243,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
       <option>NURUL IZYANA</option><option>MOHD NAZRI BIN JASNI</option><option>HASNAL</option>
       <option>BELLA</option><option>LISA</option><option>SUHFEE</option>
       <option>ATI</option><option>INSYIRAH</option>
-      <option>JOHNY</option><option>SHAFIKAH</option><option>ANDIEKA</option>
+      <option>JOHNY</option><option>SHAFIKAH</option>
       <option>FERENICA</option><option>SURIATI</option><option>ELFI</option>
       <optgroup label="Lembaga Pengarah"><option>SAM NIP</option><option>NISA</option></optgroup>
     </select>
@@ -822,7 +822,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
       <div class="field"><label>Syif Diminta</label><select id="rSyifMinta"><option value="">—</option><option value="A">Syif A</option><option value="B">Syif B</option><option value="C">Syif C</option></select></div>
       <div class="field"><label>Swap Dengan</label>
         <select id="rSwap"><option value="">— Tiada / Belum pasti —</option>
-        <option>NURUL IZYANA</option><option>MOHD NAZRI BIN JASNI</option><option>HASNAL</option><option>BELLA</option><option>LISA</option><option>SUHFEE</option><option>ATI</option><option>INSYIRAH</option><option>JOHNY</option><option>SHAFIKAH</option><option>ANDIEKA</option><option>FERENICA</option><option>SURIATI</option><option>ELFI</option></select>
+        <option>NURUL IZYANA</option><option>MOHD NAZRI BIN JASNI</option><option>HASNAL</option><option>BELLA</option><option>LISA</option><option>SUHFEE</option><option>ATI</option><option>INSYIRAH</option><option>JOHNY</option><option>SHAFIKAH</option><option>FERENICA</option><option>SURIATI</option><option>ELFI</option></select>
       </div>
     </div>
     <div class="card" id="rsCommon" style="display:none">
@@ -853,7 +853,7 @@ body{background:#f5f5f5;color:#1a1a1a;font-family:'DM Sans',sans-serif;min-heigh
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, push, onValue, query, orderByChild, equalTo, update, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-import { DASS_TAMBAHAN, DASS_JABATAN, DASS21, DASS_SKALA, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, NASIHAT_STAF, dassSah, dassSkor } from "./dass-data.js?v=20261027c";
+import { DASS_TAMBAHAN, DASS_JABATAN, DASS21, DASS_SKALA, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, NASIHAT_STAF, dassSah, dassSkor } from "./dass-data.js?v=20261103a";
 import { LEO26, SKALA, TAHUN_PENGALAMAN, KATEGORI_PEKERJA, STAFF_LIST, DEFAULT_JABATAN, sah, namaKey } from "./prisma-data.js?v=20261027c";
 import { AKTIVITI, PPE_LIST, LANGKAH, LOKASI_LIST, tahapRisiko } from "./wcf-hirarc.js?v=20261031a";
 
@@ -954,7 +954,7 @@ window.doLogin=function(){
   document.getElementById('iDate').value=t;
   const nl=nowLocal();
   ['hDatetime','uDatetime','nDatetime','adDatetime'].forEach(id=>document.getElementById(id).value=nl);
-  const shiftMap={'NURUL IZYANA':'B','MOHD NAZRI BIN JASNI':'B','HASNAL':'B','BELLA':'C','LISA':'B','SUHFEE':'C','ATI':'C','INSYIRAH':'C','JOHNY':'A','SHAFIKAH':'B','ANDIEKA':'A','FERENICA':'C','SURIATI':'B','ELFI':'C'};
+  const shiftMap={'NURUL IZYANA':'B','MOHD NAZRI BIN JASNI':'B','HASNAL':'B','BELLA':'C','LISA':'B','SUHFEE':'C','ATI':'C','INSYIRAH':'C','JOHNY':'A','SHAFIKAH':'B','FERENICA':'C','SURIATI':'B','ELFI':'C'};
   const s=shiftMap[name]||'B';
   document.getElementById('tgShift').value=s;
   const st={A:'10PM – 6:30AM',B:'6AM – 2:30PM',C:'2PM – 10:30PM'};

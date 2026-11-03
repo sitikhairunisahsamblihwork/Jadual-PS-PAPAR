@@ -644,7 +644,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-import { DASS_TAMBAHAN, DASS21, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, TINDAKAN_PTP, dassSah, dassSkor } from "./dass-data.js?v=20261027c";
+import { DASS_TAMBAHAN, DASS_KELUAR, DASS21, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, TINDAKAN_PTP, dassSah, dassSkor } from "./dass-data.js?v=20261103a";
 import { STAFF_LIST, LEO26, KOMPONEN, KOD, EPC23, PRIMA, DEFAULT_JABATAN, skorOrganisasi, sah, namaKey } from "./prisma-data.js?v=20261027c";
 
 const app = initializeApp({
@@ -1707,7 +1707,7 @@ window.dbSaveSusulan=async function(key){if(!dbCan())return;
   try{await set(ref(db,dbPath('susulan/'+key)),{status:st,nota,dikemaskini:new Date().toISOString().slice(0,10)});toast('✅ Susulan disimpan');}catch(e){toast('❌ Gagal simpan');}}
 window.dbToggle=function(key){dbOpen[key]=!dbOpen[key];renderDassBoss(true);}
 function dbRows(){
-  return Object.entries(dbData.jawapan||{}).filter(([k,r])=>r&&dassSah(r.a)).map(([key,r])=>({key,r,s:dassSkor(r.a),f:(dbData.susulan||{})[key]||{}}))
+  return Object.entries(dbData.jawapan||{}).filter(([k,r])=>r&&dassSah(r.a)&&!DASS_KELUAR.some(n=>namaKey(n)===k||String(r.nama||'').trim().toUpperCase()===n)).map(([key,r])=>({key,r,s:dassSkor(r.a),f:(dbData.susulan||{})[key]||{}}))
     .sort((x,y)=>y.s.maks-x.s.maks||(y.s.item21-x.s.item21)||(y.s.D.skor+y.s.A.skor+y.s.S.skor)-(x.s.D.skor+x.s.A.skor+x.s.S.skor));
 }
 function dbTag(x){return `<span class="ds-t" style="background:${TAHAP_WARNA[x.tahap]}">${x.label}</span>`;}

@@ -6,7 +6,9 @@
 // ═══════════════════════════════════════════════════════════════
 
 // Senarai saringan DASS = senarai PRisMA + tambahan di bawah
-export const DASS_TAMBAHAN = ['ANDIEKA'];
+export const DASS_TAMBAHAN = [];
+// Staf yang telah berhenti — disembunyikan daripada laporan DASS (data asal di Firebase tidak dipadam)
+export const DASS_KELUAR = ['ANDIEKA']; // berhenti 31 Okt 2026
 export const DASS_JABATAN = ['Krew PETRONAS','Pengurusan Parmanis Sutera'];
 
 export const DASS_SKALA = [
