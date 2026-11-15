@@ -1,0 +1,24 @@
+# Deploy Cloud Function alarm tangki ke Firebase secara automatik.
+# Perlu secret repo: FIREBASE_SERVICE_ACCOUNT (kandungan fail JSON service account projek ps-papar).
+name: Deploy Firebase Functions
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['functions/**', 'firebase.json']
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm install --omit=dev
+        working-directory: functions
+      - name: Deploy
+        env:
+          SA: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          echo "$SA" > "$RUNNER_TEMP/sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="$RUNNER_TEMP/sa.json"
+          npx -y firebase-tools@13 deploy --only functions --project ps-papar --non-interactive --force

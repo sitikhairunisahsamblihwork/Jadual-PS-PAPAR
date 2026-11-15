@@ -7,6 +7,8 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="PS Papar Boss">
+<link rel="manifest" href="manifest-boss.json">
+<link rel="apple-touch-icon" href="icon-staff-192.png">
 <title>Boss Portal — PETRONAS Papar</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -330,6 +332,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
 
   <div class="nav-tabs">
     <div class="nav-tab active" onclick="sw('dashboard')">📊 Dashboard</div>
+    <div class="nav-tab" onclick="sw('tangki')">⛽ Tangki</div>
     <div class="nav-tab" onclick="sw('request')">📝 Request</div>
     <div class="nav-tab" onclick="sw('tugasan')">📋 Tugasan</div>
     <div class="nav-tab" onclick="sw('pembersihan')">🧹 Bersih</div>
@@ -581,6 +584,11 @@ textarea.act-inp{min-height:65px;resize:vertical;}
   </div>
 
   <!-- DASS-21 (PTP) -->
+  <div class="view" id="view-tangki">
+    <div style="font-size:15px;font-weight:800;margin:4px 0 10px">⛽ Alarm Tukar Tangki</div>
+    <div id="tkMount"></div>
+  </div>
+
   <div class="view" id="view-dass">
     <div class="sec-hdr">DASS-21 · Saringan Kesihatan Mental · SULIT (PTP)</div>
     <div class="card">
@@ -645,6 +653,7 @@ textarea.act-inp{min-height:65px;resize:vertical;}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, onValue, update, remove, set } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
 import { DASS_TAMBAHAN, DASS_KELUAR, DASS21, SUBSKALA, SUB_KOD, TAHAP, TAHAP_WARNA, TINDAKAN_PTP, dassSah, dassSkor } from "./dass-data.js?v=20261103a";
+import { initTangki, tangkiLogin } from "./tangki.js?v=20261115a";
 import { STAFF_LIST, LEO26, KOMPONEN, KOD, EPC23, PRIMA, DEFAULT_JABATAN, skorOrganisasi, sah, namaKey } from "./prisma-data.js?v=20261027c";
 
 const app = initializeApp({
@@ -655,6 +664,7 @@ const app = initializeApp({
   messagingSenderId:"899715424164",appId:"1:899715424164:web:91584f2d3db796095beb31"
 });
 const db = getDatabase(app);
+initTangki({ app, db, mode:'boss', mount: document.getElementById('tkMount'), onOpen: () => sw('tangki') });
 
 const HS_ST={terbuka:['hs-terbuka','🔴 Terbuka'],tindakan:['hs-tindakan','🛠 Dalam Tindakan'],closed:['hs-closed','✅ Closed']};
 const AD_ST={baru:['ad-st-baru','⏳ Baru'],siasat:['ad-st-siasat','🔍 Dalam Tindakan'],selesai:['ad-st-selesai','✅ Selesai']};
@@ -695,7 +705,8 @@ window.pinPress=function(n){
         document.getElementById('bossUserTxt').textContent='PENGURUSAN · '+currentUser.nama;
         document.getElementById('navPrisma').style.display=currentUser.prisma?'':'none';
         document.getElementById('navDass').style.display=currentUser.prisma?'':'none';
-        sw('dashboard');
+        tangkiLogin(currentUser.nama);
+        sw(location.hash==='#tangki'?'tangki':'dashboard');
         document.getElementById('loginScreen').style.display='none';
         document.getElementById('mainApp').style.display='block';
       } else {
@@ -707,7 +718,7 @@ window.pinPress=function(n){
 }
 window.pinDel=function(){if(pinInput.length>0){pinInput=pinInput.slice(0,-1);updatePinDots();document.getElementById('pinError').textContent='';}}
 function updatePinDots(){for(let i=0;i<4;i++){document.getElementById('pd'+i).className='pin-dot'+(i<pinInput.length?' filled':'');}}
-window.doLogout=function(){currentUser=null;document.getElementById('navPrisma').style.display='none';document.getElementById('navDass').style.display='none';sw('dashboard');pinInput='';updatePinDots();document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
+window.doLogout=function(){currentUser=null;tangkiLogin('');document.getElementById('navPrisma').style.display='none';document.getElementById('navDass').style.display='none';sw('dashboard');pinInput='';updatePinDots();document.getElementById('loginScreen').style.display='block';document.getElementById('mainApp').style.display='none';}
 
 // FIREBASE
 onValue(ref(db,'.info/connected'),s=>{
@@ -1679,7 +1690,7 @@ window.downloadAwamPDF=function(key){
 window.sw=function(tab){
   if((tab==='prisma'||tab==='dass')&&!(currentUser&&currentUser.prisma))tab='dashboard';
   document.querySelectorAll('.nav-tab').forEach((t,i)=>{
-    const tabs=['dashboard','request','tugasan','pembersihan','wcf','hse','aduan','awam','jadual','prisma','dass'];
+    const tabs=['dashboard','tangki','request','tugasan','pembersihan','wcf','hse','aduan','awam','jadual','prisma','dass'];
     t.classList.toggle('active',tabs[i]===tab);
   });
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
