@@ -937,9 +937,30 @@ onValue(ref(db,'jadual_posting'),s=>{jadualPosting=s.val()||{};renderTodayWidget
 
 // HELPERS
 function fmt(ds){if(!ds)return'—';const d=new Date(ds+'T00:00:00');return`${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
-function today(){return new Date().toISOString().split('T')[0];}
+function today(){const n=new Date();return new Date(n-n.getTimezoneOffset()*60000).toISOString().split('T')[0];}
 function ts(){const n=new Date();return`${n.getDate()}/${n.getMonth()+1} ${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`;}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.style.opacity='1';clearTimeout(t._t);t._t=setTimeout(()=>t.style.opacity='0',2500);}
+function toastErr(e){console.error(e);toast('⚠️ Gagal hantar: '+((e&&e.message)||e||'ralat').toString().slice(0,90));}
+window.addEventListener('unhandledrejection',ev=>toastErr(ev.reason));
+// Kecilkan gambar sebelum upload (max 1600px, JPEG) — elak gagal upload / data mahal
+async function compressImg(file){
+  try{
+    if(!file.type||!file.type.startsWith('image/')||file.size<400*1024) return file;
+    const bmp=await createImageBitmap(file);
+    const sc=Math.min(1,1600/Math.max(bmp.width,bmp.height));
+    const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);
+    c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
+    const blob=await new Promise(r=>c.toBlob(r,'image/jpeg',0.8));
+    return blob&&blob.size<file.size?blob:file;
+  }catch(e){return file;}
+}
+async function cloudUp(file,folder){
+  const fd=new FormData();fd.append('file',await compressImg(file));fd.append('upload_preset',PRESET);fd.append('folder',folder);
+  const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd});
+  const data=await res.json();
+  if(!data.secure_url) throw new Error((data.error&&data.error.message)||'upload gagal');
+  return data.secure_url;
+}
 function nowLocal(){const n=new Date();return new Date(n-n.getTimezoneOffset()*60000).toISOString().slice(0,16);}
 
 // LOGIN
@@ -1039,8 +1060,12 @@ async function submitTugasan(){
   const gas12=document.getElementById('gas12').value;
   const gas14=document.getElementById('gas14').value;
   if(!date){toast('Pilih tarikh');return;}
-  const payload={staffName:me,date,shift,nota,checks:tgChecks,roundChecks,roundNota:document.getElementById('roundNota').value,roundImgs:uploads.round,gas12:gas12||'',gas14:gas14||'',submittedAt:ts()};
-  await push(ref(db,'tugasan'),payload);
+  const payload={staffName:me,date,shift,nota,checks:tgChecks,roundChecks,roundNota:document.getElementById('roundNota').value,roundImgs:uploads.round.filter(Boolean),gas12:gas12||'',gas14:gas14||'',submittedAt:ts()};
+  const btn=document.querySelector('[onclick="submitTugasan()"]');
+  if(btn){btn.disabled=true;btn.textContent='⏳ Menghantar...';}
+  try{await push(ref(db,'tugasan'),payload);}
+  catch(e){toastErr(e);return;}
+  finally{if(btn){btn.disabled=false;btn.textContent='✓ Hantar Laporan Tugasan';}}
   tgChecks={};roundChecks={};buildTgList();buildRoundList();
   document.getElementById('tgNota').value='';document.getElementById('roundNota').value='';
   document.getElementById('gas12').value='';document.getElementById('gas14').value='';
@@ -1063,9 +1088,11 @@ async function submitPemb(){
   const nota=document.getElementById('pembNota').value.trim();
   if(!date){toast('Pilih tarikh');return;}
   if(!area){toast('Isi kawasan/tugasan');return;}
+  uploads.pbefore=uploads.pbefore.filter(Boolean);uploads.pafter=uploads.pafter.filter(Boolean);
   if(!uploads.pbefore.length){toast('Upload sekurang-kurang 1 gambar SEBELUM');return;}
   if(!uploads.pafter.length){toast('Upload sekurang-kurang 1 gambar SELEPAS');return;}
-  await push(ref(db,'pembersihan'),{staffName:me,date,area,nota,beforeUrls:uploads.pbefore,afterUrls:uploads.pafter,submittedAt:ts()});
+  try{await push(ref(db,'pembersihan'),{staffName:me,date,area,nota,beforeUrls:uploads.pbefore,afterUrls:uploads.pafter,submittedAt:ts()});}
+  catch(e){toastErr(e);return;}
   uploads.pbefore=[];uploads.pafter=[];
   document.getElementById('prevPbeforeGrid').innerHTML='';document.getElementById('prevPafterGrid').innerHTML='';
   document.getElementById('pembNota').value='';
@@ -1554,18 +1581,17 @@ window.handleMultiUp=async function(type,input){
     thumb.style.cssText='width:100%;height:70px;object-fit:cover;border-radius:7px;border:1.5px solid #d8cfc4;';
     document.getElementById(gridId).appendChild(thumb);
     try{
-      const fd=new FormData(); fd.append('file',file); fd.append('upload_preset',PRESET); fd.append('folder','ps-papar');
-      const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd});
-      const data=await res.json();
-      if(Array.isArray(uploads[type])) uploads[type].push(data.secure_url);
-      else uploads[type]=data.secure_url;
+      const url=await cloudUp(file,'ps-papar');
+      if(Array.isArray(uploads[type])) uploads[type].push(url);
+      else uploads[type]=url;
       done++;
       thumb.style.border='1.5px solid #86efac';
       prog.textContent=`⏳ ${done}/${files.length} gambar dihantar...`;
     }catch(e){thumb.style.border='1.5px solid #f87171';console.error(e);}
   }
-  prog.textContent=`✅ ${done}/${files.length} gambar berjaya dihantar!`; prog.className='upload-prog done';
-  setTimeout(()=>{prog.style.display='none';},2500);
+  if(done<files.length){prog.textContent=`⚠️ ${done}/${files.length} berjaya — ${files.length-done} gagal (bingkai merah). Cuba upload semula yang gagal.`;prog.className='upload-prog';}
+  else{prog.textContent=`✅ ${done}/${files.length} gambar berjaya dihantar!`; prog.className='upload-prog done';setTimeout(()=>{prog.style.display='none';},2500);}
+  input.value='';
 }
 
 // Single upload (WCF)
@@ -1579,11 +1605,8 @@ window.handleUp=async function(type,input){
   const reader=new FileReader();
   reader.onload=e=>{prev.src=e.target.result;prev.style.display='block';};
   reader.readAsDataURL(file);
-  const fd=new FormData();fd.append('file',file);fd.append('upload_preset',PRESET);fd.append('folder','ps-papar');
   try{
-    const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd});
-    const data=await res.json();
-    uploads[type]=data.secure_url;
+    uploads[type]=await cloudUp(file,'ps-papar');
     prog.textContent='✅ Gambar berjaya dihantar!';prog.className='upload-prog done';
     setTimeout(()=>{prog.style.display='none';},2000);
   }catch(e){prog.textContent='⚠️ Gagal — cuba semula';console.error(e);}
