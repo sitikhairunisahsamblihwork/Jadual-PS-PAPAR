@@ -1126,7 +1126,6 @@ function renderHSEAction(){
   box.innerHTML=html;
 }
 
-async function toDataUrlSmall(file){const bmp=await createImageBitmap(file);const sc=Math.min(1,1000/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);return c.toDataURL('image/jpeg',0.6);}
 window.hseActUpload=async function(kind,input){
   const files=Array.from(input.files); if(!files.length)return;
   const grid=document.getElementById(kind==='act'?'thAct':'thClose');
@@ -1138,10 +1137,9 @@ window.hseActUpload=async function(kind,input){
     const th=document.createElement('img'); th.src=URL.createObjectURL(file); grid.appendChild(th);
     try{
       const fd=new FormData();fd.append('file',file);fd.append('upload_preset',PRESET);fd.append('folder','ps-papar/hse-tindakan');
-      const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd}).catch(()=>({json:async()=>({})}));
-      let url='';try{const d=await res.json();url=d.secure_url||'';}catch(_){}
-      if(!url) url=await toDataUrlSmall(file); // Cloudinary gagal → simpan terus dalam Firebase
-      hseActUp[kind].push(url); ok++; th.style.borderColor='#16a34a';
+      const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd});
+      const d=await res.json(); if(!d.secure_url)throw new Error('gagal');
+      hseActUp[kind].push(d.secure_url); ok++; th.style.borderColor='#16a34a';
     }catch(e){th.style.borderColor='#ef4444';console.error(e);}
   }
   input.value='';

@@ -523,18 +523,14 @@ function makeRef(){
   let r = ''; for (let i=0;i<4;i++) r += chars[Math.floor(Math.random()*chars.length)];
   return `ADU-${String(d.getFullYear()).slice(2)}${pad(d.getMonth()+1)}${pad(d.getDate())}-${r}`;
 }
-async function toDataUrlSmall(file){const bmp=await createImageBitmap(file);const sc=Math.min(1,1000/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);return c.toDataURL('image/jpeg',0.6);}
 async function uploadFiles(ref){
   const out = [];
   for (const file of files) {
     const fd = new FormData();
     fd.append('file', file); fd.append('upload_preset', CLOUDINARY.preset); fd.append('folder', `${CLOUDINARY.folder}/${ref}`);
-    let j = {};
-    try { const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY.cloud}/auto/upload`, {method:'POST', body:fd}); j = await res.json(); } catch(_) {}
-    if (j.secure_url) { out.push({url:j.secure_url, jenis:j.resource_type}); continue; }
-    // Cloudinary gagal → gambar disimpan terus (kecil) dalam Firebase; video tidak dapat disimpan
-    if (file.type && file.type.startsWith('image/')) out.push({url: await toDataUrlSmall(file), jenis:'image'});
-    else throw new Error('Muat naik gagal');
+    const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY.cloud}/auto/upload`, {method:'POST', body:fd});
+    if (!res.ok) throw new Error('Muat naik gagal');
+    const j = await res.json(); out.push({url:j.secure_url, jenis:j.resource_type});
   }
   return out;
 }
