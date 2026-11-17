@@ -962,27 +962,15 @@ async function cloudUpRaw(blob,name,folder){
   if(!data.secure_url) throw new Error((data.error&&data.error.message)||('HTTP '+res.status));
   return data.secure_url;
 }
-// Simpan gambar kecil terus dalam Firebase jika Cloudinary gagal (supaya laporan tetap boleh dihantar)
-let upFallbackCount=0;
-async function toDataUrlSmall(file){
-  const bmp=await createImageBitmap(file);
-  const sc=Math.min(1,1000/Math.max(bmp.width,bmp.height));
-  const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);
-  c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);
-  return c.toDataURL('image/jpeg',0.6);
-}
 async function cloudUp(file,folder){
   const name=(file.name||'gambar').replace(/\.[^.]+$/,'')+'.jpg';
   const small=await compressImg(file);
   try{return await cloudUpRaw(small,name,folder);}
   catch(e){
-    lastUpErr=e.message;
-    if(small!==file){try{return await cloudUpRaw(file,file.name||name,folder);}catch(e2){lastUpErr=e2.message;}}
-    try{const d=await toDataUrlSmall(file);upFallbackCount++;console.warn('Cloudinary gagal ('+lastUpErr+') — simpan terus dalam Firebase');return d;}
-    catch(e3){throw new Error(lastUpErr||e3.message);}
+    if(small!==file){try{return await cloudUpRaw(file,file.name||name,folder);}catch(e2){lastUpErr=e2.message;throw e2;}}
+    lastUpErr=e.message;throw e;
   }
 }
-function upNote(){if(!upFallbackCount)return'';const n=upFallbackCount;upFallbackCount=0;return` (Cloudinary gagal: ${lastUpErr||'?'} — ${n} gambar disimpan terus)`;}
 function nowLocal(){const n=new Date();return new Date(n-n.getTimezoneOffset()*60000).toISOString().slice(0,16);}
 
 // LOGIN
@@ -1439,7 +1427,11 @@ window.handleAduanUp=async function(input){
     thumb.style.cssText='width:100%;height:68px;object-fit:cover;border-radius:7px;border:1.5px solid #d4e8da;';
     grid.appendChild(thumb);
     try{
-      aduanImgs.push(await cloudUp(file,'ps-papar/aduan'));done++;thumb.style.border='1.5px solid #86efac';
+      const fd=new FormData();fd.append('file',file);fd.append('upload_preset',PRESET);fd.append('folder','ps-papar/aduan');
+      const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd});
+      const data=await res.json();
+      if(!data.secure_url) throw new Error('upload gagal');
+      aduanImgs.push(data.secure_url);done++;thumb.style.border='1.5px solid #86efac';
     }catch(e){thumb.style.border='1.5px solid #f87171';console.error(e);}
   }
   prog.textContent=`✅ ${done}/${files.length} gambar berjaya dihantar!`;prog.className='upload-prog done';
@@ -1501,7 +1493,10 @@ window.handleHseMultiUp=async function(storeKey,input,previewId,progId){
     thumb.style.cssText='width:100%;height:68px;object-fit:cover;border-radius:7px;border:1.5px solid #d4e8da;';
     grid.appendChild(thumb);
     try{
-      hseUploads[storeKey].push(await cloudUp(file,'ps-papar/hse'));
+      const fd=new FormData();fd.append('file',file);fd.append('upload_preset',PRESET);fd.append('folder','ps-papar/hse');
+      const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd});
+      const data=await res.json();
+      hseUploads[storeKey].push(data.secure_url);
       done++;thumb.style.border='1.5px solid #86efac';
       prog.textContent=`⏳ ${done}/${files.length} gambar dihantar...`;
     }catch(e){thumb.style.border='1.5px solid #f87171';console.error(e);}
@@ -1605,7 +1600,7 @@ window.handleMultiUp=async function(type,input){
     }catch(e){thumb.style.border='1.5px solid #f87171';console.error(e);}
   }
   if(done<files.length){prog.textContent=`⚠️ ${done}/${files.length} berjaya — ${files.length-done} gagal (bingkai merah). Sebab: ${lastUpErr||'tidak diketahui'}`;prog.className='upload-prog';}
-  else{const nt=upNote();prog.textContent=`✅ ${done}/${files.length} gambar berjaya dihantar!`+nt; prog.className='upload-prog done';if(!nt)setTimeout(()=>{prog.style.display='none';},2500);}
+  else{prog.textContent=`✅ ${done}/${files.length} gambar berjaya dihantar!`; prog.className='upload-prog done';setTimeout(()=>{prog.style.display='none';},2500);}
   input.value='';
 }
 
@@ -1622,9 +1617,9 @@ window.handleUp=async function(type,input){
   reader.readAsDataURL(file);
   try{
     uploads[type]=await cloudUp(file,'ps-papar');
-    const nt=upNote();prog.textContent='✅ Gambar berjaya dihantar!'+nt;prog.className='upload-prog done';
-    if(!nt)setTimeout(()=>{prog.style.display='none';},2000);
-  }catch(e){prog.textContent='⚠️ Gagal: '+(e.message||'cuba semula');console.error(e);}
+    prog.textContent='✅ Gambar berjaya dihantar!';prog.className='upload-prog done';
+    setTimeout(()=>{prog.style.display='none';},2000);
+  }catch(e){prog.textContent='⚠️ Gagal — cuba semula';console.error(e);}
 }
 
 // NAV
