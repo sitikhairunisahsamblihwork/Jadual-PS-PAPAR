@@ -1084,7 +1084,7 @@ function hseLastAct(r){
 function nowTs(){const n=new Date();return`${n.getDate()}/${n.getMonth()+1}/${n.getFullYear()} ${n.getHours()}:${String(n.getMinutes()).padStart(2,'0')}`;}
 function getPengurus(){try{return localStorage.getItem('hsePengurus')||'';}catch(e){return'';}}
 function setPengurus(v){try{localStorage.setItem('hsePengurus',v);}catch(e){}}
-function imgsHtml(arr){return(arr||[]).length?'<div class="img-grid" style="margin-top:6px">'+arr.map(u=>`<a href="${escH(u)}" target="_blank"><img src="${escH(u)}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'';}
+function imgsHtml(arr){return(arr||[]).length?'<div class="img-grid" style="margin-top:6px">'+arr.map(u=>`<a href="${escH(u)}" target="_blank"><img src="${escH(thumbU(u))}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'';}
 
 function renderHSEAction(){
   const box=document.getElementById('hseActionBox'); if(!box||!hseActKey)return;
@@ -1126,6 +1126,9 @@ function renderHSEAction(){
   box.innerHTML=html;
 }
 
+// Gambar lama (sebelum 17 Nov 2026) bersaiz penuh 3-5MB — papar versi kecil Cloudinary sebagai thumbnail
+function thumbU(u){const m=typeof u==='string'&&u.match(/^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)v(\d+)\//);return m&&+m[2]<1794850000?u.replace(m[1],m[1]+'c_limit,w_500,q_auto/'):u;}
+async function compressImg(file){try{if(!file.type||!file.type.startsWith('image/')||file.size<200*1024)return file;const bmp=await createImageBitmap(file);const sc=Math.min(1,1200/Math.max(bmp.width,bmp.height));const c=document.createElement('canvas');c.width=Math.round(bmp.width*sc);c.height=Math.round(bmp.height*sc);c.getContext('2d').drawImage(bmp,0,0,c.width,c.height);const b=await new Promise(r=>c.toBlob(r,'image/jpeg',0.7));return b&&b.size<file.size?b:file;}catch(e){return file;}}
 window.hseActUpload=async function(kind,input){
   const files=Array.from(input.files); if(!files.length)return;
   const grid=document.getElementById(kind==='act'?'thAct':'thClose');
@@ -1136,7 +1139,7 @@ window.hseActUpload=async function(kind,input){
   for(const file of files){
     const th=document.createElement('img'); th.src=URL.createObjectURL(file); grid.appendChild(th);
     try{
-      const fd=new FormData();fd.append('file',file);fd.append('upload_preset',PRESET);fd.append('folder','ps-papar/hse-tindakan');
+      const fd=new FormData();fd.append('file',await compressImg(file),'gambar.jpg');fd.append('upload_preset',PRESET);fd.append('folder','ps-papar/hse-tindakan');
       const res=await fetch(`https://api.cloudinary.com/v1_1/${CLOUD}/image/upload`,{method:'POST',body:fd});
       const d=await res.json(); if(!d.secure_url)throw new Error('gagal');
       hseActUp[kind].push(d.secure_url); ok++; th.style.borderColor='#16a34a';
@@ -1250,7 +1253,7 @@ window.openAduanDetail=function(key){
       <div style="font-size:13px;line-height:1.55;white-space:pre-wrap">${escH(r.desc)}</div></div>
     ${r.harap?`<div class="dm-section"><div class="dm-sec-title">Tindakan Yang Diharapkan</div><div style="font-size:13px;line-height:1.55;white-space:pre-wrap">${escH(r.harap)}</div></div>`:''}
     <div class="dm-section"><div class="dm-sec-title">Bukti</div>
-      ${imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${escH(u)}" target="_blank"><img src="${escH(u)}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>'}</div>
+      ${imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${escH(u)}" target="_blank"><img src="${escH(thumbU(u))}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>'}</div>
     <div class="dm-section"><div class="dm-sec-title">Tindakan Boss</div>
       <textarea class="ad-act" id="adBossNota" placeholder="Maklum balas / tindakan diambil (staff boleh nampak nota ini)">${escH(r.bossNota||'')}</textarea>
       <div class="action-row">
@@ -1344,7 +1347,7 @@ window.openTugasanDetail=function(r){
   let roundHtml='';
   Object.entries(ROUND_LABELS).forEach(([id,label])=>{const v=roundChecks[id]||'';const cls=v==='OK'?'rc-ok':v==='ISU'?'rc-isu':'rc-miss';const icon=v==='OK'?'✅ OK':v==='ISU'?'⚠️ ISU':'—';roundHtml+=`<div class="round-cell"><span class="rc-label">${label}</span><span class="${cls}">${icon}</span></div>`;});
   const imgs=r.roundImgs||[];
-  const imgHtml=imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'';
+  const imgHtml=imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${u}" target="_blank"><img src="${thumbU(u)}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'';
   document.getElementById('dmBody').innerHTML=`
     <button class="btn-dl-pdf" onclick='downloadTugasanPDF(${attrJ(r)})'>⬇ Muat Turun PDF Laporan Tugasan</button>
     <div class="dm-section"><div class="dm-sec-title">Maklumat Syif</div>
@@ -1369,8 +1372,8 @@ window.openPembDetail=function(r){
   document.getElementById('dmBadge').textContent=fmt(r.date);
   const befores=r.beforeUrls||(r.beforeUrl?[r.beforeUrl]:[]);
   const afters=r.afterUrls||(r.afterUrl?[r.afterUrl]:[]);
-  const befImgs=befores.length?'<div class="img-grid">'+befores.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
-  const aftImgs=afters.length?'<div class="img-grid">'+afters.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
+  const befImgs=befores.length?'<div class="img-grid">'+befores.map(u=>`<a href="${u}" target="_blank"><img src="${thumbU(u)}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
+  const aftImgs=afters.length?'<div class="img-grid">'+afters.map(u=>`<a href="${u}" target="_blank"><img src="${thumbU(u)}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
   document.getElementById('dmBody').innerHTML=`
     <button class="btn-dl-pdf" onclick='downloadPembPDF(${attrJ(r)})'>⬇ Muat Turun PDF Laporan Pembersihan</button>
     <div class="dm-section"><div class="dm-sec-title">Maklumat</div>
@@ -1411,8 +1414,8 @@ window.openWCFDetail=function(r){
       <div class="dm-row"><span class="dm-label">Dihantar</span><span class="dm-val">${r.submittedAt}</span></div>
     </div>
     ${wcfSeksyenHIRARC(r)}
-    <div class="dm-section"><div class="dm-sec-title">📸 Gambar Lokasi Kerja</div>${r.gambarLokasi?`<a href="${r.gambarLokasi}" target="_blank"><img src="${r.gambarLokasi}" style="width:100%;border-radius:9px;border:1.5px solid #d4e8da" loading="lazy"></a>`:'<div style="color:#aaa;font-size:12px">Tiada gambar</div>'}</div>
-    <div class="dm-section"><div class="dm-sec-title">🦺 Gambar PPE</div>${r.gambarPPE?`<a href="${r.gambarPPE}" target="_blank"><img src="${r.gambarPPE}" style="width:100%;border-radius:9px;border:1.5px solid #93c5fd" loading="lazy"></a>`:'<div style="color:#aaa;font-size:12px">Tiada gambar</div>'}</div>`;
+    <div class="dm-section"><div class="dm-sec-title">📸 Gambar Lokasi Kerja</div>${r.gambarLokasi?`<a href="${r.gambarLokasi}" target="_blank"><img src="${thumbU(r.gambarLokasi)}" style="width:100%;border-radius:9px;border:1.5px solid #d4e8da" loading="lazy"></a>`:'<div style="color:#aaa;font-size:12px">Tiada gambar</div>'}</div>
+    <div class="dm-section"><div class="dm-sec-title">🦺 Gambar PPE</div>${r.gambarPPE?`<a href="${r.gambarPPE}" target="_blank"><img src="${thumbU(r.gambarPPE)}" style="width:100%;border-radius:9px;border:1.5px solid #93c5fd" loading="lazy"></a>`:'<div style="color:#aaa;font-size:12px">Tiada gambar</div>'}</div>`;
   document.getElementById('detailModal').classList.add('show');
   document.getElementById('detailModal').scrollTop=0;
 }
@@ -1425,7 +1428,7 @@ window.openHSEDetail=function(r){
   document.getElementById('dmBadge').className='badge b-amber';
   document.getElementById('dmBadge').textContent=r.staffName;
   const imgs=r.imgs||[];
-  const imgHtml=imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${u}" target="_blank"><img src="${u}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
+  const imgHtml=imgs.length?'<div class="img-grid">'+imgs.map(u=>`<a href="${u}" target="_blank"><img src="${thumbU(u)}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':'<div style="color:#aaa;font-size:12px">Tiada gambar</div>';
 
   let fields='';
   if(r.type==='hazard'){
@@ -1647,7 +1650,7 @@ window.openAwamDetail=function(key){
       <div style="font-size:13px">${escH(awJoin(r.harapan)||'—')}</div>
       ${r.cadangan?`<div style="font-size:12px;color:#4b5563;margin-top:6px"><b>Cadangan:</b> ${escH(r.cadangan)}</div>`:''}</div>
     <div class="dm-section"><div class="dm-sec-title">Bukti</div>
-      ${bukti.length?'<div class="img-grid">'+bukti.map(b=>b.jenis==='video'?`<a href="${escH(b.url)}" target="_blank" style="display:grid;place-items:center;background:#f0f7f3;border-radius:7px;aspect-ratio:1;font-size:12px;font-weight:700;color:#00a650">▶ Video</a>`:`<a href="${escH(b.url)}" target="_blank"><img src="${escH(b.url)}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':`<div style="color:#aaa;font-size:12px">${r.notaBukti?escH(r.notaBukti):'Tiada bukti'}</div>`}</div>
+      ${bukti.length?'<div class="img-grid">'+bukti.map(b=>b.jenis==='video'?`<a href="${escH(b.url)}" target="_blank" style="display:grid;place-items:center;background:#f0f7f3;border-radius:7px;aspect-ratio:1;font-size:12px;font-weight:700;color:#00a650">▶ Video</a>`:`<a href="${escH(b.url)}" target="_blank"><img src="${escH(thumbU(b.url))}" class="img-thumb" loading="lazy"></a>`).join('')+'</div>':`<div style="color:#aaa;font-size:12px">${r.notaBukti?escH(r.notaBukti):'Tiada bukti'}</div>`}</div>
     <div class="dm-section"><div class="dm-sec-title">Tindakan Boss</div>
       <label style="font-size:11px;font-weight:700;color:#166534">Mesej kepada pelapor (dipaparkan bila pelapor semak status)</label>
       <textarea class="ad-act" id="awPublic" placeholder="cth: Terima kasih. Lantai tandas telah dibaiki dan papan amaran dipasang.">${escH(r.kemaskiniAwam||'')}</textarea>
